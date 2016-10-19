@@ -1,5 +1,6 @@
 class User
 
+  attr_accessor :error
 	attr_reader :id, :name
 
 	def initialize(id: nil, name: nil)
@@ -15,14 +16,28 @@ class User
   private
 
     def find
-      return Eyeson.new.get("/users/#{@email}")
+      user = Eyeson.new.get("/users/#{@email}")
+      if user["error"].present?
+        self.error = user["error"]
+        return false
+      else
+        self.error = nil
+        return true
+      end
     end
 
     def create
-      return Eyeson.new.post("/users", {
+      user = Eyeson.new.post("/users", {
         name: @name,
         email: @email
       })
+      if user["error"].present?
+        self.error = user["error"]
+        return false
+      else
+        self.error = nil
+        return true
+      end
     end
   
 end

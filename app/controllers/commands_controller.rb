@@ -17,8 +17,8 @@ class CommandsController < ApplicationController
 
 		def find_or_initialize_user
 			@user = User.new(id: params[:user_id], name: params[:user_name])
-			unless @user.present?
-				render json: {error: "User not found"}, status: :forbidden
+			unless @user.error.nil?
+				render json: {error: @user.error}, status: :forbidden
 			end
 		end
 end
