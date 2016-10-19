@@ -28,6 +28,7 @@ gem 'jbuilder', '~> 2.5'
 
 gem 'unicorn'
 gem 'slack-ruby-client'
+gem 'delayed_job_active_record'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
