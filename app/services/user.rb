@@ -1,6 +1,6 @@
 class User
 
-	attr_reader :name
+	attr_reader :id, :name
 
 	def initialize(id: nil, name: nil)
     @id = id

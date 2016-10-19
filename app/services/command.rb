@@ -25,7 +25,7 @@ class Command
 			meeting = Meeting.new(user, channel)
 			self.payload = {
 		    response_type: :in_channel,
-		    text: "#{user.name} created a meeting for #{channel[:name]}"
+		    text: (meeting.error.present? ? meeting.error : "#{user.name} created a videomeeting: #{meeting.url}")
 			}
 			self.status = :ok
   	end
