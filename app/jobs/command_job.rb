@@ -1,19 +1,18 @@
 class CommandJob < ApplicationJob
   queue_as :default
 
-  def perform(*args)
+  def perform(params)
     command = begin
-    	args[:command].split("/")[1]
+    	params[:command].split("/")[1]
     rescue
     	""
     end
-
-    self.class.private_method_defined?(command) ? self.send(command, args) : error(args)
+    self.class.private_method_defined?(command) ? self.send(command, params) : error(params)
   end
 
   private
 
-  	def eyeson(user: nil, params: nil)
+  	def eyeson(params)
 			channel = {
 				id: params[:channel_id],
 				name: params[:channel_name]
