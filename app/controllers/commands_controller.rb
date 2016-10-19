@@ -1,24 +1,10 @@
 class CommandsController < ApplicationController
 	before_action :verify_slack_token
+	before_action :find_or_initialize_user
 
 	def execute
-		case params[:command]
-		when "/eyeson"
-			user = {
-				id: params[:user_id],
-				name: params[:user_name]
-			}
-			channel = {
-				id: params[:channel_id],
-				name: params[:channel_name]
-			}
-			render json: {
-		    "response_type": "in_channel",
-		    "text": MeetingManager.new(user, channel).create!
-			}, status: :ok
-		else
-			render json: {error: "Command not known"}, status: :method_not_allowed
-		end
+		command = Command.new(params[:command]).execute(user: @user, params: params)
+		render json: command.payload, status: command.status
 	end
 
 	private
@@ -26,6 +12,13 @@ class CommandsController < ApplicationController
 		def verify_slack_token
 			unless params[:token] == SLACK_VERIFICATION_TOKEN
 				render json: {error: "Verification token wrong"}, status: :forbidden
+			end
+		end
+
+		def find_or_initialize_user
+			@user = User.new(id: params[:user_id], name: params[:user_name])
+			unless @user.present?
+				render json: {error: "User not found"}, status: :forbidden
 			end
 		end
 end
