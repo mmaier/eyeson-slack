@@ -3,7 +3,7 @@ class CommandsController < ApplicationController
 
 	def execute
 		CommandJob.perform_later params.permit(:command, :user_id, :user_name, :channel_id, :channel_name, :response_url).to_h
-		render json: nil, status: :ok
+		render :nothing => true, status: :ok
 	end
 
 	private
