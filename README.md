@@ -1,24 +1,5 @@
 # README
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+## Test command
 
-Things you may want to cover:
-
-* Ruby version
-
-* System dependencies
-
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+curl -X POST -d "token=DhQadYCrGECH13uwdAs8h6L5&command=/eyeson&user_id=1&user_name=michael.maier&channel_id=1&channel_name=test" http://localhost:3000/commands

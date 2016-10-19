@@ -10,7 +10,7 @@ class CommandsController < ApplicationController
 	private
 
 		def verify_slack_token
-			unless params[:token] == SLACK_VERIFICATION_TOKEN
+			unless params[:token] == APP_CONFIG['slack_token']
 				render json: {error: "Verification token wrong"}, status: :forbidden
 			end
 		end
