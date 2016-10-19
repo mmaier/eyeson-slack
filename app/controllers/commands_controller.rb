@@ -12,7 +12,10 @@ class CommandsController < ApplicationController
 				id: params[:channel_id],
 				name: params[:channel_name]
 			}
-			render json: {meeting: MeetingManager.new(user, channel).create!}, status: :created
+			render json: {
+		    "response_type": "in_channel",
+		    "text": MeetingManager.new(user, channel).create!
+			}, status: :ok
 		else
 			render json: {error: "Command not known"}, status: :method_not_allowed
 		end
