@@ -2,7 +2,7 @@ class CommandsController < ApplicationController
 	before_action :verify_slack_token
 
 	def execute
-		CommandJob.perform_later params.to_h
+		CommandJob.perform_later params.permit(:command, :user_id, :user_name, :channel_id, :channel_name, :response_url).to_h
 		render json: {}, status: :ok
 	end
 
