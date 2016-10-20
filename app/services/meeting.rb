@@ -21,6 +21,7 @@ class Meeting
     else
       @id = meeting["webinar"]["id"]
     end
+    return self
   end
 
   def add(user_id)
