@@ -30,6 +30,7 @@ class CommandJob < ApplicationJob
       else
         payload = {
           color: :danger,
+          pretext: "There was a problem with your command:",
           text: meeting.error
         }
       end
