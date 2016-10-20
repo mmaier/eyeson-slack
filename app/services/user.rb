@@ -1,5 +1,7 @@
 class User
 
+  # A simple user manager for finding/creating user models in eyeson
+
   attr_accessor :error
 	attr_reader :id, :name
 

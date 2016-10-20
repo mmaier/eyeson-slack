@@ -1,4 +1,5 @@
 class Eyeson
+  # Provides simplified CRUD methods to communicate with the eyeson API
 
   def get(path, params={})
     uri = URI.parse("#{APP_CONFIG['eyeson_api']}#{path}")
