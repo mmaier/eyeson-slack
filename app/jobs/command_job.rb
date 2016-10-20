@@ -37,8 +37,11 @@ class CommandJob < ApplicationJob
   	end
 
   	def respond!(url, payload)
-      request = Net::HTTP::Post.new(url, 'Content-Type' => 'application/json')
+      uri = URI(url)
+      request = Net::HTTP::Post.new(uri, 'Content-Type' => 'application/json')
       request.body = payload.to_json
-      resp = http.request(request)
+      response = Net::HTTP.start(uri.hostname, uri.port) do |http|
+        http.request(request)
+      end
   	end
 end
