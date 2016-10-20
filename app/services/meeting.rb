@@ -3,6 +3,7 @@ class Meeting
   # Manages meetings referring to eyeson dependencies
 
 	attr_accessor :error
+  attr_reader :id
 
   def initialize(id=nil)
     @id = id
