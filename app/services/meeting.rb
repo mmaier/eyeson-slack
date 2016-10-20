@@ -2,10 +2,11 @@ class Meeting
 
   # Manages meetings referring to eyeson dependencies
 
-	attr_accessor :id, :error, :user_id
+	attr_accessor :error
 
   def initialize(id=nil)
     @id = id
+    @user_id = nil
     find if @id.present?
   end
 
@@ -18,20 +19,20 @@ class Meeting
     if meeting["error"].present?
       self.error = meeting["error"]
     else
-      self.id = meeting["webinar"]["id"]
+      @id = meeting["webinar"]["id"]
     end
   end
 
   def add(user_id)
-    user = User.new(id: self.user_id)
-    Eyeson.new(user).post("/meetings/#{self.id}/participations", {
+    user = User.new(id: @user_id)
+    Eyeson.new(user).post("/meetings/#{@id}/participations", {
       user_id: user_id
     })
     return "#{self.url}?access_token=#{user.access_token}"
   end
 
   def url
-    APP_CONFIG['eyeson_api'].split("/api/v2").first+'/'+self.id
+    APP_CONFIG['eyeson_api'].split("/api/v2").first+'/'+@id
   end
 
   private
@@ -42,7 +43,7 @@ class Meeting
         self.error = meeting["error"]
         return false
       else
-        self.user_id = meeting["webinar"]["user_id"]
+        @user_id = meeting["webinar"]["user_id"]
         self.error = nil
         return true
       end
