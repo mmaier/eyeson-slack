@@ -38,10 +38,10 @@ class CommandJob < ApplicationJob
 
   	def respond!(url, payload)
       uri = URI(url)
-      request = Net::HTTP::Post.new(uri, 'Content-Type' => 'application/json')
-      request.body = payload.to_json
-      response = Net::HTTP.start(uri.hostname, uri.port) do |http|
-        http.request(request)
-      end
+      https = Net::HTTP.new(uri.host,uri.port)
+      https.use_ssl = true
+      req = Net::HTTP::Post.new(uri.path, initheader = {'Content-Type' =>'application/json'})
+      req.body = payload.to_json
+      res = https.request(req)
   	end
 end
