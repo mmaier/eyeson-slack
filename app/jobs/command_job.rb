@@ -4,7 +4,7 @@ class CommandJob < ApplicationJob
   def perform(params)
     # Command param comes with prepended '/' char, so we need to extract the command
     command = begin params[:command].split("/")[1] rescue "" end
-
+      
     # Check if command is available, otherwise raise an error
     self.class.private_method_defined?(command) ? self.send(command, params) : error(params)
   end
