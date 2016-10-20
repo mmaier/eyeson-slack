@@ -2,7 +2,7 @@ class Meeting
 
   # Manages meetings referring to eyeson dependencies
 
-	attr_accessor :url, :error
+	attr_accessor :id, :error
 
   def initialize(user, channel)
     @user = user
@@ -22,7 +22,7 @@ class Meeting
       if meeting["error"].present?
       	self.error = meeting["error"]
       else
-      	self.url = meeting["webinar"]["url"]
+      	self.id = meeting["webinar"]["id"]
       end
   	end
   

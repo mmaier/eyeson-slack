@@ -23,7 +23,7 @@ class CommandJob < ApplicationJob
       # Meeting link will be posted to all users in channel
 			payload = {
 		    response_type: :in_channel,
-		    text: (meeting.error.present? ? meeting.error : "#{user.name} created a videomeeting: #{meeting.url}")
+		    text: (meeting.error.present? ? meeting.error : "#{user.name} created a videomeeting: #{meeting_url(id: meeting.id)}")
 			}
 			respond!(params[:response_url], payload)
   	end
