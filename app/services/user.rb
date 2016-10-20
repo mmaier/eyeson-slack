@@ -2,10 +2,11 @@ class User
 
   # A simple user manager for finding/creating user models in eyeson
 
-  attr_accessor :error, :id
-	attr_reader :external_id, :name
+  attr_accessor :error, :access_token
+	attr_reader :id, :external_id, :name, :email
 
-	def initialize(external_id: nil, name: nil)
+	def initialize(id: nil, external_id: nil, name: nil)
+    @id = id
     @external_id = external_id
     @name = name
 
@@ -13,6 +14,18 @@ class User
     @email = "#{@external_id}@slack.eyeson.solutions"
 
     find || create
+
+    #TODO: get valid access_token from eyeson API and use that for the web session
+    credentials = {
+      email: self.email,
+      password: self.password
+    }
+    self.access_token = JSON.parse(Net::HTTP.post_form(URI.parse("#{APP_CONFIG['eyeson_api']}/auth"), credentials).body)["access_token"]
+  end
+
+  def password
+    #TODO: get valid access_token from eyeson API and use that for the web session
+    Digest::MD5.hexdigest(self.email)
   end
 
   private
@@ -23,7 +36,7 @@ class User
         self.error = user["error"]
         return false
       else
-        self.id = user["user"]["id"]
+        @id = user["user"]["id"]
         self.error = nil
         return true
       end
@@ -32,13 +45,14 @@ class User
     def create
       user = Eyeson.new.post("/users", {
         name: @name,
-        email: @email
+        email: @email,
+        password: self.password
       })
       if user["error"].present?
         self.error = user["error"]
         return false
       else
-        self.id = user["user"]["id"]
+        @id = user["user"]["id"]
         self.error = nil
         return true
       end
