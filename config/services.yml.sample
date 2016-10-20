@@ -3,9 +3,13 @@ development:
   eyeson_email: ""
   eyeson_pwd: ""
   slack_token: ""
+  slack_key: ""
+  slack_secret: ""
 
 integration:
   eyeson_api: https://app.dev-visocon.com/api/v2
   eyeson_email: ""
   eyeson_pwd: ""
   slack_token: ""
+  slack_key: ""
+  slack_secret: ""
