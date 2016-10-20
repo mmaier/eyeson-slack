@@ -17,7 +17,7 @@ class CommandJob < ApplicationJob
 				id: params[:channel_id],
 				name: params[:channel_name]
 			}
-      user = User.new(external_id: params[:user_id], name: params[:user_name])
+      user = User.new(id: params[:user_id], name: params[:user_name])
 			meeting = Meeting.new.create(user, channel)
 
       # Meeting link will be posted to all users in channel

@@ -3,13 +3,8 @@ class MeetingsController < ApplicationController
 	before_action :user_present
 
 	def show
-		meeting = Meeting.new(params[:id])
-		if meeting.error.nil?
-			join_url = meeting.add(session[:user_id])
-			redirect_to join_url
-		else
-			redirect_to meeting.url
-		end
+		user = User.new(id: session[:user_id])
+		redirect_to APP_CONFIG['eyeson_api'].split("/api/v2").first+'/'+params[:id]+'?join=true&access_token='+user.access_token
 	end
 
 	private

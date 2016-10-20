@@ -12,10 +12,10 @@ class UsersController < ApplicationController
 		identity = JSON.parse(token.get('/api/users.identity?token='+token.token).body)
 		#profile = token.get('/api/users.profile.get?token='+token.token).response
 		
-		user = User.new(external_id: identity["user"]["id"], name: identity["user"]["name"])
+		user = User.new(id: identity["user"]["id"], name: identity["user"]["name"])
 		#TODO: Update user information via profile
 
-		session[:user_id] = user.id
+		session[:user_id] = identity["user"]["id"]
 
 		redirect_to params[:redirect_uri]
 	end

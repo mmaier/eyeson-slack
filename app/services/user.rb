@@ -3,15 +3,14 @@ class User
   # A simple user manager for finding/creating user models in eyeson
 
   attr_accessor :error
-  attr_reader :id, :name
+  attr_reader :name
 
-	def initialize(id: nil, external_id: nil, name: nil)
+	def initialize(id: nil, name: nil)
     @id = id
-    @external_id = external_id
     @name = name
 
-    #TODO: use external_id for API requests instead of fake emails!
-    @email = "#{@external_id}@slack.eyeson.solutions"
+    #TODO: use id for API requests instead of fake emails!
+    @email = "#{@id}@slack.eyeson.solutions"
 
     find || create
   end
@@ -38,7 +37,6 @@ class User
         self.error = user["error"]
         return false
       else
-        @id = user["user"]["id"]
         self.error = nil
         return true
       end
@@ -54,7 +52,6 @@ class User
         self.error = user["error"]
         return false
       else
-        @id = user["user"]["id"]
         self.error = nil
         return true
       end

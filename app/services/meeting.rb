@@ -7,7 +7,6 @@ class Meeting
 
   def initialize(id=nil)
     @id = id
-    @user_id = nil
     find if @id.present?
   end
 
@@ -25,18 +24,6 @@ class Meeting
     return self
   end
 
-  def add(user_id)
-    user = User.new(id: @user_id)
-    Eyeson.new(user).post("/meetings/#{@id}/participations", {
-      user_id: user_id
-    })
-    return "#{self.url}?access_token=#{user.access_token}"
-  end
-
-  def url
-    APP_CONFIG['eyeson_api'].split("/api/v2").first+'/'+@id
-  end
-
   private
 
     def find
@@ -45,7 +32,6 @@ class Meeting
         self.error = meeting["error"]
         return false
       else
-        @user_id = meeting["webinar"]["user_id"]
         self.error = nil
         return true
       end
