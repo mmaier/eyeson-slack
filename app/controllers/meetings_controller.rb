@@ -1,5 +1,18 @@
 class MeetingsController < ApplicationController
+
+	before_action :user_present
+
 	def show
-		redirect_to login_path(redirect_uri: APP_CONFIG['eyeson_api'].split("/api/v2").first+'/'+params[:id])
+		meeting = Meeting.new(params[:id])
+		meeting.add(session[:user_id])
+		redirect_to meeting.url
 	end
+
+	private
+
+		def user_present
+			unless session[:user_id].present?
+				redirect_to login_path(redirect_uri: meeting_path(id: params[:id]))
+			end
+		end
 end
