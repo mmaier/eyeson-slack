@@ -5,9 +5,11 @@ class MeetingsController < ApplicationController
 	def show
 		meeting = Meeting.new(params[:id])
 		if meeting.error.nil?
-			meeting.add(session[:user_id])
+			join_url = meeting.add(session[:user_id])
+			redirect_to join_url
+		else
+			redirect_to meeting.url
 		end
-		redirect_to meeting.url
 	end
 
 	private

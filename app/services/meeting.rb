@@ -23,9 +23,11 @@ class Meeting
   end
 
   def add(user_id)
-    Eyeson.new(User.new(id: self.user_id)).post("/meetings/#{self.id}/participations", {
+    user = User.new(id: self.user_id)
+    Eyeson.new(user).post("/meetings/#{self.id}/participations", {
       user_id: user_id
     })
+    return "#{self.url}?access_token=#{user.access_token}"
   end
 
   def url
