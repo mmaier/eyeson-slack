@@ -3,6 +3,7 @@ class MeetingsController < ApplicationController
 	before_action :user_present
 
 	def show
+		#TODO: use a direct meeting access URL
 		user = User.new(id: session[:user_id])
 		redirect_to APP_CONFIG['eyeson_api'].split("/api/v2").first+'/'+params[:id]+'?join=true&access_token='+user.access_token
 	end

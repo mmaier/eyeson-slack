@@ -1,4 +1,4 @@
-class User
+class User < Eyeson
 
   # A simple user manager for finding/creating user models in eyeson
 
@@ -32,7 +32,7 @@ class User
     end
 
     def find
-      user = Eyeson.new.get("/users/#{@email}")
+      user = get("/users/#{@email}")
       if user["error"].present?
         self.error = user["error"]
         return false
@@ -43,7 +43,7 @@ class User
     end
 
     def create
-      user = Eyeson.new.post("/users", {
+      user = post("/users", {
         name: @name,
         email: @email,
         password: password

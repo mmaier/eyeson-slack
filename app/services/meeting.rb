@@ -1,4 +1,4 @@
-class Meeting
+class Meeting < Eyeson
 
   # Manages meetings referring to eyeson dependencies
 
@@ -11,10 +11,11 @@ class Meeting
   end
 
   def create(user, channel)
-    meeting = Eyeson.new(user).post("/meetings", {
+    meeting = post("/meetings", {
       title: channel[:name],
       from: Time.now.utc.iso8601,
-      to: 30.minutes.from_now.utc.iso8601
+      to: 30.minutes.from_now.utc.iso8601,
+      access_token: user.access_token
     })
     if meeting["error"].present?
       self.error = meeting["error"]
@@ -27,7 +28,7 @@ class Meeting
   private
 
     def find
-      meeting = Eyeson.new.get("/meetings/#{@id}")
+      meeting = get("/meetings/#{@id}")
       if meeting["error"].present?
         self.error = meeting["error"]
         return false
