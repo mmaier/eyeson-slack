@@ -3,7 +3,7 @@ class User < Eyeson
   # A simple user manager for finding/creating user models in eyeson
 
   attr_accessor :error
-  attr_reader :name
+  attr_reader :name, :access_token
 
 	def initialize(id: nil, name: nil)
     @id = id
@@ -13,15 +13,6 @@ class User < Eyeson
     @email = "#{@id}@slack.eyeson.solutions"
 
     find || create
-  end
-
-  def access_token
-    #TODO: get valid access_token from eyeson API and use that for the web session
-    credentials = {
-      email: @email,
-      password: password
-    }
-    JSON.parse(Net::HTTP.post_form(URI.parse("#{APP_CONFIG['eyeson_api']}/auth"), credentials).body)["access_token"]
   end
 
   private
@@ -38,6 +29,7 @@ class User < Eyeson
         return false
       else
         self.error = nil
+        set_access_token
         return true
       end
     end
@@ -53,8 +45,18 @@ class User < Eyeson
         return false
       else
         self.error = nil
+        set_access_token
         return true
       end
+    end
+
+    def set_access_token
+      #TODO: get access_token from API instead of re-authenticate
+      credentials = {
+        email: @email,
+        password: password
+      }
+      @access_token = JSON.parse(Net::HTTP.post_form(URI.parse("#{APP_CONFIG['eyeson_api']}/auth"), credentials).body)["access_token"]
     end
   
 end

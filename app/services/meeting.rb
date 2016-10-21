@@ -11,11 +11,11 @@ class Meeting < Eyeson
   end
 
   def create(user, channel)
+    @access_token = user.access_token
     meeting = post("/meetings", {
       title: channel[:name],
       from: Time.now.utc.iso8601,
-      to: 30.minutes.from_now.utc.iso8601,
-      access_token: user.access_token
+      to: 30.minutes.from_now.utc.iso8601
     })
     if meeting["error"].present?
       self.error = meeting["error"]
