@@ -1,0 +1,14 @@
+AllCops:
+  Include:
+    - Rakefile
+    - config.ru
+    - lib/**/*.rake
+  Exclude:
+    - bin/*
+    - db/schema.rb
+
+Style/FrozenStringLiteralComment:
+  Enabled: false
+
+Rails:
+  Enabled: true

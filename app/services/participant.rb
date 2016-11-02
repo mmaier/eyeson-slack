@@ -2,7 +2,7 @@
 class Participant
   include Eyeson
 
-	attr_accessor :error
+  attr_accessor :error
   attr_reader :url
 
   def initialize(channel_id = nil, user = {})
@@ -15,15 +15,12 @@ class Participant
   private
 
   def create!
-    participant = post("/rooms/#{@channel_id}/participants", {
-      id:   @user[:id],
-      name: @user[:name]
-    })
-    if participant["error"].present?
-      self.error = participant["error"]
+    participant = post("/rooms/#{@channel_id}/participants", id:   @user[:id],
+                                                             name: @user[:name])
+    if participant['error'].present?
+      self.error = participant['error']
     else
-      @url = participant["room"]["url"]
+      @url = participant['room']['url']
     end
   end
-  
 end

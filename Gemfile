@@ -1,6 +1,5 @@
 source 'https://rubygems.org'
 
-
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '~> 5.0.0', '>= 5.0.0.1'
 gem 'mysql2', '~> 0.4.4'
@@ -31,6 +30,8 @@ gem 'slack-ruby-client'
 gem 'oauth2'
 
 group :development, :test do
+  # Use ruby community standard and best practices
+  gem 'rubocop', require: false
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platform: :mri
 end
