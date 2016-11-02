@@ -3,17 +3,23 @@ class MeetingsController < ApplicationController
 	before_action :user_present
 
 	def show
-		#TODO: use a direct meeting access URL
-		#TODO: check if user is allowed to join (= channel user)
-		user = User.new(id: session[:user_id])
-		redirect_to APP_CONFIG['eyeson_api'].split("/api/v2").first+'/'+params[:id]+'?join=true&access_token='+user.access_token
+		# Add user to existing room and redirect to communication GUI
+    user = {
+      id: session[:user_id],
+      name: session[:user_name]
+    }
+
+    #TODO: handle error
+    room = Participant.new(params[:id], user)
+    
+    redirect_to room.url
 	end
 
 	private
 
-		def user_present
-			unless session[:user_id].present?
-				redirect_to login_path(redirect_uri: meeting_path(id: params[:id]))
-			end
+	def user_present
+		unless session[:user_id].present?
+			redirect_to login_path(redirect_uri: meeting_path(id: params[:id]))
 		end
+	end
 end

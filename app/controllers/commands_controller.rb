@@ -1,21 +1,32 @@
 class CommandsController < ApplicationController
+	
 	before_action :verify_slack_token
 
-	def execute
-		# Slash commands are restricted to be executed within 3000ms or via delayed response.
-		# Dependent on multiple API requests, this can last longer, therefore we use delayed response.
-		# https://api.slack.com/slash-commands#responding_to_a_command
-		CommandJob.perform_later params.permit(:command, :user_id, :user_name, :channel_id, :channel_name, :response_url).to_h
+	def respond
+		# Create new room
+		channel = {
+			id:   params.require(:channel_id),
+			name: params.require(:channel_name)
+		}
 
-		# Slack awaits immediate response with status 200, the text will be displayed to the initiator only
-		render json: { text: "Give me a few seconds please..." }
+		room = Room.new(channel)
+
+		# Slack response
+		response = {
+      response_type: :in_channel,
+      color: :good,
+      text: "#{@user[:name]} created a videomeeting: #{meeting_url(id: @channel[:id])}"
+    }
+    
+    render json: response
 	end
 
 	private
 
-		def verify_slack_token
-			unless params[:token] == APP_CONFIG['slack_token']
-				render json: { text: "Are you trying to hack us? Seems like the verification token was not correct..." }
-			end
+	def verify_slack_token
+		unless params[:token] == APP_CONFIG['slack_token']
+			render json: { text: "Are you trying to hack us? Seems like the verification token was not correct..." }
 		end
+	end
+	
 end

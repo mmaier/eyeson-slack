@@ -1,6 +1,6 @@
 Rails.application.routes.draw do
 	# Commands will be sent here
-	post 'commands' => 'commands#execute', :defaults => {format: :json}
+	post 'commands' => 'commands#respond', :defaults => {format: :json}
 
 	# Handles the user oauth flow
 	get 'login' => 'users#login', as: :login
