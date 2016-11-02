@@ -28,8 +28,6 @@ gem 'jbuilder', '~> 2.5'
 
 gem 'unicorn'
 gem 'slack-ruby-client'
-gem 'daemons'
-gem 'delayed_job_active_record'
 gem 'oauth2'
 
 group :development, :test do
