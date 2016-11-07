@@ -14,8 +14,8 @@ RSpec.describe MeetingsController, type: :controller do
     authorized
     oauth_success
 
-    room = mock('Eyeson room', url: gui, error: nil)
-    Room.stubs(:new).returns(room)
+    res = mock('Eyeson result', body: { url: gui }.to_json)
+    Net::HTTP.stubs(:start).returns(res)
 
     get :show, params: { id: id }
     expect(response.status).to eq(302)
@@ -38,9 +38,8 @@ RSpec.describe MeetingsController, type: :controller do
     authorized
     oauth_success
 
-    room = mock('Eyeson room')
-    Room.stubs(:new).returns(room)
-    room.expects(:error).returns(error).twice
+    res = mock('Eyeson result', body: { error: error }.to_json)
+    Net::HTTP.stubs(:start).returns(res)
 
     get :show, params: { id: id }
     expect(response.status).to eq(400)
