@@ -1,0 +1,6 @@
+test:
+  eyeson_api: http://test.host/eyeson/api
+  eyeson_key: 12345
+  slack_token: 67890
+  slack_key: abc
+  slack_secret: def
