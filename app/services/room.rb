@@ -1,14 +1,12 @@
 # Manages conf rooms
 class Room
-  include Eyeson
-
-  attr_accessor :error
-  attr_reader :url
+  attr_reader :url, :error
 
   def initialize(channel: {}, user: {})
     @channel = channel
     @user    = user
     @url     = nil
+    @error   = nil
     create!
   end
 
@@ -19,9 +17,23 @@ class Room
                           name:  @channel[:name],
                           user:  @user)
     if room['error'].present?
-      self.error = room['error']
+      @error = room['error']
     else
-      @url = room['room']['url']
+      @url = room['url']
     end
+  end
+
+  def post(path, params = {})
+    uri = URI.parse("#{APP_CONFIG['eyeson_api']}#{path}")
+
+    req = Net::HTTP::Post.new(uri)
+    req['Content-Type'] = 'application/json'
+    req['API_KEY'] = APP_CONFIG['eyeson_key']
+    req.body = params.to_json
+
+    res = Net::HTTP.start(uri.hostname, uri.port) do |http|
+      http.request(req)
+    end
+    JSON.parse(res.body)
   end
 end

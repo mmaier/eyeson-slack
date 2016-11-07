@@ -19,6 +19,8 @@ end
 group :test do
   # Use rspec over minitests
   gem 'rspec-rails', '~> 3.5'
+  # Fake oauth requests
+  gem 'mocha'
   # Generate test coverage report
   gem 'simplecov', require: false
 end
