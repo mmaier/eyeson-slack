@@ -1,0 +1,14 @@
+---
+
+image: docker-reg.test-visocon.com:5000/rails-test
+
+before_script:
+  - ruby -v
+  - which ruby
+  - gem install bundler --no-ri --no-rdoc
+  - bundle install --jobs $(nproc) --without production development --path=/cache/bundler
+
+rspec:
+  script: bundle exec rspec --format documentation
+  tags:
+    - ruby
