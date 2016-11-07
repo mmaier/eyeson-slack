@@ -3,18 +3,13 @@ class CommandsController < ApplicationController
   before_action :verify_slack_token
 
   def respond
-    # Create new room
-    channel = {
-      id:   params.require(:channel_id),
-      name: params.require(:channel_name)
-    }
-    Room.new(channel)
-
     # Slack response
+    user_id = params.require(:user_id)
+    url = meeting_url(id: params.require(:channel_id))
     response = {
       response_type: :in_channel,
       color: :good,
-      text: "#{@user[:name]} created a videomeeting: #{meeting_url(id: @channel[:id])}"
+      text: "#{user_id} created a videomeeting: #{url}"
     }
     render json: response
   end
@@ -22,9 +17,9 @@ class CommandsController < ApplicationController
   private
 
   def verify_slack_token
-    return if params[:token] == APP_CONFIG['slack_token']
+    return if params.require(:token) == APP_CONFIG['slack_token']
     render json: {
-      text: 'Are you trying to hack us? Seems like the verification token was not correct...'
+      text: 'Verification not correct'
     }
   end
 end
