@@ -4,7 +4,8 @@ RSpec.describe MeetingsController, type: :controller do
   it 'should redirect to login unless session present' do
     id = 'xyz'
     get :show, params: { id: id }
-    expect(response).to redirect_to(login_path(redirect_uri: meeting_path(id: id)))
+    redirect = login_path(redirect_uri: meeting_path(id: id))
+    expect(response).to redirect_to(redirect)
   end
 
   it 'should add user to room and redirect to room url' do
@@ -19,7 +20,7 @@ RSpec.describe MeetingsController, type: :controller do
 
     get :show, params: { id: id }
     expect(response.status).to eq(302)
-    expect(response.headers['Location']).to eq(gui)
+    expect(response).to redirect_to(gui)
   end
 
   it 'should handle oauth error' do
@@ -28,7 +29,8 @@ RSpec.describe MeetingsController, type: :controller do
     authorized
 
     get :show, params: { id: id }
-    expect(response.headers['Location']).to redirect_to(login_path(redirect_uri: meeting_path(id: id)))
+    redirect = login_path(redirect_uri: meeting_path(id: id))
+    expect(response.headers['Location']).to redirect_to(redirect)
   end
 
   it 'should handle eyeson api error' do

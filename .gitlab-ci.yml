@@ -13,3 +13,10 @@ rspec:
   script: bundle exec rspec --format documentation
   tags:
     - ruby
+
+rubocop:
+  before_script:
+    - gem install rubocop --no-ri --no-doc
+  script: rubocop -D
+  tags:
+    - ruby
