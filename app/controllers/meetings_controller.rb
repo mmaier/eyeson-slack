@@ -33,7 +33,8 @@ class MeetingsController < ApplicationController
     # Optain profile from slack
     token = OAuth2::AccessToken.from_kvform(@oauth, '')
     identity = JSON.parse(
-      token.get('/api/users.identity?token=' + params[:access_token]).body
+      token.get('/api/users.identity?token=' + params.require(:access_token))
+          .body
     )
     redirect_to_login && return unless identity['user'].present?
     # TODO: for more details:

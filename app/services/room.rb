@@ -26,14 +26,16 @@ class Room
   def post(path, params = {})
     uri = URI.parse("#{APP_CONFIG['eyeson_api']}#{path}")
 
+    http = Net::HTTP.new(uri.host, uri.port)
+    http.use_ssl = true
+    http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+
     req = Net::HTTP::Post.new(uri)
     req['Content-Type'] = 'application/json'
     req['API_KEY'] = APP_CONFIG['eyeson_key']
     req.body = params.to_json
 
-    res = Net::HTTP.start(uri.hostname, uri.port) do |http|
-      http.request(req)
-    end
+    res = http.request(req)
     JSON.parse(res.body)
   end
 end
