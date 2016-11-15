@@ -7,14 +7,15 @@ RSpec.describe CommandsController, type: :controller do
   end
 
   it 'should return a message' do
-    user_id = '123'
+    user = 'user.name'
     channel_id = 'xyz'
     post :respond, params: {
       token: APP_CONFIG['slack_token'],
-      user_id: user_id,
+      user_id: '123',
+      user_name: user,
       channel_id: channel_id
     }
-    text = "#{user_id} created a videomeeting: http://test.host/m/#{channel_id}"
+    text = "#{user} created a videomeeting: http://test.host/slack/m/#{channel_id}"
     expect(response.status).to eq(200)
     expect(JSON.parse(response.body)['text']).to eq(text)
   end
