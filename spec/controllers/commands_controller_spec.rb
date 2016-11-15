@@ -15,7 +15,8 @@ RSpec.describe CommandsController, type: :controller do
       user_name: user,
       channel_id: channel_id
     }
-    text = "#{user} created a videomeeting: http://test.host/slack/m/#{channel_id}"
+    url = "http://test.host/slack/m/#{channel_id}"
+    text = "#{user} created a videomeeting: #{url}"
     expect(response.status).to eq(200)
     expect(JSON.parse(response.body)['text']).to eq(text)
   end
