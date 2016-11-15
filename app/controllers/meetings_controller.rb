@@ -21,7 +21,7 @@ class MeetingsController < ApplicationController
   private
 
   def authorized_or_leave!
-    return if session[:access_token].present?
+    return if params[:access_token].present?
     redirect_to_login
   end
 
@@ -33,12 +33,12 @@ class MeetingsController < ApplicationController
     # Optain profile from slack
     token = OAuth2::AccessToken.from_kvform(@oauth, '')
     identity = JSON.parse(
-      token.get('/api/users.identity?token=' + session[:access_token]).body
+      token.get('/api/users.identity?token=' + params[:access_token]).body
     )
     redirect_to_login && return unless identity['user'].present?
     # TODO: for more details:
     # profile = JSON.parse(
-    #   @oauth.get('/api/users.profile.get?token='+session[:access_token]).body
+    #   @oauth.get('/api/users.profile.get?token='+params[:access_token]).body
     # )
     @user = {
       id: identity['user']['id'],
