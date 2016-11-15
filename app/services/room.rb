@@ -32,7 +32,7 @@ class Room
 
     req = Net::HTTP::Post.new(uri)
     req['Content-Type'] = 'application/json'
-    req['API_KEY'] = APP_CONFIG['eyeson_key']
+    req['API-KEY'] = APP_CONFIG['eyeson_key']
     req.body = params.to_json
 
     res = http.request(req)
