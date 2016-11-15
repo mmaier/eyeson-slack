@@ -19,7 +19,7 @@ class Room
     if room['error'].present?
       @error = room['error']
     else
-      @url = room['url']
+      @url = room['links']['gui']
     end
   end
 

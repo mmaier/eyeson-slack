@@ -13,7 +13,7 @@ RSpec.describe MeetingsController, type: :controller do
     gui = 'http://test.host/gui'
 
     oauth_user_present
-    res = mock('Eyeson result', body: { url: gui }.to_json)
+    res = mock('Eyeson result', body: { links: { gui: gui } }.to_json)
     rest_response_with(res)
 
     get :show, params: { id: id, access_token: '123' }
