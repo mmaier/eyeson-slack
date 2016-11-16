@@ -32,8 +32,6 @@ class UsersController < ApplicationController
   end
 
   def handle_oauth_error
-    redirect_to(
-      params.require(:redirect_uri)
-    ) if params[:error].present?
+    redirect_to(params.require(:redirect_uri)) if params[:error].present?
   end
 end
