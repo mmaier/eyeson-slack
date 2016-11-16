@@ -17,7 +17,8 @@ class CommandsController < ApplicationController
   private
 
   def verify_slack_token
-    return if params.require(:token) == APP_CONFIG['slack_token']
+    return if params.require(:token) == Rails.configuration
+              .services['slack_token']
     render json: {
       text: 'Verification not correct'
     }

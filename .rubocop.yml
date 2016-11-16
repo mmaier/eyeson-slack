@@ -6,6 +6,7 @@ AllCops:
   Exclude:
     - bin/*
     - db/schema.rb
+    - spec/support/authorization_helpers.rb
 
 Style/FrozenStringLiteralComment:
   Enabled: false

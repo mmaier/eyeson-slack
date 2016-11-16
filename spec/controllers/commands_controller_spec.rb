@@ -10,7 +10,7 @@ RSpec.describe CommandsController, type: :controller do
     user = 'user.name'
     channel_id = 'xyz'
     post :respond, params: {
-      token: APP_CONFIG['slack_token'],
+      token: Rails.configuration.services['slack_token'],
       user_id: '123',
       user_name: user,
       channel_id: channel_id
