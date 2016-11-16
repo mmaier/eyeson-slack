@@ -11,7 +11,7 @@ class MeetingsController < ApplicationController
       id:   params.require(:id),
       name: 'eyeson slack'
     }
-    room = Room.new(channel: @channel, user: @user)
+    room = Room.new(channel: @channel, user: @user['user'])
 
     if room.error.present?
       render json: { error: room.error }, status: :bad_request
@@ -37,18 +37,12 @@ class MeetingsController < ApplicationController
 
   def oauth_user
     # fetch user details from slack api
-    identity = JSON.parse(
+    @user = JSON.parse(
       @oauth_access.get(
         '/api/users.identity?token=' + params.require(:access_token)
       ).body
     )
 
-    redirect_to_login && return unless identity['user'].present?
-
-    @user = {
-      id:     identity['user']['id'],
-      name:   identity['user']['name'],
-      avatar: identity['user']['image_48']
-    }
+    redirect_to_login && return unless @user['user'].present?
   end
 end

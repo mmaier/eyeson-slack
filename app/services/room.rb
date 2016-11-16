@@ -16,7 +16,7 @@ class Room
   def create!
     room = post('/rooms', id:    @channel[:id],
                           name:  @channel[:name],
-                          user:  @user)
+                          user:  @user.merge!(avatar: @user['image_48']))
     if room['error'].present?
       @error = room['error']
     else

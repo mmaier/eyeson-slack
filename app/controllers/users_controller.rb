@@ -1,5 +1,6 @@
 # Authenticat users via oauth
 class UsersController < ApplicationController
+  before_action :handle_oauth_error, only: [:oauth]
   before_action :oauth_client
 
   def login
@@ -11,8 +12,6 @@ class UsersController < ApplicationController
   end
 
   def oauth
-    redirect_to params.require(:redirect_uri) and return if params[:error].present?
-
     token = @oauth.auth_code.get_token(
       params[:code],
       redirect_uri: oauth_url(redirect_uri: params.require(:redirect_uri))
@@ -30,5 +29,11 @@ class UsersController < ApplicationController
     connector = (uri.include?('?') ? '&' : '?')
     query = params.map { |k, v| "#{k}=#{v}" }.join('&')
     uri + connector + query
+  end
+
+  def handle_oauth_error
+    redirect_to(
+      params.require(:redirect_uri)
+    ) if params[:error].present?
   end
 end
