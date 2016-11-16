@@ -8,7 +8,7 @@ RSpec.describe UsersController, type: :controller do
     auth_code.expects(:authorize_url)
              .with(
                redirect_uri: oauth_url(redirect_uri: redirect_uri),
-               scope: 'identity.basic'
+               scope: 'identity.basic+users.profile:read+channels:read'
              )
              .returns('/slack_oauth')
     oauth = mock('Oauth')

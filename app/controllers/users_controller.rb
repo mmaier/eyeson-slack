@@ -5,7 +5,7 @@ class UsersController < ApplicationController
   def login
     url = @oauth.auth_code.authorize_url(
       redirect_uri: oauth_url(redirect_uri: params.require(:redirect_uri)),
-      scope: 'identity.basic'
+      scope: 'identity.basic+users.profile:read+channels:read'
     )
     redirect_to url
   end
