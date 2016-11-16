@@ -4,11 +4,13 @@ class MeetingsController < ApplicationController
   before_action :oauth_client
   before_action :oauth_access
   before_action :oauth_user
-  before_action :oauth_profile
-  before_action :oauth_channel
 
   def show
     # Add user to conference room and redirect to communication GUI
+    @channel = {
+      id:   params.require(:id),
+      name: 'eyeson slack'
+    }
     room = Room.new(channel: @channel, user: @user)
 
     if room.error.present?
@@ -45,34 +47,8 @@ class MeetingsController < ApplicationController
 
     @user = {
       id:     identity['user']['id'],
-      name:   identity['user']['name']
-    }
-  end
-
-  def oauth_profile
-    profile = JSON.parse(
-      @oauth_access.get(
-        '/api/users.profile.get?token=' + params.require(:access_token)
-      ).body
-    )
-
-    @user.merge!(
-      avatar: profile['profile']['image_48']
-    ) if profile['profile'].present?
-  end
-
-  def oauth_channel
-    # fetch channel details from slack api
-    channel = JSON.parse(
-      @oauth_access.get(
-        '/api/channels.info?channel=' + params.require(:id) +
-        '&token=' + params.require(:access_token)
-      ).body
-    )
-
-    @channel = {
-      id:   params.require(:id),
-      name: channel['channel']['name']
+      name:   identity['user']['name'],
+      avatar: identity['user']['image_48']
     }
   end
 end

@@ -8,7 +8,7 @@ RSpec.describe UsersController, type: :controller do
     auth_code.expects(:authorize_url)
              .with(
                redirect_uri: oauth_url(redirect_uri: redirect_uri),
-               scope: 'identity.basic+users.profile:read+channels:read'
+               scope: 'identity.basic identity.avatar'
              )
              .returns('/slack_oauth')
     oauth = mock('Oauth')
@@ -36,5 +36,24 @@ RSpec.describe UsersController, type: :controller do
 
     get :oauth, params: { code: 'abc', redirect_uri: redirect_uri }
     expect(response).to redirect_to(redirect_uri + '?access_token=abc')
+  end
+
+  it 'should redirect to redirect_uri on oauth error' do
+    redirect_uri = meeting_path(id: '123')
+
+    # token = mock('Oauth token', token: 'abc')
+    # auth_code = mock('Auth code')
+    # auth_code.expects(:get_token)
+    #          .with(
+    #            'abc',
+    #            redirect_uri: oauth_url(redirect_uri: redirect_uri)
+    #          )
+    #          .returns(token)
+    # oauth = mock('Oauth')
+    # oauth.expects(:auth_code).returns(auth_code)
+    # OAuth2::Client.expects(:new).returns(oauth)
+
+    get :oauth, params: { error: 'some_error', redirect_uri: redirect_uri }
+    expect(response).to redirect_to(redirect_uri)
   end
 end

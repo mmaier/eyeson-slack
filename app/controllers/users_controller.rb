@@ -5,12 +5,14 @@ class UsersController < ApplicationController
   def login
     url = @oauth.auth_code.authorize_url(
       redirect_uri: oauth_url(redirect_uri: params.require(:redirect_uri)),
-      scope: 'identity.basic+users.profile:read+channels:read'
+      scope: 'identity.basic identity.avatar'
     )
     redirect_to url
   end
 
   def oauth
+    redirect_to params.require(:redirect_uri) and return if params[:error].present?
+
     token = @oauth.auth_code.get_token(
       params[:code],
       redirect_uri: oauth_url(redirect_uri: params.require(:redirect_uri))
