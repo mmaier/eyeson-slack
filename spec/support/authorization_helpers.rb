@@ -1,27 +1,31 @@
 
 module AuthorizationHelpers
   def slack_models
-    slack_models = mock('Slack User')
-    slack_models.expects(:body).returns(
-      {
-        user: {
-          id: '123',
-          name: 'Tester'
-        },
-        profile: {
-          image_48: '/avatar'
-        },
-        channel: {
-          name: 'My Channel'
-        }
-      }.to_json
+    {
+      user: {
+        id: '123',
+        name: 'Tester'
+      },
+      profile: {
+        image_48: '/avatar'
+      },
+      channel: {
+        name: 'My Channel'
+      }
+    }
+  end
+
+  def slack_response
+    response = mock('Slack User')
+    response.expects(:body).returns(
+      slack_models.to_json
     ).at_least_once
-    slack_models
+    response
   end
 
   def oauth_user_present
     token = mock('Oauth token')
-    token.expects(:get).returns(slack_models).at_least_once
+    token.expects(:get).returns(slack_response).at_least_once
     OAuth2::AccessToken.expects(:from_kvform).returns(token)
   end
 
