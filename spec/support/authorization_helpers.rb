@@ -1,32 +1,47 @@
 
 module AuthorizationHelpers
-  def slack_models
-    {
-      user: {
-        id: '123',
-        name: 'Tester'
-      },
-      profile: {
-        image_48: '/avatar'
-      },
-      channel: {
-        name: 'My Channel'
-      }
-    }
-  end
-
-  def slack_response
-    response = mock('Slack User')
+  def slack_identity
+    response = mock('Slack Identity')
     response.expects(:body).returns(
-      slack_models.to_json
+      {
+        user: {
+          id: '123',
+          name: 'Tester'
+        },
+        team: {
+          id: 'abc'
+        }
+      }.to_json
     ).at_least_once
     response
   end
 
-  def oauth_user_present
-    token = mock('Oauth token')
-    token.expects(:get).returns(slack_response).at_least_once
-    OAuth2::AccessToken.expects(:from_kvform).returns(token)
+  def oauth_login_success(redirect_uri: nil, team: nil)
+    auth_code = mock('Auth code')
+    auth_code.expects(:authorize_url)
+             .with(
+               redirect_uri: oauth_url(redirect_uri: redirect_uri),
+               scope: 'identity.basic identity.avatar',
+               team: team
+             )
+             .returns('/slack_oauth')
+    oauth = mock('Oauth')
+    oauth.expects(:auth_code).returns(auth_code)
+    OAuth2::Client.expects(:new).returns(oauth)
+  end
+
+  def oauth_access_success(redirect_uri: nil)
+    @oauth_access = mock('Oauth token', token: 'abc')
+    auth_code = mock('Auth code')
+    auth_code.expects(:get_token)
+             .with(
+               'abc',
+               redirect_uri: oauth_url(redirect_uri: redirect_uri)
+             )
+             .returns(@oauth_access)
+    oauth = mock('Oauth')
+    oauth.expects(:auth_code).returns(auth_code)
+    OAuth2::Client.expects(:new).returns(oauth)
   end
 
   def rest_response_with(res)

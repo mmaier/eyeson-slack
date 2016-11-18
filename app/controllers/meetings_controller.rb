@@ -1,17 +1,11 @@
 # Join a meeting
 class MeetingsController < ApplicationController
+  before_action :valid_channel!
   before_action :authorized_or_leave!
-  before_action :oauth_client
-  before_action :oauth_access
-  before_action :oauth_user
 
   def show
     # Add user to conference room and redirect to communication GUI
-    @channel = {
-      id:   params.require(:id),
-      name: 'eyeson slack'
-    }
-    room = Room.new(channel: @channel, user: @user['user'])
+    room = Room.new(channel: @channel, user: @user)
 
     if room.error.present?
       render json: { error: room.error }, status: :bad_request
@@ -22,27 +16,15 @@ class MeetingsController < ApplicationController
 
   private
 
+  def valid_channel!
+    @channel = Channel.find_by(external_id: params[:id])
+    return if @channel.present?
+    render json: { error: 'Channel not found' }, status: :not_found
+  end
+
   def authorized_or_leave!
-    return if params[:access_token].present?
-    redirect_to_login
-  end
-
-  def redirect_to_login
+    @user = User.find_by(team_id: @channel.team_id, id: params[:user_id])
+    return if @user.present?
     redirect_to login_path(redirect_uri: meeting_path(id: params[:id]))
-  end
-
-  def oauth_access
-    @oauth_access = OAuth2::AccessToken.from_kvform(@oauth, '')
-  end
-
-  def oauth_user
-    # fetch user details from slack api
-    @user = JSON.parse(
-      @oauth_access.get(
-        '/api/users.identity?token=' + params.require(:access_token)
-      ).body
-    )
-
-    redirect_to_login && return unless @user['user'].present?
   end
 end

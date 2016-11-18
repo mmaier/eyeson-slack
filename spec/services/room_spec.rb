@@ -6,8 +6,8 @@ RSpec.describe Room, type: :class do
     rest_response_with(res)
 
     room = Room.new(
-      channel: slack_models[:channel],
-      user:    slack_models[:user]
+      channel: create(:channel),
+      user:    create(:user)
     )
 
     expect(room.url).to eq('gui_url')
@@ -19,8 +19,8 @@ RSpec.describe Room, type: :class do
     rest_response_with(res)
 
     room = Room.new(
-      channel: slack_models[:channel],
-      user:    slack_models[:user]
+      channel: create(:channel),
+      user:    create(:user)
     )
 
     expect(room.url).to be_nil

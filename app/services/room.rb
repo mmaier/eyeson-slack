@@ -3,6 +3,7 @@ class Room
   attr_reader :url, :error
 
   def initialize(channel: {}, user: {})
+    @team    = channel.team
     @channel = channel
     @user    = user
     @url     = nil
@@ -14,9 +15,9 @@ class Room
   private
 
   def create!
-    room = post('/rooms', id:    @channel[:id],
-                          name:  @channel[:name],
-                          user:  @user.merge!(avatar: @user['image_48']))
+    room = post('/rooms', id:    @channel.external_id,
+                          name:  @channel.name,
+                          user:  user_params_from(@user))
     if room['error'].present?
       @error = room['error']
     else
@@ -33,10 +34,18 @@ class Room
 
     req = Net::HTTP::Post.new(uri)
     req['Content-Type'] = 'application/json'
-    req['Authorization'] = @config['eyeson_key']
+    req['Authorization'] = @team.api_key
     req.body = params.to_json
 
     res = http.request(req)
     JSON.parse(res.body)
+  end
+
+  def user_params_from(user)
+    {
+      id: user.external_id,
+      name: user.name,
+      avatar: user.avatar
+    }
   end
 end

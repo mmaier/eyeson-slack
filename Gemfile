@@ -9,6 +9,7 @@ gem 'unicorn'
 gem 'syslog-logger'
 gem 'slack-ruby-client'
 gem 'oauth2'
+gem 'mongoid', '~> 6.0.0'
 
 group :development, :test do
   # Use ruby community standard and best practices
@@ -18,8 +19,15 @@ group :development, :test do
 end
 
 group :test do
+  # Use factories over fixtures
+  gem 'factory_girl_rails'
+  # Use random test data over static
+  gem 'faker'
   # Use rspec over minitests
   gem 'rspec-rails', '~> 3.5'
+  # Use mongoid-rspec and shoulda matcher test helper
+  gem 'mongoid-rspec', git: 'https://github.com/phinfonet/mongoid-rspec'
+  gem 'shoulda-matchers', '~> 3.1'
   # Fake oauth requests
   gem 'mocha'
   # Generate test coverage report
