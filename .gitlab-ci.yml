@@ -2,17 +2,26 @@
 
 image: docker-reg.test-visocon.com:5000/rails-test
 
+services:
+  - mongo:3.2
+
+variables:
+  MONGO_HOST: mongo
+
 before_script:
   - ruby -v
   - which ruby
+  - cp config/mongoid.yml.example config/mongoid.yml
   - cp config/services.yml.example config/services.yml
   - gem install bundler --no-ri --no-rdoc
   - bundle install --jobs $(nproc) --without production development --path=/cache/bundler
+  - RAILS_ENV=test bundle exec rails db:mongoid:create_indexes
 
 rspec:
   script: bundle exec rspec --format documentation
   tags:
     - ruby
+    - mongo
 
 rubocop:
   before_script:
