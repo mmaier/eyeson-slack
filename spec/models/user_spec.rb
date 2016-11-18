@@ -12,6 +12,5 @@ RSpec.describe User, type: :model do
   it { is_expected.to have_index_for(team_id: 1, external_id: 1) }
 
   it { is_expected.to validate_presence_of(:external_id) }
-  it { is_expected.to validate_presence_of(:name) }
   it { is_expected.to validate_uniqueness_of(:external_id) }
 end
