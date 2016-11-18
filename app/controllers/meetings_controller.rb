@@ -19,6 +19,7 @@ class MeetingsController < ApplicationController
   def valid_channel!
     @channel = Channel.find_by(external_id: params[:id])
     return if @channel.present?
+    # TODO: Redirect to eyeson/slack info page
     render json: { error: 'Channel not found' }, status: :not_found
   end
 

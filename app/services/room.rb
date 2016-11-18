@@ -15,9 +15,9 @@ class Room
   private
 
   def create!
-    room = post('/rooms', id:    @channel.external_id,
-                          name:  @channel.name,
-                          user:  user_params_from(@user))
+    room = post('/rooms', id:   @channel.external_id,
+                          name: @channel.name,
+                          user: user_params_from(@user))
     if room['error'].present?
       @error = room['error']
     else
@@ -43,8 +43,8 @@ class Room
 
   def user_params_from(user)
     {
-      id: user.external_id,
-      name: user.name,
+      id:     user.external_id,
+      name:   user.name,
       avatar: user.avatar
     }
   end
