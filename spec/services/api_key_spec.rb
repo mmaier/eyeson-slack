@@ -19,7 +19,9 @@ RSpec.describe ApiKey, type: :class do
     expect(api.error).to be_nil
   end
 
-  it 'creates api key after initialization' do
+  # it uses webbhooks url on setup
+
+  it 'handles errors' do
     res = mock('Eyeson result', body: { error: 'some_error' }.to_json)
     rest_response_with(res)
 

@@ -1,15 +1,15 @@
 
 module AuthorizationHelpers
-  def slack_identity
+  def slack_identity(user_id, team_id)
     response = mock('Slack Identity')
     response.expects(:body).returns(
       {
         user: {
-          id: '123',
+          id: user_id,
           name: 'Tester'
         },
         team: {
-          id: 'abc'
+          id: team_id
         }
       }.to_json
     ).at_least_once

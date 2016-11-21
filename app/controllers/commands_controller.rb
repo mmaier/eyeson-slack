@@ -27,7 +27,8 @@ class CommandsController < ApplicationController
 
   def valid_team!
     @team = Team.find_by(
-      external_id: params.require(:team_id)
+      external_id: params.require(:team_id),
+      confirmed: true
     )
     return if @team.present?
 

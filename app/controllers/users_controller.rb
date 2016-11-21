@@ -14,6 +14,13 @@ class UsersController < ApplicationController
     redirect_to url
   end
 
+  def setup_webhook
+    return unless params.require(:type) == "team_changed"
+    team = Team.find_by(api_key: params.require(:api_key))
+    team.confirmed = true if params[:team][:confirmed] == "true"
+    team.save!
+  end
+
   def login
     url = @oauth.auth_code.authorize_url(
       redirect_uri: oauth_url(redirect_uri: params.require(:redirect_uri)),
@@ -76,11 +83,17 @@ class UsersController < ApplicationController
   def team_and_user
     @team = Team.find_by(external_id: @identity['team']['id'])
 
-    if @team.present?
-      @user = @team.add!(@identity['user'])
-    else
-      team = Team.setup!(name: 'Slack Service Application', identity: @identity)
+    if !@team.present?
+      team = Team.setup!(
+        name: 'Slack Service Application',
+        identity: @identity,
+        webhooks_url: webhooks_url
+      )
       redirect_to team
+    elsif !@team.confirmed?
+      redirect_to @team.confirm_url
+    else
+      @user = @team.add!(@identity['user'])
     end
   end
 end

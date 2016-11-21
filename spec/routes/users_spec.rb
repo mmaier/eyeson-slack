@@ -8,6 +8,13 @@ RSpec.describe UsersController, type: :routing do
     )
   end
 
+  it 'routes to setup_webhook' do
+    expect(post: '/slack/setup').to route_to(
+      action:     'setup_webhook',
+      controller: 'users'
+    )
+  end
+
   it 'routes to login' do
     expect(get: '/slack/login').to route_to(
       action:     'login',

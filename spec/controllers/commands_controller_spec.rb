@@ -53,7 +53,7 @@ RSpec.describe CommandsController, type: :controller do
 end
 
 def proper_setup
-  Team.where(external_id: 'xyz').first_or_create!
+  @team = create(:team)
 end
 
 def command_params
@@ -63,6 +63,6 @@ def command_params
     user_name:    'user_name',
     channel_id:   'abc',
     channel_name: 'channel_name',
-    team_id:      'xyz'
+    team_id:      @team.present? ? @team.external_id : Faker::Code.isbn
   }
 end

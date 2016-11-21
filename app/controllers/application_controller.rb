@@ -1,5 +1,6 @@
 # Application Controller
 class ApplicationController < ActionController::API
+
   private
 
   def oauth_client

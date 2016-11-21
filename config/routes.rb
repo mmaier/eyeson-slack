@@ -2,6 +2,7 @@ Rails.application.routes.draw do
   scope :slack do
     # App setup url
     get 'setup' => 'users#setup', as: :setup
+    post 'setup' => 'users#setup_webhook', as: :webhooks
 
     # Commands will be sent here
     post 'commands' => 'commands#respond', :defaults => { format: :json }

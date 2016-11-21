@@ -4,6 +4,8 @@ class Team
 
   field :external_id, type: String
   field :api_key, type: String
+  field :confirm_url, type: String
+  field :confirmed, type: Boolean, default: false
 
   has_many :users, dependent: :destroy
   has_many :channels, dependent: :destroy
@@ -11,13 +13,16 @@ class Team
   validates :external_id, presence: true
   validates :external_id, uniqueness: true
   validates :api_key, presence: true
+  validates :confirm_url, presence: true
+  validates :confirmed, presence: true
 
   index({ external_id: 1 }, unique: true)
 
-  def self.setup!(name: nil, identity: {})
+  def self.setup!(name: nil, identity: {}, webhooks_url: nil)
     team = Team.new
-    api_key = ApiKey.new(name: name)
+    api_key = ApiKey.new(name: name, webhooks_url: webhooks_url)
     team.api_key = api_key.key
+    team.confirm_url = api_key.url
     team.external_id = identity['team']['id']
     team.save!
 

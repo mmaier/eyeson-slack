@@ -2,19 +2,26 @@
 class ApiKey
   attr_reader :key, :url, :error
 
-  def initialize(name: nil)
-    @name    = name
-    @key     = nil
-    @url     = nil
-    @error   = nil
-    @config  = Rails.configuration.services
+  def initialize(name: nil, webhooks_url: nil)
+    @name         = name
+    @webhooks_url = webhooks_url
+    @key          = nil
+    @url          = nil
+    @error        = nil
+    @config       = Rails.configuration.services
     create!
   end
 
   private
 
   def create!
-    team = post('/teams', name: @name)
+    team = post('/teams',
+      name: @name,
+      webhooks: {
+        url: @webhooks_url,
+        types: 'team_changed'
+      }
+    )
     if team['error'].present?
       @error = team['error']
     else
