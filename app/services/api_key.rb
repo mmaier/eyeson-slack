@@ -16,12 +16,8 @@ class ApiKey
 
   def create!
     team = post('/teams',
-      name: @name,
-      webhooks: {
-        url: @webhooks_url,
-        types: 'team_changed'
-      }
-    )
+                name: @name,
+                webhooks: { url: @webhooks_url, types: 'team_changed' })
     if team['error'].present?
       @error = team['error']
     else

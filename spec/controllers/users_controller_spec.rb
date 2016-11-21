@@ -59,7 +59,9 @@ RSpec.describe UsersController, type: :controller do
     redirect_uri = meeting_path(id: '123')
 
     oauth_access_success(redirect_uri: redirect_uri)
-    @oauth_access.expects(:get).returns(slack_identity(user.external_id, team.external_id))
+    @oauth_access.expects(:get).returns(
+      slack_identity(user.external_id, team.external_id)
+    )
 
     get :oauth, params: { code: 'abc', redirect_uri: redirect_uri }
     expect(response).to redirect_to(redirect_uri + "?user_id=#{user.id}")
@@ -78,7 +80,11 @@ RSpec.describe UsersController, type: :controller do
 
   it 'can handle webhook for team_changed' do
     team = create(:team, confirmed: false)
-    post :setup_webhook, params: { type: 'team_changed', api_key: team.api_key, team: { confirmed: true } }
+    post :setup_webhook, params: {
+      type: 'team_changed',
+      api_key: team.api_key,
+      team: { confirmed: true }
+    }
     team.reload
     expect(team.confirmed).to eq(true)
   end

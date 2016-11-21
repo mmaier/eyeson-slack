@@ -30,14 +30,7 @@ class CommandsController < ApplicationController
       external_id: params.require(:team_id),
       confirmed: true
     )
-    return if @team.present?
-
-    response = {
-      text: I18n.t('.invalid_setup',
-                   url: setup_url,
-                   scope: [:commands])
-    }
-    render json: response
+    invalid_setup_response unless @team.present?
   end
 
   def valid_team_user_relation!
@@ -54,5 +47,14 @@ class CommandsController < ApplicationController
     )
     @channel.name = params.require(:channel_name)
     @channel.save!
+  end
+
+  def invalid_setup_response
+    response = {
+      text: I18n.t('.invalid_setup',
+                   url: setup_url,
+                   scope: [:commands])
+    }
+    render json: response
   end
 end
