@@ -5,7 +5,7 @@ Rails.application.routes.draw do
     post 'setup' => 'users#setup_webhook', as: :webhooks
 
     # Commands will be sent here
-    post 'commands' => 'commands#respond', :defaults => { format: :json }
+    post 'commands' => 'commands#respond'
 
     # Handles the user oauth flow
     get 'login' => 'users#login', as: :login

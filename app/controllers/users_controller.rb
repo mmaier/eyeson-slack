@@ -17,7 +17,7 @@ class UsersController < ApplicationController
   def setup_webhook
     return unless params.require(:type) == 'team_changed'
     team = Team.find_by(api_key: params.require(:api_key))
-    team.confirmed = true if params[:team][:confirmed] == 'true'
+    team.confirmed = true if [true, 'true'].include?(params[:team][:confirmed])
     team.save!
   end
 

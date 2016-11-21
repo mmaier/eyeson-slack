@@ -80,11 +80,12 @@ RSpec.describe UsersController, type: :controller do
 
   it 'can handle webhook for team_changed' do
     team = create(:team, confirmed: false)
-    post :setup_webhook, params: {
+    params = {
       type: 'team_changed',
       api_key: team.api_key,
       team: { confirmed: true }
     }
+    post :setup_webhook, params: params
     team.reload
     expect(team.confirmed).to eq(true)
   end
