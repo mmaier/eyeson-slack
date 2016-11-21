@@ -32,7 +32,9 @@ class CommandsController < ApplicationController
     return if @team.present?
 
     response = {
-      text: I18n.t('.invalid_setup', scope: [:commands])
+      text: I18n.t('.invalid_setup',
+                   url: setup_url,
+                   scope: [:commands])
     }
     render json: response
   end

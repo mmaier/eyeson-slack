@@ -6,6 +6,14 @@ class UsersController < ApplicationController
   before_action :oauth_user, only: [:oauth]
   before_action :team_and_user, only: [:oauth]
 
+  def setup
+    url = @oauth.auth_code.authorize_url(
+      redirect_uri: oauth_url,
+      scope: 'commands'
+    )
+    redirect_to url
+  end
+
   def login
     url = @oauth.auth_code.authorize_url(
       redirect_uri: oauth_url(redirect_uri: params.require(:redirect_uri)),

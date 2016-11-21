@@ -11,7 +11,9 @@ RSpec.describe CommandsController, type: :controller do
   it 'should raise an error with invalid team setup' do
     post :respond, params: command_params.merge!(team_id: Faker::Code.isbn)
     expect(JSON.parse(response.body)['text']).to eq(
-      I18n.t('.invalid_setup', scope: [:commands])
+      I18n.t('.invalid_setup',
+             url: setup_url,
+             scope: [:commands])
     )
   end
 
