@@ -14,7 +14,28 @@ class Team
 
   index({ external_id: 1 }, unique: true)
 
-  before_validation :obtain_api_key
+  def self.setup!(name: nil, identity: {})
+    team = Team.new
+    api_key = ApiKey.new(name: name)
+    team.api_key = api_key.key
+    team.external_id = identity['team']['id']
+    team.save!
+
+    team.add!(identity['user'])
+
+    api_key.url
+  end
+
+  def add!(user)
+    user = User.find_or_initialize_by(
+      team_id: id,
+      external_id: user['id']
+    )
+    user.name = user['name']
+    user.avatar = user['image_48']
+    user.save!
+    user
+  end
 
   private
 

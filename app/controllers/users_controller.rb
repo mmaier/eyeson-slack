@@ -4,8 +4,7 @@ class UsersController < ApplicationController
   before_action :oauth_client
   before_action :oauth_access, only: [:oauth]
   before_action :oauth_user, only: [:oauth]
-  before_action :init_team, only: [:oauth]
-  before_action :init_user, only: [:oauth]
+  before_action :team_and_user, only: [:oauth]
 
   def login
     url = @oauth.auth_code.authorize_url(
@@ -34,7 +33,7 @@ class UsersController < ApplicationController
   def oauth_access
     @oauth_access = @oauth.auth_code.get_token(
       params[:code],
-      redirect_uri: oauth_url(redirect_uri: params.require(:redirect_uri))
+      redirect_uri: oauth_url(redirect_uri: params[:redirect_uri])
     )
   end
 
@@ -48,7 +47,7 @@ class UsersController < ApplicationController
 
     return if @identity['user'].present?
     redirect_to login_path(
-      redirect_uri: params.require(:redirect_uri)
+      redirect_uri: params[:redirect_uri]
     )
   end
 
@@ -60,22 +59,20 @@ class UsersController < ApplicationController
     end
 
     return nil unless path.present?
-    return path[:id] if path[:controller] == 'meetings' && path[:id].present?
+    if path[:controller] == 'meetings' && path[:id].present?
+      return Channel.find_by(external_id: path[:id]).team.external_id
+    end
     nil
   end
 
-  def init_team
-    @team = Team.find_or_initialize_by(external_id: @identity['team']['id'])
-    @team.save!
-  end
+  def team_and_user
+    @team = Team.find_by(external_id: @identity['team']['id'])
 
-  def init_user
-    @user = User.find_or_initialize_by(
-      team_id: @team.id,
-      external_id: @identity['user']['id']
-    )
-    @user.name = @identity['user']['name']
-    @user.avatar = @identity['user']['image_48']
-    @user.save!
+    if @team.present?
+      @user = @team.add!(@identity['user'])
+    else
+      team = Team.setup!(name: 'Slack Service Application', identity: @identity)
+      redirect_to team
+    end
   end
 end
