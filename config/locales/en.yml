@@ -2,7 +2,7 @@ en:
   commands:
     invalid_slack_token: "Verification not correct"
     invalid_setup: "Your app hasn't been setup properly. Please finalize your setup in the apps & integrations menu."
-    respond: "%{name} has started a videomeeting: *<%{url}|Click here to join>*"
+    respond: "%{name} has started a videomeeting: *<%{url}|Join now>*"
       
   meetings:
     channel_not_found: "Channel not found"
