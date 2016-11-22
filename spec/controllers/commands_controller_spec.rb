@@ -3,6 +3,7 @@ require 'rails_helper'
 RSpec.describe CommandsController, type: :controller do
   it 'should raise an error with invalid token' do
     post :create, params: { token: 'blabla' }
+    expect(response.status).to eq(200)
     expect(JSON.parse(response.body)['text']).to eq(
       I18n.t('.invalid_slack_token', scope: [:commands])
     )
@@ -10,6 +11,7 @@ RSpec.describe CommandsController, type: :controller do
 
   it 'should raise an error with invalid team setup' do
     post :create, params: command_params.merge!(team_id: Faker::Code.isbn)
+    expect(response.status).to eq(200)
     expect(JSON.parse(response.body)['text']).to eq(
       I18n.t('.invalid_setup',
              url: setup_url,
