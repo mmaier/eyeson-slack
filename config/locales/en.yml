@@ -6,3 +6,7 @@ en:
       
   meetings:
     channel_not_found: "Channel not found"
+
+  webhooks:
+    invalid_type: "Invalid type"
+    team_not_found: "Team not found"

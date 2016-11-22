@@ -1,11 +1,21 @@
 # Executes slack command
 class CommandsController < ApplicationController
-  before_action :valid_slack_token!
-  before_action :valid_team!
-  before_action :valid_team_user_relation!
-  before_action :valid_team_channel_relation!
+  before_action :oauth_client, only: [:setup]
 
-  def respond
+  before_action :valid_slack_token!, except: [:setup]
+  before_action :valid_team!, except: [:setup]
+  before_action :valid_team_user_relation!, except: [:setup]
+  before_action :valid_team_channel_relation!, except: [:setup]
+
+  def setup
+    url = @oauth.auth_code.authorize_url(
+      redirect_uri: oauth_url,
+      scope: 'commands'
+    )
+    redirect_to url
+  end
+
+  def create
     # Send immediate response to slack (must be <200ms)
     url = meeting_url(id: @channel.external_id)
     response = {

@@ -77,16 +77,4 @@ RSpec.describe UsersController, type: :controller do
     get :oauth, params: { code: 'abc', redirect_uri: redirect_uri }
     expect(response).to redirect_to(login_path(redirect_uri: redirect_uri))
   end
-
-  it 'can handle webhook for team_changed' do
-    team = create(:team, ready: false)
-    params = {
-      type: 'team_changed',
-      api_key: team.api_key,
-      team: { ready: true }
-    }
-    post :setup_webhook, params: params
-    team.reload
-    expect(team.ready).to eq(true)
-  end
 end

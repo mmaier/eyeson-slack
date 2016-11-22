@@ -6,21 +6,6 @@ class UsersController < ApplicationController
   before_action :oauth_user, only: [:oauth]
   before_action :team_and_user, only: [:oauth]
 
-  def setup
-    url = @oauth.auth_code.authorize_url(
-      redirect_uri: oauth_url,
-      scope: 'commands'
-    )
-    redirect_to url
-  end
-
-  def setup_webhook
-    return unless params.require(:type) == 'team_changed'
-    team = Team.find_by(api_key: params.require(:api_key))
-    team.ready = true if [true, 'true'].include?(params[:team][:ready])
-    team.save!
-  end
-
   def login
     url = @oauth.auth_code.authorize_url(
       redirect_uri: oauth_url(redirect_uri: params.require(:redirect_uri)),

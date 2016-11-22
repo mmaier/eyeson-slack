@@ -1,11 +1,11 @@
 Rails.application.routes.draw do
   scope :slack do
     # App setup url
-    get 'setup' => 'users#setup', as: :setup
-    post 'setup' => 'users#setup_webhook', as: :webhooks
+    get 'setup' => 'commands#setup', as: :setup
+    resources :webhooks, only: [:create]
 
     # Commands will be sent here
-    post 'commands' => 'commands#respond'
+    resources :commands, only: [:create]
 
     # Handles the user oauth flow
     get 'login' => 'users#login', as: :login
