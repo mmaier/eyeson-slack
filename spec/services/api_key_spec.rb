@@ -5,7 +5,7 @@ RSpec.describe ApiKey, type: :class do
     res = mock('Eyeson result', body: {
       api_key: '123',
       links: {
-        confirmation: 'confirm_url'
+        setup: 'setup_url'
       }
     }.to_json)
     rest_response_with(res)
@@ -15,7 +15,7 @@ RSpec.describe ApiKey, type: :class do
     )
 
     expect(api.key).to eq('123')
-    expect(api.url).to eq('confirm_url')
+    expect(api.url).to eq('setup_url')
     expect(api.error).to be_nil
   end
 

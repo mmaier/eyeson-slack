@@ -17,7 +17,7 @@ class UsersController < ApplicationController
   def setup_webhook
     return unless params.require(:type) == 'team_changed'
     team = Team.find_by(api_key: params.require(:api_key))
-    team.confirmed = true if [true, 'true'].include?(params[:team][:confirmed])
+    team.ready = true if [true, 'true'].include?(params[:team][:ready])
     team.save!
   end
 
@@ -82,13 +82,13 @@ class UsersController < ApplicationController
 
   def team_and_user
     @team = Team.find_by(external_id: @identity['team']['id'])
-    redirect_to_setup && return if !@team.present? || !@team.confirmed?
+    redirect_to_setup && return if !@team.present? || !@team.ready?
     @user = @team.add!(@identity['user'])
   end
 
   def redirect_to_setup
     if @team.present?
-      redirect_to @team.confirm_url
+      redirect_to @team.setup_url
     else
       team = Team.setup!(
         name: 'Slack Service Application',

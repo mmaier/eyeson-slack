@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe UsersController, type: :controller do
-  it 'should setup team and redirect to confirmation' do
+  it 'should setup team and redirect to setup' do
     oauth_access_success
     new_identity = mock('Slack Identity')
     new_identity.expects(:body).returns(
@@ -20,13 +20,13 @@ RSpec.describe UsersController, type: :controller do
     res = mock('Eyeson result', body: {
       api_key: Faker::Crypto.md5,
       links: {
-        confirmation: 'https://test.api/confirmation_url'
+        setup: 'https://test.api/setup_url'
       }
     }.to_json)
     rest_response_with(res)
 
     get :oauth, params: { code: 'abc' }
-    expect(response).to redirect_to('https://test.api/confirmation_url')
+    expect(response).to redirect_to('https://test.api/setup_url')
   end
 
   it 'should invoke oauth and redirect to slack login' do
@@ -79,14 +79,14 @@ RSpec.describe UsersController, type: :controller do
   end
 
   it 'can handle webhook for team_changed' do
-    team = create(:team, confirmed: false)
+    team = create(:team, ready: false)
     params = {
       type: 'team_changed',
       api_key: team.api_key,
-      team: { confirmed: true }
+      team: { ready: true }
     }
     post :setup_webhook, params: params
     team.reload
-    expect(team.confirmed).to eq(true)
+    expect(team.ready).to eq(true)
   end
 end

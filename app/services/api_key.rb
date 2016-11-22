@@ -22,7 +22,7 @@ class ApiKey
       @error = team['error']
     else
       @key = team['api_key']
-      @url = team['links']['confirmation']
+      @url = team['links']['setup']
     end
   end
 
