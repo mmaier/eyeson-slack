@@ -1,7 +1,7 @@
 # Join a meeting
 class MeetingsController < ApplicationController
   before_action :valid_channel!
-  before_action :authorized_or_leave!
+  before_action :valid_team_user_relation!
 
   def show
     # Add user to conference room and redirect to communication GUI
@@ -25,7 +25,7 @@ class MeetingsController < ApplicationController
     }, status: :not_found
   end
 
-  def authorized_or_leave!
+  def valid_team_user_relation!
     @user = User.find_by(team_id: @channel.team_id, id: params[:user_id])
     return if @user.present?
     redirect_to login_path(redirect_uri: meeting_path(id: params[:id]))

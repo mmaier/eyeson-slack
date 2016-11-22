@@ -17,7 +17,7 @@ class Room
   def create!
     room = post('/rooms', id:   @channel.external_id,
                           name: @channel.name,
-                          user: user_params_from(@user))
+                          user: mapped_user)
     if room['error'].present?
       @error = room['error']
     else
@@ -41,11 +41,11 @@ class Room
     JSON.parse(res.body)
   end
 
-  def user_params_from(user)
+  def mapped_user
     {
-      id:     user.external_id,
-      name:   user.name,
-      avatar: user.avatar
+      id:     @user.external_id,
+      name:   @user.name,
+      avatar: @user.avatar
     }
   end
 end

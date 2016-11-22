@@ -31,13 +31,13 @@ class Team
     api_key.url
   end
 
-  def add!(user)
+  def add!(identity)
     user = User.find_or_initialize_by(
       team_id: id,
-      external_id: user['id']
+      external_id: identity['id']
     )
-    user.name = user['name']
-    user.avatar = user['image_48']
+    user.name = identity['name']
+    user.avatar = identity['image_48']
     user.save!
     user
   end
