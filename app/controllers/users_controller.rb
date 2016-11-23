@@ -8,14 +8,15 @@ class UsersController < ApplicationController
 
   def login
     redirect_to @slack_api.authorize!(
-      redirect_uri: oauth_url(redirect_uri: params.require(:redirect_uri)),
+      redirect_uri: oauth_url(redirect_uri: params[:redirect_uri]),
       scope:        'identity.basic identity.avatar',
       team:         team_id_by_url
     )
   end
 
   def oauth
-    uri = params.require(:redirect_uri)
+    # TODO: Redirect to slack info page unless redirect_uri present
+    uri = params[:redirect_uri]
     connector = (uri.include?('?') ? '&' : '?')
     redirect_to uri + connector + "user_id=#{@user.id}"
   end
@@ -30,7 +31,7 @@ class UsersController < ApplicationController
     return if auth
     # TODO: redirect to error/help page
     redirect_to login_path(
-      redirect_uri: params.require(:redirect_uri)
+      redirect_uri: params[:redirect_uri]
     )
   end
 
@@ -63,7 +64,7 @@ class UsersController < ApplicationController
 
   def team_id_by_url
     path = begin
-      Rails.application.routes.recognize_path(params.require(:redirect_uri))
+      Rails.application.routes.recognize_path(params[:redirect_uri])
     rescue
       nil
     end
