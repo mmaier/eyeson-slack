@@ -12,4 +12,7 @@ class Channel
   validates :name, presence: true
 
   index({ team_id: 1, external_id: 1 }, unique: true)
+
+  def send_join_state!
+  end
 end

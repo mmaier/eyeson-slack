@@ -1,18 +1,17 @@
 # Authenticat users via oauth
 class UsersController < ApplicationController
-  before_action :handle_oauth_error, only: [:oauth]
-  before_action :oauth_client
-  before_action :oauth_access, only: [:oauth]
-  before_action :oauth_user, only: [:oauth]
-  before_action :team_and_user, only: [:oauth]
+  before_action :slack_api
+
+  before_action :authorized!, only: [:oauth]
+  before_action :valid_user!, only: [:oauth]
+  before_action :valid_team_user_relation!, only: [:oauth]
 
   def login
-    url = @oauth.auth_code.authorize_url(
+    redirect_to @slack_api.authorize!(
       redirect_uri: oauth_url(redirect_uri: params.require(:redirect_uri)),
-      scope: 'identity.basic identity.avatar',
-      team: team_known?
+      scope:        'identity.basic identity.avatar',
+      team:         team_id_by_url
     )
-    redirect_to url
   end
 
   def oauth
@@ -23,35 +22,26 @@ class UsersController < ApplicationController
 
   private
 
-  def handle_oauth_error
-    return unless params[:error].present?
+  def authorized!
+    auth = @slack_api.authorized?(
+      params,
+      oauth_url(redirect_uri: params[:redirect_uri])
+    )
+    return if auth
     redirect_to login_path(
       redirect_uri: params.require(:redirect_uri)
     )
   end
 
-  def oauth_access
-    @oauth_access = @oauth.auth_code.get_token(
-      params[:code],
-      redirect_uri: oauth_url(redirect_uri: params[:redirect_uri])
-    )
-  end
-
-  def oauth_user
-    # fetch user details from slack api
-    @identity = JSON.parse(
-      @oauth_access.get(
-        '/api/users.identity?token=' + @oauth_access.token
-      ).body
-    )
-
+  def valid_user!
+    @identity = @slack_api.get('/users.identity')
     return if @identity['user'].present?
     redirect_to login_path(
       redirect_uri: params[:redirect_uri]
     )
   end
 
-  def team_known?
+  def team_id_by_url
     path = begin
       Rails.application.routes.recognize_path(params.require(:redirect_uri))
     rescue
@@ -65,13 +55,13 @@ class UsersController < ApplicationController
     nil
   end
 
-  def team_and_user
+  def valid_team_user_relation!
     @team = Team.find_by(external_id: @identity['team']['id'])
-    redirect_to_setup && return if !@team.present? || !@team.ready?
+    setup_app! && return if !@team.present? || !@team.ready?
     @user = @team.add!(@identity['user'])
   end
 
-  def redirect_to_setup
+  def setup_app!
     if @team.present?
       redirect_to @team.setup_url
     else

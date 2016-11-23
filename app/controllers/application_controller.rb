@@ -2,13 +2,7 @@
 class ApplicationController < ActionController::API
   private
 
-  def oauth_client
-    @oauth = OAuth2::Client.new(
-      Rails.configuration.services['slack_key'],
-      Rails.configuration.services['slack_secret'],
-      site: 'https://slack.com',
-      authorize_url: '/oauth/authorize',
-      token_url: '/api/oauth.access'
-    )
+  def slack_api
+    @slack_api = SlackApi.new
   end
 end

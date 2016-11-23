@@ -30,7 +30,7 @@ module AuthorizationHelpers
     OAuth2::Client.expects(:new).returns(oauth)
   end
 
-  def oauth_access_success(redirect_uri: nil)
+  def oauth_token_success(redirect_uri: nil)
     @oauth_access = mock('Oauth token', token: 'abc')
     auth_code = mock('Auth code')
     auth_code.expects(:get_token)
@@ -44,8 +44,14 @@ module AuthorizationHelpers
     OAuth2::Client.expects(:new).returns(oauth)
   end
 
+  def slack_api_authorized
+    @slack_api = mock('Slack API')
+    SlackApi.expects(:new).returns(@slack_api)
+    @slack_api.expects(:authorized?).returns(true)
+  end
+
   def rest_response_with(res)
-    req = mock('MCU Request')
+    req = mock('Eyeson Request')
     req.expects(:use_ssl=).at_least_once
     req.expects(:verify_mode=).at_least_once
     req.expects(:request).returns(res).at_least_once

@@ -10,6 +10,7 @@ class MeetingsController < ApplicationController
     if room.error.present?
       render json: { error: room.error }, status: :bad_request
     else
+      @channel.send_join_state!
       redirect_to room.url
     end
   end

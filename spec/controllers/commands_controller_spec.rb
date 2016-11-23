@@ -19,6 +19,13 @@ RSpec.describe CommandsController, type: :controller do
     )
   end
 
+  it 'should redirect to setup properly' do
+    @slack_api = mock('Slack API', :authorize! => 'auth_url')
+    SlackApi.expects(:new).returns(@slack_api)
+    get :setup
+    expect(response.status).to redirect_to('auth_url')
+  end
+
   it 'should find team by team_id' do
     proper_setup
     post :create, params: command_params

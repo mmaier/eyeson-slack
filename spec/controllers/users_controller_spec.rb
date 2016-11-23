@@ -2,20 +2,17 @@ require 'rails_helper'
 
 RSpec.describe UsersController, type: :controller do
   it 'should setup team and redirect to setup' do
-    oauth_access_success
-    new_identity = mock('Slack Identity')
-    new_identity.expects(:body).returns(
-      {
-        user: {
-          id: '123',
-          name: 'Tester'
-        },
-        team: {
-          id: Faker::Code.isbn
-        }
-      }.to_json
-    ).at_least_once
-    @oauth_access.expects(:get).returns(new_identity)
+    slack_api_authorized
+    new_identity = {
+      'user' => {
+        'id' => '123',
+        'name' => 'Tester'
+      },
+      'team' => {
+        'id' => Faker::Code.isbn
+      }
+    }
+    @slack_api.expects(:get).returns(new_identity)
 
     res = mock('Eyeson result', body: {
       api_key: Faker::Crypto.md5,
@@ -25,8 +22,26 @@ RSpec.describe UsersController, type: :controller do
     }.to_json)
     rest_response_with(res)
 
-    get :oauth, params: { code: 'abc' }
+    get :oauth
     expect(response).to redirect_to('https://test.api/setup_url')
+  end
+
+  it 'should redirect to setup_url on setup for existing team' do
+    team = create(:team, ready: false, setup_url: 'https://some_url')
+    slack_api_authorized
+    new_identity = {
+      'user' => {
+        'id' => '123',
+        'name' => 'Tester'
+      },
+      'team' => {
+        'id' => team.external_id
+      }
+    }
+    @slack_api.expects(:get).returns(new_identity)
+
+    get :oauth
+    expect(response).to redirect_to('https://some_url')
   end
 
   it 'should invoke oauth and redirect to slack login' do
@@ -58,7 +73,7 @@ RSpec.describe UsersController, type: :controller do
     user = create(:user, team: team)
     redirect_uri = meeting_path(id: '123')
 
-    oauth_access_success(redirect_uri: redirect_uri)
+    oauth_token_success(redirect_uri: redirect_uri)
     @oauth_access.expects(:get).returns(
       slack_identity(user.external_id, team.external_id)
     )
@@ -71,7 +86,7 @@ RSpec.describe UsersController, type: :controller do
     redirect_uri = meeting_path(id: '123')
 
     error = mock('Slack error', body: { error: 'blabla' }.to_json)
-    oauth_access_success(redirect_uri: redirect_uri)
+    oauth_token_success(redirect_uri: redirect_uri)
     @oauth_access.expects(:get).returns(error)
 
     get :oauth, params: { code: 'abc', redirect_uri: redirect_uri }

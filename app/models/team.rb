@@ -41,11 +41,4 @@ class Team
     user.save!
     user
   end
-
-  private
-
-  def obtain_api_key
-    # TODO: use slack configuration for key????
-    self.api_key = 'c9558caed546e3d4f252'
-  end
 end

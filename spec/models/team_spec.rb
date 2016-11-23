@@ -1,10 +1,6 @@
 require 'rails_helper'
 
 RSpec.describe Team, type: :model do
-  let(:team) do
-    create(:team)
-  end
-
   it { is_expected.to have_many :users }
   it { is_expected.to have_many :channels }
 

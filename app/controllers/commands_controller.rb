@@ -1,6 +1,6 @@
 # Executes slack command
 class CommandsController < ApplicationController
-  before_action :oauth_client, only: [:setup]
+  before_action :slack_api, only: [:setup]
 
   before_action :valid_slack_token!, except: [:setup]
   before_action :valid_team!, except: [:setup]
@@ -8,11 +8,10 @@ class CommandsController < ApplicationController
   before_action :valid_team_channel_relation!, except: [:setup]
 
   def setup
-    url = @oauth.auth_code.authorize_url(
+    redirect_to @slack_api.authorize!(
       redirect_uri: oauth_url,
-      scope: 'commands'
+      scope:        'commands'
     )
-    redirect_to url
   end
 
   def create

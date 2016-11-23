@@ -1,10 +1,6 @@
 require 'rails_helper'
 
 RSpec.describe User, type: :model do
-  let(:channel) do
-    create(:channel)
-  end
-
   it { is_expected.to belong_to :team }
 
   it { is_expected.to have_fields(:external_id).of_type(String) }
