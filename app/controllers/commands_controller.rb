@@ -10,7 +10,7 @@ class CommandsController < ApplicationController
   def setup
     redirect_to @slack_api.authorize!(
       redirect_uri: oauth_url,
-      scope:        'commands'
+      scope:        'identity.basic commands'
     )
   end
 
@@ -46,7 +46,7 @@ class CommandsController < ApplicationController
     @user = @team.users.find_or_initialize_by(
       external_id: params.require(:user_id)
     )
-    @user.name = params.require(:user_name)
+    @user.name = params.require(:user_name) unless @user.name.present?
     @user.save!
   end
 
