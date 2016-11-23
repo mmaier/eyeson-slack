@@ -28,7 +28,7 @@ RSpec.describe CommandsController, type: :controller do
 
   it 'should ask for command permissions on setup complete' do
     expects_authorize_with(
-      redirect_uri: nil,
+      redirect_uri: 'https://www.eyeson.team',
       scope:        'commands'
     )
     get :setup_complete

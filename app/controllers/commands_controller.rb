@@ -14,7 +14,7 @@ class CommandsController < ApplicationController
   def setup_complete
     # TODO: redirect to setup complete info page
     redirect_to @slack_api.authorize!(
-      redirect_uri: nil,
+      redirect_uri: 'https://www.eyeson.team',
       scope:        'commands'
     )
   end
