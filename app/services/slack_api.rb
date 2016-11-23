@@ -32,7 +32,11 @@ class SlackApi
     response = @oauth_access.get(
       "/api#{path}" + request_params_from(params)
     )
-    JSON.parse(response.body)
+    begin
+      JSON.parse(response.body)
+    rescue
+      {}
+    end
   end
 
   private

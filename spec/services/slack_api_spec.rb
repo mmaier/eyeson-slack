@@ -1,6 +1,9 @@
 require 'rails_helper'
 
 RSpec.describe SlackApi, type: :class do
+  let(:slack_api) do
+    SlackApi.new
+  end
   # def oauth_token_success(redirect_uri: nil)
   #   @oauth_access = mock('Oauth token', token: 'abc')
   #   auth_code = mock('Auth code')

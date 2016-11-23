@@ -10,7 +10,7 @@ class CommandsController < ApplicationController
   def setup
     redirect_to @slack_api.authorize!(
       redirect_uri: oauth_url,
-      scope:        'identity.basic commands'
+      scope:        'commands'
     )
   end
 

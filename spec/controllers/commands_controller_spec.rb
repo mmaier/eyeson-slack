@@ -22,7 +22,7 @@ RSpec.describe CommandsController, type: :controller do
   it 'should redirect to setup properly' do
     expects_authorize_with(
       redirect_uri: oauth_url,
-      scope:        'identity.basic commands'
+      scope:        'commands'
     )
     get :setup
     expect(response.status).to redirect_to('https://slack/auth_url')

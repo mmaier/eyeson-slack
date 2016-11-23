@@ -28,6 +28,7 @@ class UsersController < ApplicationController
       oauth_url(redirect_uri: params[:redirect_uri])
     )
     return if auth
+    # TODO: redirect to error/help page
     redirect_to login_path(
       redirect_uri: params.require(:redirect_uri)
     )
@@ -39,20 +40,6 @@ class UsersController < ApplicationController
     redirect_to login_path(
       redirect_uri: params[:redirect_uri]
     )
-  end
-
-  def team_id_by_url
-    path = begin
-      Rails.application.routes.recognize_path(params.require(:redirect_uri))
-    rescue
-      nil
-    end
-
-    return nil unless path.present?
-    if path[:controller] == 'meetings' && path[:id].present?
-      return Channel.find_by(external_id: path[:id]).team.external_id
-    end
-    nil
   end
 
   def valid_team_user_relation!
@@ -72,5 +59,19 @@ class UsersController < ApplicationController
       )
       redirect_to team
     end
+  end
+
+  def team_id_by_url
+    path = begin
+      Rails.application.routes.recognize_path(params.require(:redirect_uri))
+    rescue
+      nil
+    end
+
+    return nil unless path.present?
+    if path[:controller] == 'meetings' && path[:id].present?
+      return Channel.find_by(external_id: path[:id]).team.external_id
+    end
+    nil
   end
 end
