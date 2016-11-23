@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe UsersController, type: :controller do
-  it 'should setup team and redirect to setup' do
+  it 'should setup team and redirect to api console' do
     slack_api_authorized
     @slack_api.expects(:get).returns(slack_identity)
 
@@ -13,7 +13,7 @@ RSpec.describe UsersController, type: :controller do
     }.to_json)
     rest_response_with(res)
 
-    get :oauth
+    get :oauth, params: { redirect_uri: setup_complete_path }
     expect(response).to redirect_to('https://test.api/setup_url')
   end
 
@@ -22,7 +22,7 @@ RSpec.describe UsersController, type: :controller do
     slack_api_authorized
     @slack_api.expects(:get).returns(slack_identity(team_id: team.external_id))
 
-    get :oauth
+    get :oauth, params: { redirect_uri: setup_complete_path }
     expect(response).to redirect_to('https://some_url')
   end
 
@@ -69,7 +69,7 @@ RSpec.describe UsersController, type: :controller do
                          team_id: team.external_id
               ))
 
-    get :oauth, params: { code: 'abc', redirect_uri: redirect_uri }
+    get :oauth, params: { redirect_uri: redirect_uri }
     expect(response).to redirect_to(redirect_uri + "?user_id=#{user.id}")
   end
 
@@ -80,7 +80,7 @@ RSpec.describe UsersController, type: :controller do
     SlackApi.expects(:new).returns(@slack_api)
     @slack_api.expects(:authorized?).returns(false)
 
-    get :oauth, params: { code: 'abc', redirect_uri: redirect_uri }
+    get :oauth, params: { redirect_uri: redirect_uri }
     expect(response).to redirect_to(login_path(redirect_uri: redirect_uri))
   end
 
@@ -91,7 +91,7 @@ RSpec.describe UsersController, type: :controller do
     @slack_api.expects(:get)
               .returns(error: 'some_error')
 
-    get :oauth, params: { code: 'abc', redirect_uri: redirect_uri }
+    get :oauth, params: { redirect_uri: redirect_uri }
     expect(response).to redirect_to(login_path(redirect_uri: redirect_uri))
   end
 end

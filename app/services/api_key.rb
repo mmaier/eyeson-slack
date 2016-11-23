@@ -22,6 +22,7 @@ class ApiKey
       @error = team['error']
     else
       @key = team['api_key']
+      # TODO: add setup_complete redirect_uri
       @url = team['links']['setup']
     end
   end

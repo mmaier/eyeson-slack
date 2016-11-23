@@ -8,6 +8,13 @@ RSpec.describe CommandsController, type: :routing do
     )
   end
 
+  it 'routes to setup complete' do
+    expect(get: '/slack/setup_complete').to route_to(
+      action:     'setup_complete',
+      controller: 'commands'
+    )
+  end
+
   it 'routes to create' do
     expect(post: '/slack/commands').to route_to(
       action:     'create',

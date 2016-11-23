@@ -20,11 +20,16 @@ RSpec.describe CommandsController, type: :controller do
   end
 
   it 'should redirect to setup properly' do
+    get :setup
+    expect(response).to redirect_to(login_path(redirect_uri: :setup_complete))
+  end
+
+  it 'should ask for command permissions on setup complete' do
     expects_authorize_with(
-      redirect_uri: oauth_url,
+      redirect_uri: nil,
       scope:        'commands'
     )
-    get :setup
+    get :setup_complete
     expect(response.status).to redirect_to('https://slack/auth_url')
   end
 

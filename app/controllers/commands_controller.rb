@@ -1,15 +1,20 @@
 # Executes slack command
 class CommandsController < ApplicationController
-  before_action :slack_api, only: [:setup]
+  before_action :slack_api, only: [:setup, :setup_complete]
 
-  before_action :valid_slack_token!, except: [:setup]
-  before_action :valid_team!, except: [:setup]
-  before_action :valid_team_user_relation!, except: [:setup]
-  before_action :valid_team_channel_relation!, except: [:setup]
+  before_action :valid_slack_token!, only: [:create]
+  before_action :valid_team!, only: [:create]
+  before_action :valid_team_user_relation!, only: [:create]
+  before_action :valid_team_channel_relation!, only: [:create]
 
   def setup
+    redirect_to login_path(redirect_uri: :setup_complete)
+  end
+
+  def setup_complete
+    # TODO: redirect to setup complete info page
     redirect_to @slack_api.authorize!(
-      redirect_uri: oauth_url,
+      redirect_uri: nil,
       scope:        'commands'
     )
   end

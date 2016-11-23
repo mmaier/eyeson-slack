@@ -2,6 +2,7 @@ Rails.application.routes.draw do
   scope :slack do
     # App setup url
     get 'setup' => 'commands#setup', as: :setup
+    get 'setup_complete' => 'commands#setup_complete', as: :setup_complete
     resources :webhooks, only: [:create]
 
     # Commands will be sent here
