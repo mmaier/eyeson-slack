@@ -8,7 +8,7 @@ class CommandsController < ApplicationController
   before_action :valid_team_channel_relation!, only: [:create]
 
   def setup
-    redirect_to login_path(redirect_uri: :setup_complete)
+    redirect_to login_path(redirect_uri: setup_complete_path)
   end
 
   def setup_complete

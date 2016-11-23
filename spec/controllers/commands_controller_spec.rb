@@ -21,7 +21,9 @@ RSpec.describe CommandsController, type: :controller do
 
   it 'should redirect to setup properly' do
     get :setup
-    expect(response).to redirect_to(login_path(redirect_uri: :setup_complete))
+    expect(response).to redirect_to(
+      login_path(redirect_uri: setup_complete_path)
+    )
   end
 
   it 'should ask for command permissions on setup complete' do
