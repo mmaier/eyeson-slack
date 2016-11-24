@@ -12,6 +12,7 @@ class CommandsController < ApplicationController
   end
 
   def setup_complete
+    # redirect to me to check if successful
     # TODO: redirect to setup complete info page
     redirect_to @slack_api.authorize!(
       redirect_uri: 'https://www.eyeson.team',

@@ -1,7 +1,9 @@
 # Authenticat users via oauth
 class UsersController < ApplicationController
-  before_action :slack_api
+  rescue_from SlackApi::NotAuthorized, with: :slack_not_authorized
+  rescue_from ApiKey::ValidationFailed, with: :api_key_error
 
+  before_action :slack_api
   before_action :authorized!, only: [:oauth]
   before_action :valid_user!, only: [:oauth]
   before_action :valid_team_user_relation!, only: [:oauth]
@@ -22,24 +24,26 @@ class UsersController < ApplicationController
 
   private
 
-  def authorized!
-    auth = @slack_api.authorized?(
-      params,
-      oauth_url(redirect_uri: params.require(:redirect_uri))
-    )
-    return if auth
+  def slack_not_authorized
     # TODO: redirect to error/help page
     redirect_to login_path(
       redirect_uri: params.require(:redirect_uri)
     )
   end
 
+  def api_key_error(e)
+    render json: { error: e }, status: :bad_request
+  end
+
+  def authorized!
+    @slack_api.authorized?(
+      params,
+      oauth_url(redirect_uri: params.require(:redirect_uri))
+    )
+  end
+
   def valid_user!
     @identity = @slack_api.get('/users.identity')
-    return if @identity['user'].present?
-    redirect_to login_path(
-      redirect_uri: params.require(:redirect_uri)
-    )
   end
 
   def valid_team_user_relation!
@@ -57,7 +61,7 @@ class UsersController < ApplicationController
         identity: @identity,
         webhooks_url: webhooks_url
       )
-      redirect_to team
+      redirect_to team.setup_url
     end
   end
 

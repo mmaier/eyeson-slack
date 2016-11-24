@@ -16,21 +16,13 @@ RSpec.describe ApiKey, type: :class do
 
     expect(api.key).to eq('123')
     expect(api.url).to eq('setup_url')
-    expect(api.error).to be_nil
   end
 
   # it uses webbhooks url on setup
 
-  it 'handles errors' do
+  it 'raises errors' do
     res = mock('Eyeson result', body: { error: 'some_error' }.to_json)
     rest_response_with(res)
-
-    api = ApiKey.new(
-      name: 'my app'
-    )
-
-    expect(api.key).to be_nil
-    expect(api.url).to be_nil
-    expect(api.error).to eq('some_error')
+    expect{ApiKey.new}.to raise_error(ApiKey::ValidationFailed, 'some_error')
   end
 end

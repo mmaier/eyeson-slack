@@ -17,4 +17,6 @@ RSpec.describe SlackApi, type: :class do
   #   oauth.expects(:auth_code).returns(auth_code)
   #   OAuth2::Client.expects(:new).returns(oauth)
   # end
+
+  # raises NotAuthorized etc.
 end

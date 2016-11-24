@@ -1,5 +1,9 @@
 # Provides Slack API methods
 class SlackApi
+  
+  class NotAuthorized < StandardError
+  end
+
   def initialize
     @config = Rails.configuration.services
     @oauth = OAuth2::Client.new(
@@ -21,7 +25,7 @@ class SlackApi
   end
 
   def authorized?(params, redirect_uri)
-    return false if params[:error].present?
+    raise NotAuthorized.new(params[:error]) if params[:error].present?
     token_from(
       code: params[:code],
       redirect_uri: redirect_uri
@@ -32,11 +36,7 @@ class SlackApi
     response = @oauth_access.get(
       "/api#{path}" + request_params_from(params)
     )
-    begin
-      JSON.parse(response.body)
-    rescue
-      {}
-    end
+    respond_with(response)
   end
 
   private
@@ -55,5 +55,12 @@ class SlackApi
       p << params.map { |k, v| "#{k}=#{v}" }.join('&')
     end
     p
+  end
+
+  def respond_with(response)
+    raise NotAuthorized unless response.status[0] != 2
+    body = JSON.parse(response.body)
+    raise NotAuthorized.new(body['error']) if body['ok'] != true
+    body
   end
 end

@@ -1,13 +1,16 @@
 # Manages conf rooms
 class Room
-  attr_reader :url, :error
+
+  class ValidationFailed < StandardError
+  end
+
+  attr_reader :url
 
   def initialize(channel: {}, user: {})
     @team    = channel.team
     @channel = channel
     @user    = user
     @url     = nil
-    @error   = nil
     @config  = Rails.configuration.services
     create!
   end
@@ -18,11 +21,9 @@ class Room
     room = post('/rooms', id:   @channel.external_id,
                           name: @channel.name,
                           user: mapped_user)
-    if room['error'].present?
-      @error = room['error']
-    else
-      @url = room['links']['gui']
-    end
+    
+    raise ValidationFailed.new(room['error']) if room['error'].present?
+    @url = room['links']['gui']
   end
 
   def post(path, params = {})

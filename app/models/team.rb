@@ -27,8 +27,7 @@ class Team
     team.save!
 
     team.add!(identity['user'])
-
-    api_key.url
+    team
   end
 
   def add!(identity)

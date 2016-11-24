@@ -1,18 +1,15 @@
 # Join a meeting
 class MeetingsController < ApplicationController
+  rescue_from Room::ValidationFailed, with: :room_error
+
   before_action :valid_channel!
   before_action :valid_team_user_relation!
 
   def show
-    # Add user to conference room and redirect to communication GUI
     room = Room.new(channel: @channel, user: @user)
 
-    if room.error.present?
-      render json: { error: room.error }, status: :bad_request
-    else
-      @channel.send_join_state!
-      redirect_to room.url
-    end
+    # TODO: @channel.send_join_state!
+    redirect_to room.url
   end
 
   private
@@ -30,5 +27,9 @@ class MeetingsController < ApplicationController
     @user = User.find_by(team_id: @channel.team_id, id: params[:user_id])
     return if @user.present?
     redirect_to login_path(redirect_uri: meeting_path(id: params[:id]))
+  end
+
+  def room_error(e)
+    render json: { error: e }, status: :bad_request
   end
 end

@@ -1,6 +1,8 @@
 require 'rails_helper'
 
 RSpec.describe MeetingsController, type: :controller do
+  it { should rescue_from(Room::ValidationFailed).with(:room_error) }
+
   it 'should raise 404 unless channel known' do
     get :show, params: { id: 'xyz' }
     expect(response.status).to eq(404)

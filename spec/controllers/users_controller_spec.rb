@@ -1,6 +1,9 @@
 require 'rails_helper'
 
 RSpec.describe UsersController, type: :controller do
+  it { should rescue_from(SlackApi::NotAuthorized).with(:slack_not_authorized) }
+  it { should rescue_from(ApiKey::ValidationFailed).with(:api_key_error) }
+
   it 'should setup team and redirect to api console' do
     slack_api_authorized
     @slack_api.expects(:get).returns(slack_identity)
@@ -51,7 +54,7 @@ RSpec.describe UsersController, type: :controller do
     expect(response).to redirect_to('https://slack/auth_url')
   end
 
-  it 'should redirect to redirect_uri on oauth error' do
+  it 'should redirect back to login on oauth error' do
     redirect_uri = meeting_path(id: '123')
     get :oauth, params: { error: 'some_error', redirect_uri: redirect_uri }
     expect(response).to redirect_to(login_path(redirect_uri: redirect_uri))
@@ -75,12 +78,7 @@ RSpec.describe UsersController, type: :controller do
 
   it 'should handle slack api error' do
     redirect_uri = meeting_path(id: '123')
-
-    @slack_api = mock('Slack API')
-    SlackApi.expects(:new).returns(@slack_api)
-    @slack_api.expects(:authorized?).returns(false)
-
-    get :oauth, params: { redirect_uri: redirect_uri }
+    get :oauth, params: { error: 'some_error', redirect_uri: redirect_uri }
     expect(response).to redirect_to(login_path(redirect_uri: redirect_uri))
   end
 
@@ -89,7 +87,7 @@ RSpec.describe UsersController, type: :controller do
 
     slack_api_authorized
     @slack_api.expects(:get)
-              .returns(error: 'some_error')
+              .raises(SlackApi::NotAuthorized)
 
     get :oauth, params: { redirect_uri: redirect_uri }
     expect(response).to redirect_to(login_path(redirect_uri: redirect_uri))

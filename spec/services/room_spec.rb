@@ -13,14 +13,12 @@ RSpec.describe Room, type: :class do
     rest_response_with(res)
 
     expect(room.url).to eq('gui_url')
-    expect(room.error).to be_nil
   end
 
-  it 'handle errors' do
+  it 'raises errors' do
     res = mock('Eyeson result', body: { error: 'some_error' }.to_json)
     rest_response_with(res)
 
-    expect(room.url).to be_nil
-    expect(room.error).to eq('some_error')
+    expect{room}.to raise_error(Room::ValidationFailed, 'some_error')
   end
 end
