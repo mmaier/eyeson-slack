@@ -6,7 +6,8 @@ RSpec.describe UsersController, type: :controller do
   it 'should invoke oauth and redirect to slack login' do
     expects_authorize_with(
       redirect_uri: oauth_url(redirect_uri: '/redir'),
-      scope:        'identity.basic identity.avatar'
+      scope:        'identity.basic identity.avatar',
+      team:         nil
     )
 
     get :login, params: { redirect_uri: '/redir' }
@@ -25,7 +26,7 @@ RSpec.describe UsersController, type: :controller do
     redirect_uri = meeting_path(id: '123')
 
     slack_api_authorized
-    @slack_api.expects(:get)
+    @slack_api.expects(:request)
               .returns(slack_identity(
                          user_id: user.external_id,
                          team_id: team.external_id
@@ -48,7 +49,7 @@ RSpec.describe UsersController, type: :controller do
     redirect_uri = meeting_path(id: '123')
 
     slack_api_authorized
-    @slack_api.expects(:get)
+    @slack_api.expects(:request)
               .raises(SlackApi::NotAuthorized)
 
     get :oauth, params: { redirect_uri: redirect_uri }

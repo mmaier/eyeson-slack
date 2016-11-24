@@ -27,22 +27,6 @@ RSpec.describe MeetingsController, type: :controller do
     expect(response).to redirect_to(redirect)
   end
 
-  it 'should revoke access token when user does not belong to team' do
-    team1 = create(:team)
-    team2 = create(:team)
-    expect(team1).not_to eq(team2)
-    channel = create(:channel, team: team1)
-    user = create(:user, team: team2, access_token: 'abc123')
-
-    slack_api = mock('Slack API')
-    SlackApi.expects(:new).with('abc123').returns(slack_api)
-    slack_api.expects(:get).with('/auth.revoke')
-
-    get :show, params: { id: channel.external_id, user_id: user.id }
-    redirect = login_path(redirect_uri: meeting_path(id: channel.external_id))
-    expect(response).to redirect_to(redirect)
-  end
-
   it 'should add user to room and redirect to room url' do
     channel = create(:channel)
     user = create(:user, team: channel.team)

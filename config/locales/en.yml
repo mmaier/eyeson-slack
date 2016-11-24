@@ -7,3 +7,7 @@ en:
   webhooks:
     invalid_type: "Invalid type"
     team_not_found: "Team not found"
+
+  meetings:
+    show: 
+      joined: "%{name} joined"

@@ -9,7 +9,8 @@ class UsersController < ApplicationController
   def login
     redirect_to @slack_api.authorize!(
       redirect_uri: oauth_url(redirect_uri: params.require(:redirect_uri)),
-      scope:        'identity.basic identity.avatar'
+      scope:        'identity.basic identity.avatar',
+      team:         team_id_from_url
     )
   end
 
@@ -32,14 +33,26 @@ class UsersController < ApplicationController
       params,
       oauth_url(redirect_uri: params.require(:redirect_uri))
     )
-    @identity = @slack_api.get('/users.identity')
+    @identity = @slack_api.request('/users.identity')
   end
 
   def user_belongs_to_team!
     @team = Team.find_by(external_id: @identity['team']['id'])
     redirect_to(:setup) && return if !@team.present? || !@team.ready?
     @user = @team.add!(@identity['user'])
-    @user.access_token = @slack_api.access_token
-    @user.save
+  end
+
+  def team_id_from_url
+    path = begin
+      Rails.application.routes.recognize_path(params.require(:redirect_uri))
+    rescue
+      nil
+    end
+
+    return nil unless path.present?
+    if path[:controller] == 'meetings' && path[:id].present?
+      return Channel.find_by(external_id: path[:id]).team.external_id
+    end
+    nil
   end
 end

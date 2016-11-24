@@ -40,7 +40,7 @@ class CommandsController < ApplicationController
     @user = @team.users.find_or_initialize_by(
       external_id: params.require(:user_id)
     )
-    @user.name = params.require(:user_name) if @user.new_record?
+    @user.name = params.require(:user_name)
     @user.save!
   end
 
@@ -48,7 +48,7 @@ class CommandsController < ApplicationController
     @channel = @team.channels.find_or_initialize_by(
       external_id: params.require(:channel_id)
     )
-    @channel.name = params.require(:channel_name) if @channel.new_record?
+    @channel.name = params.require(:channel_name)
     @channel.save!
   end
 

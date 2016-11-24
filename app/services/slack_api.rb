@@ -30,9 +30,9 @@ class SlackApi
     )
   end
 
-  def get(path, params = {})
+  def request(path, params = {})
     response = @oauth_access.get(
-      "/api#{path}" + request_params_from(params)
+      "/api#{path}" + url_params_from(params)
     )
     respond_with(response)
   end
@@ -73,7 +73,7 @@ class SlackApi
     end
   end
 
-  def request_params_from(params)
+  def url_params_from(params)
     p = "?token=#{@access_token}"
     if params.any?
       p << '&'

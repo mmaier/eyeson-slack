@@ -9,7 +9,12 @@ class MeetingsController < ApplicationController
   def show
     room = Room.new(channel: @channel, user: @user)
 
-    # TODO: @channel.send_join_state!
+    slack_api = SlackApi.new(@channel.team.access_token)
+    slack_api.request('/chat.postMessage', {
+      channel: @channel.external_id,
+      text:    I18n.t('.joined', name: @user.name, scope: [:meetings, :show])
+    })
+
     redirect_to room.url
   end
 
@@ -31,10 +36,7 @@ class MeetingsController < ApplicationController
 
   def user_belongs_to_team!
     return if @user.team_id == @channel.team_id
-    if @user.access_token.present?
-      slack_api = SlackApi.new(@user.access_token)
-      slack_api.get('/auth.revoke')
-    end
+    #TODO: raise an error
     redirect_to login_path(redirect_uri: meeting_path(id: params[:id]))
   end
 

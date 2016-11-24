@@ -9,19 +9,23 @@ class TeamsController < ApplicationController
   def setup
     redirect_to @slack_api.authorize!(
       redirect_uri: setup_complete_url,
-      scope:        'identify commands'
+      scope:        'identify commands chat:write:bot'
     )
   end
 
   def create
-    @team = Team.find_by(external_id: @identity['team']['id'])
-    redirect_to(@team.setup_url) && return if @team.present?
-
-    team = Team.setup!(
-      name: 'Slack Service Application',
-      identity: @identity,
-      webhooks_url: webhooks_url
-    )
+    team = Team.find_by(external_id: @identity['team']['id'])
+    if team.present?
+      team.access_token = @slack_api.access_token
+      team.save
+    else
+      team = Team.setup!(
+        access_token: @slack_api.access_token,
+        name: 'Slack Service Application',
+        identity: @identity,
+        webhooks_url: webhooks_url
+      )
+    end
     redirect_to team.setup_url
   end
 
@@ -32,7 +36,7 @@ class TeamsController < ApplicationController
       params,
       setup_complete_url
     )
-    user = @slack_api.get('/auth.test')
+    user = @slack_api.request('/auth.test')
     @identity = @slack_api.identity_from_auth(user)
   end
 
