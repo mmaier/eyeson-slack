@@ -1,6 +1,5 @@
 # Provides Slack API methods
 class SlackApi
-  
   class NotAuthorized < StandardError
   end
 
@@ -25,7 +24,7 @@ class SlackApi
   end
 
   def authorized?(params, redirect_uri)
-    raise NotAuthorized.new(params[:error]) if params[:error].present?
+    raise NotAuthorized, params[:error] if params[:error].present?
     token_from(
       code: params[:code],
       redirect_uri: redirect_uri
@@ -60,7 +59,7 @@ class SlackApi
   def respond_with(response)
     raise NotAuthorized unless response.status[0] != 2
     body = JSON.parse(response.body)
-    raise NotAuthorized.new(body['error']) if body['ok'] != true
+    raise NotAuthorized, body['error'] if body['ok'] != true
     body
   end
 end

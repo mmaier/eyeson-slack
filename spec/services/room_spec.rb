@@ -19,6 +19,6 @@ RSpec.describe Room, type: :class do
     res = mock('Eyeson result', body: { error: 'some_error' }.to_json)
     rest_response_with(res)
 
-    expect{room}.to raise_error(Room::ValidationFailed, 'some_error')
+    expect { room }.to raise_error(Room::ValidationFailed, 'some_error')
   end
 end

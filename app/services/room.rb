@@ -1,6 +1,5 @@
 # Manages conf rooms
 class Room
-
   class ValidationFailed < StandardError
   end
 
@@ -21,8 +20,8 @@ class Room
     room = post('/rooms', id:   @channel.external_id,
                           name: @channel.name,
                           user: mapped_user)
-    
-    raise ValidationFailed.new(room['error']) if room['error'].present?
+
+    raise ValidationFailed, room['error'] if room['error'].present?
     @url = room['links']['gui']
   end
 

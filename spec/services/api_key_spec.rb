@@ -23,6 +23,6 @@ RSpec.describe ApiKey, type: :class do
   it 'raises errors' do
     res = mock('Eyeson result', body: { error: 'some_error' }.to_json)
     rest_response_with(res)
-    expect{ApiKey.new}.to raise_error(ApiKey::ValidationFailed, 'some_error')
+    expect { ApiKey.new }.to raise_error(ApiKey::ValidationFailed, 'some_error')
   end
 end

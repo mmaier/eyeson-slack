@@ -1,9 +1,8 @@
 # Generates individual API key for each team
 class ApiKey
-
   class ValidationFailed < StandardError
   end
-  
+
   attr_reader :key, :url
 
   def initialize(name: nil, webhooks_url: nil)
@@ -21,7 +20,7 @@ class ApiKey
     team = post('/teams',
                 name: @name,
                 webhooks: { url: @webhooks_url, types: 'team_changed' })
-    raise ValidationFailed.new(team['error']) if team['error'].present?
+    raise ValidationFailed, team['error'] if team['error'].present?
     @key = team['api_key']
     # TODO: add setup_complete redirect_uri
     @url = team['links']['setup']
