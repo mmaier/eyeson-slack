@@ -22,16 +22,16 @@ RSpec.describe CommandsController, type: :controller do
   it 'should redirect to setup properly' do
     get :setup
     expect(response).to redirect_to(
-      login_path(redirect_uri: setup_complete_path)
+      login_path(redirect_uri: setup_authorize_path)
     )
   end
 
-  it 'should ask for command permissions on setup complete' do
+  it 'should ask for command permissions during setup' do
     expects_authorize_with(
-      redirect_uri: 'https://www.eyeson.team',
+      redirect_uri: oauth_url(redirect_uri: 'https://www.eyeson.team'),
       scope:        'commands'
     )
-    get :setup_complete
+    get :authorize
     expect(response.status).to redirect_to('https://slack/auth_url')
   end
 

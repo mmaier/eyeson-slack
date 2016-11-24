@@ -4,7 +4,7 @@ RSpec.describe UsersController, type: :controller do
   it { should rescue_from(SlackApi::NotAuthorized).with(:slack_not_authorized) }
   it { should rescue_from(ApiKey::ValidationFailed).with(:api_key_error) }
 
-  it 'should setup team and redirect to api console' do
+  it 'should setup team and redirect to command authorization' do
     slack_api_authorized
     @slack_api.expects(:get).returns(slack_identity)
 
@@ -16,16 +16,16 @@ RSpec.describe UsersController, type: :controller do
     }.to_json)
     rest_response_with(res)
 
-    get :oauth, params: { redirect_uri: setup_complete_path }
+    get :oauth, params: { redirect_uri: setup_authorize_path }
     expect(response).to redirect_to('https://test.api/setup_url')
   end
 
-  it 'should redirect to setup_url on setup for existing team' do
+  it 'should redirect to command authorization on setup for existing team' do
     team = create(:team, ready: false, setup_url: 'https://some_url')
     slack_api_authorized
     @slack_api.expects(:get).returns(slack_identity(team_id: team.external_id))
 
-    get :oauth, params: { redirect_uri: setup_complete_path }
+    get :oauth, params: { redirect_uri: setup_authorize_path }
     expect(response).to redirect_to('https://some_url')
   end
 
