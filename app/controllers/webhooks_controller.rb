@@ -1,7 +1,7 @@
 # handle incoming webhooks from com-api
 class WebhooksController < ApplicationController
   before_action :valid_types!
-  before_action :valid_team!
+  before_action :team_exists!
 
   def create
     @team.ready = true if [true, 'true'].include?(params[:team][:ready])
@@ -18,7 +18,7 @@ class WebhooksController < ApplicationController
     }, status: :forbidden
   end
 
-  def valid_team!
+  def team_exists!
     @team = Team.find_by(api_key: params.require(:api_key))
     return if @team.present?
     render json: {

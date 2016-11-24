@@ -1,10 +1,8 @@
 Rails.application.routes.draw do
   scope :slack do
-    # App setup url
-    scope :setup do
-      get '/' => 'commands#setup', as: :setup
-      get 'authorize' => 'commands#authorize', as: :setup_authorize
-    end
+    # App setup
+    get 'setup' => 'teams#setup', as: :setup
+    get 'setup/complete' => 'teams#create', as: :setup_complete
     resources :webhooks, only: [:create]
 
     # Commands will be sent here

@@ -1,29 +1,19 @@
 # Executes slack command
 class CommandsController < ApplicationController
-  before_action :slack_api, only: [:authorize]
-
   before_action :valid_slack_token!, only: [:create]
-  before_action :valid_team!, only: [:create]
-  before_action :valid_team_user_relation!, only: [:create]
-  before_action :valid_team_channel_relation!, only: [:create]
-
-  def setup
-    redirect_to login_path(redirect_uri: setup_authorize_path)
-  end
-
-  def authorize
-    redirect_to @slack_api.authorize!(
-      redirect_uri: oauth_url(redirect_uri: 'https://www.eyeson.team'),
-      scope:        'commands'
-    )
-  end
+  before_action :team_exists!, only: [:create]
+  before_action :user_belongs_to_team!, only: [:create]
+  before_action :channel_belongs_to_team!, only: [:create]
 
   def create
-    # Send immediate response to slack (must be <200ms)
-    url = meeting_url(id: @channel.external_id)
+    # Send immediate response to slack (must be <300ms)
+    url = meeting_url(id: params.require(:channel_id))
     response = {
       response_type: :in_channel,
-      text: I18n.t('.respond', name: @user.name, url: url, scope: [:commands])
+      text: I18n.t('.respond',
+                   name: params.require(:user_name),
+                   url: url,
+                   scope: [:commands])
     }
     render json: response
   end
@@ -38,7 +28,7 @@ class CommandsController < ApplicationController
     }
   end
 
-  def valid_team!
+  def team_exists!
     @team = Team.find_by(
       external_id: params.require(:team_id),
       ready: true
@@ -46,19 +36,19 @@ class CommandsController < ApplicationController
     invalid_setup_response unless @team.present?
   end
 
-  def valid_team_user_relation!
+  def user_belongs_to_team!
     @user = @team.users.find_or_initialize_by(
       external_id: params.require(:user_id)
     )
-    @user.name = params.require(:user_name) unless @user.name.present?
+    @user.name = params.require(:user_name) if @user.new_record?
     @user.save!
   end
 
-  def valid_team_channel_relation!
+  def channel_belongs_to_team!
     @channel = @team.channels.find_or_initialize_by(
       external_id: params.require(:channel_id)
     )
-    @channel.name = params.require(:channel_name)
+    @channel.name = params.require(:channel_name) if @channel.new_record?
     @channel.save!
   end
 

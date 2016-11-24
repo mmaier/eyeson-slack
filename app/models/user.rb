@@ -3,6 +3,7 @@ class User
   include Mongoid::Document
 
   field :external_id, type: String
+  field :access_token, type: String
   field :name, type: String
   field :avatar, type: String
 

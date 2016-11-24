@@ -3,16 +3,15 @@ class SlackApi
   class NotAuthorized < StandardError
   end
 
-  def initialize
+  attr_reader :access_token
+
+  def initialize(access_token = nil)
     @config = Rails.configuration.services
-    @oauth = OAuth2::Client.new(
-      @config['slack_key'],
-      @config['slack_secret'],
-      site: 'https://slack.com',
-      authorize_url: '/oauth/authorize',
-      token_url: '/api/oauth.access'
-    )
+    @oauth = oauth_client
     @oauth_access = nil
+    @access_token = access_token
+
+    token_from(access_token: @access_token) if @access_token.present?
   end
 
   def authorize!(redirect_uri: nil, scope: nil, team: nil)
@@ -38,17 +37,44 @@ class SlackApi
     respond_with(response)
   end
 
+  def identity_from_auth(user)
+    {
+      'user' => {
+        'id' => user['user_id'],
+        'name' => user['user']
+      },
+      'team' => {
+        'id' => user['team_id']
+      }
+    }
+  end
+
   private
 
-  def token_from(code: nil, redirect_uri: nil)
-    @oauth_access = @oauth.auth_code.get_token(
-      code,
-      redirect_uri: redirect_uri
+  def oauth_client
+    OAuth2::Client.new(
+      @config['slack_key'],
+      @config['slack_secret'],
+      site: 'https://slack.com',
+      authorize_url: '/oauth/authorize',
+      token_url: '/api/oauth.access'
     )
   end
 
+  def token_from(code: nil, redirect_uri: nil, access_token: nil)
+    if access_token.present?
+      @oauth_access = OAuth2::AccessToken.new(@oauth, @access_token)
+    else
+      @oauth_access = @oauth.auth_code.get_token(
+        code,
+        redirect_uri: redirect_uri
+      )
+      @access_token = @oauth_access.token
+    end
+  end
+
   def request_params_from(params)
-    p = "?token=#{@oauth_access.token}"
+    p = "?token=#{@access_token}"
     if params.any?
       p << '&'
       p << params.map { |k, v| "#{k}=#{v}" }.join('&')
