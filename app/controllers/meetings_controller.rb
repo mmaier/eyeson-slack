@@ -17,9 +17,10 @@ class MeetingsController < ApplicationController
   def valid_channel!
     @channel = Channel.find_by(external_id: params[:id])
     return if @channel.present?
-    # TODO: Redirect to error/help page
     render json: {
-      error: I18n.t('.channel_not_found', scope: [:meetings])
+      error: I18n.t('.invalid_setup',
+                    url: setup_url,
+                    scope: [:commands])
     }, status: :not_found
   end
 

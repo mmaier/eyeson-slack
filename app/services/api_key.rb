@@ -22,7 +22,6 @@ class ApiKey
                 webhooks: { url: @webhooks_url, types: 'team_changed' })
     raise ValidationFailed, team['error'] if team['error'].present?
     @key = team['api_key']
-    # TODO: add setup_complete redirect_uri
     @url = team['links']['setup']
   end
 

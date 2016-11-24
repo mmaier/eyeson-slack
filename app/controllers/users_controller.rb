@@ -25,7 +25,6 @@ class UsersController < ApplicationController
   private
 
   def slack_not_authorized
-    # TODO: redirect to error/help page
     redirect_to login_path(
       redirect_uri: params.require(:redirect_uri)
     )

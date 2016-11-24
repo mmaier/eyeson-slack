@@ -26,6 +26,8 @@ class Team
     team.external_id = identity['team']['id']
     team.save!
 
+    # TODO : how to handle setup completion in API console??
+
     team.add!(identity['user'])
     team
   end
