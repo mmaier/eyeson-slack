@@ -35,9 +35,23 @@ RSpec.describe MeetingsController, type: :controller do
     res = mock('Eyeson result', body: { links: { gui: gui } }.to_json)
     rest_response_with(res)
 
+    @slack_api = mock('Slack API')
+    SlackApi.expects(:new).with(channel.team.access_token).returns(@slack_api)
+    @slack_api.expects(:request).once
+
     get :show, params: { id: channel.external_id, user_id: user.id }
     expect(response.status).to eq(302)
     expect(response).to redirect_to(gui)
+  end
+
+  it 'should send a chat message after join' do
+    channel = create(:channel)
+    user = create(:user, team: channel.team)
+    Room.expects(:new).returns(mock('URL', url: '/'))
+    slack_api = mock('Slack API')
+    slack_api.expects(:request).once
+    SlackApi.expects(:new).returns(slack_api)
+    get :show, params: { id: channel.external_id, user_id: user.id }
   end
 
   it 'should handle eyeson api error' do

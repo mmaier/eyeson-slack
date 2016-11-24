@@ -7,7 +7,7 @@ RSpec.describe TeamsController, type: :controller do
   it 'should ask for command permissions during setup' do
     expects_authorize_with(
       redirect_uri: setup_complete_url,
-      scope:        'identify commands'
+      scope:        'identify commands chat:write:bot'
     )
     get :setup
     expect(response.status).to redirect_to('https://slack/auth_url')
@@ -16,13 +16,14 @@ RSpec.describe TeamsController, type: :controller do
   it 'should setup team and redirect to api console' do
     slack_api_authorized
     user = slack_auth_test
-    @slack_api.expects(:get).returns(user)
+    @slack_api.expects(:request).returns(user)
     @slack_api.expects(:identity_from_auth)
               .with(user)
               .returns(slack_identity(
                          user_id: user['user_id'],
                          team_id: user['team_id']
               ))
+    @slack_api.expects(:access_token).returns('abc123')
 
     res = mock('Eyeson result', body: {
       api_key: Faker::Crypto.md5,
@@ -36,9 +37,26 @@ RSpec.describe TeamsController, type: :controller do
     expect(response).to redirect_to('https://test.api/setup_url')
   end
 
+  it 'should update access token for existing team' do
+    slack_api_authorized
+    team = create(:team)
+    user = slack_auth_test(team_id: team.external_id)
+    @slack_api.expects(:request).returns(user)
+    @slack_api.expects(:identity_from_auth)
+              .with(user)
+              .returns(slack_identity(
+                         user_id: user['user_id'],
+                         team_id: user['team_id']
+              ))
+    @slack_api.expects(:access_token).returns('abc123')
+    get :create
+    team.reload
+    expect(team.access_token).to eq('abc123')
+  end
+
   it 'should redirect to setup when error is raised' do
     slack_api_authorized
-    @slack_api.expects(:get)
+    @slack_api.expects(:request)
               .raises(SlackApi::NotAuthorized)
     get :create
     expect(response).to redirect_to(setup_path)
@@ -47,13 +65,14 @@ RSpec.describe TeamsController, type: :controller do
   it 'should handle eyeson api error' do
     slack_api_authorized
     user = slack_auth_test
-    @slack_api.expects(:get).returns(user)
+    @slack_api.expects(:request).returns(user)
     @slack_api.expects(:identity_from_auth)
               .with(user)
               .returns(slack_identity(
                          user_id: user['user_id'],
                          team_id: user['team_id']
               ))
+    @slack_api.expects(:access_token).returns('abc123')
 
     ApiKey.expects(:new)
           .raises(ApiKey::ValidationFailed)

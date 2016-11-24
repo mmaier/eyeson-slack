@@ -5,6 +5,7 @@ class TeamsController < ApplicationController
 
   before_action :slack_api
   before_action :authorized!, only: [:create]
+  before_action :exists?, only: [:create]
 
   def setup
     redirect_to @slack_api.authorize!(
@@ -14,19 +15,15 @@ class TeamsController < ApplicationController
   end
 
   def create
-    team = Team.find_by(external_id: @identity['team']['id'])
-    if team.present?
-      team.access_token = @slack_api.access_token
-      team.save
-    else
-      team = Team.setup!(
+    unless @team.present?
+      @team = Team.setup!(
         access_token: @slack_api.access_token,
         name: 'Slack Service Application',
         identity: @identity,
         webhooks_url: webhooks_url
       )
     end
-    redirect_to team.setup_url
+    redirect_to @team.setup_url
   end
 
   private
@@ -38,6 +35,13 @@ class TeamsController < ApplicationController
     )
     user = @slack_api.request('/auth.test')
     @identity = @slack_api.identity_from_auth(user)
+  end
+
+  def exists?
+    @team = Team.find_by(external_id: @identity['team']['id'])
+    return unless @team.present?
+    @team.access_token = @slack_api.access_token
+    @team.save
   end
 
   def slack_not_authorized

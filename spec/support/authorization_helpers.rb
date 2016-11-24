@@ -1,10 +1,10 @@
 
 module AuthorizationHelpers
-  def slack_auth_test
+  def slack_auth_test(user_id: '123', team_id: Faker::Code.isbn)
     {
       'user' => 'Tester',
-      'user_id' => '123',
-      'team_id' => Faker::Code.isbn
+      'user_id' => user_id,
+      'team_id' => team_id
     }
   end
 

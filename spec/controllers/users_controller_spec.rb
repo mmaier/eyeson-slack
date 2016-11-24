@@ -31,12 +31,24 @@ RSpec.describe UsersController, type: :controller do
                          user_id: user.external_id,
                          team_id: team.external_id
               ))
-    @slack_api.expects(:access_token).returns('abc123')
 
     get :oauth, params: { redirect_uri: redirect_uri }
     user.reload
-    expect(user.access_token).to eq('abc123')
     expect(response).to redirect_to(redirect_uri + "?user_id=#{user.id}")
+  end
+
+  it 'should authorize with team id on meetings#show' do
+    channel = create(:channel)
+    redirect_uri = meeting_path(id: channel.external_id)
+
+    expects_authorize_with(
+      redirect_uri: oauth_url(redirect_uri: redirect_uri),
+      scope:        'identity.basic identity.avatar',
+      team:         channel.team.external_id
+    )
+
+    get :login, params: { redirect_uri: redirect_uri }
+    expect(response).to redirect_to('https://slack/auth_url')
   end
 
   it 'should handle slack api error' do
