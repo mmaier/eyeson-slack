@@ -14,7 +14,6 @@ class MeetingsController < ApplicationController
                       channel: @channel.external_id,
                       text:    I18n.t('.joined',
                                       id: @user.external_id,
-                                      name: @user.name,
                                       scope: [:meetings, :show]))
 
     redirect_to room.url

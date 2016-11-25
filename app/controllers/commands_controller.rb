@@ -12,7 +12,6 @@ class CommandsController < ApplicationController
       response_type: :in_channel,
       text: I18n.t('.respond',
                    id: params.require(:user_id),
-                   name: params.require(:user_name),
                    url: url,
                    scope: [:commands])
     }
