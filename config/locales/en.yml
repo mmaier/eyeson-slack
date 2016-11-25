@@ -2,7 +2,7 @@ en:
   commands:
     invalid_slack_token: "Verification not correct"
     invalid_setup: "Your app hasn't been setup properly.\n*<%{url}|Finalize your setup here>.*"
-    respond: "%{name} has started a videomeeting: *<%{url}|Join here>*"
+    respond: "@%{name} has started a videomeeting: *<%{url}|Join here>*"
 
   webhooks:
     invalid_type: "Invalid type"
@@ -10,4 +10,4 @@ en:
 
   meetings:
     show: 
-      joined: "%{name} joined"
+      joined: "*@%{name}* joined"
