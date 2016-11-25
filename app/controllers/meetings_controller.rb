@@ -13,6 +13,7 @@ class MeetingsController < ApplicationController
     slack_api.request('/chat.postMessage',
                       channel: @channel.external_id,
                       text:    I18n.t('.joined',
+                                      id: @user.external_id,
                                       name: @user.name,
                                       scope: [:meetings, :show]))
 

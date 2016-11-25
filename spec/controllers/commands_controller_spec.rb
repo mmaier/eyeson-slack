@@ -46,6 +46,7 @@ RSpec.describe CommandsController, type: :controller do
     post :create, params: command_params
     url = "http://test.host/slack/m/#{command_params[:channel_id]}"
     text = I18n.t('.respond',
+                  id: command_params[:user_id],
                   name: command_params[:user_name],
                   url: url,
                   scope: [:commands])
