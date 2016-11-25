@@ -13,7 +13,7 @@ class MeetingsController < ApplicationController
     slack_api.request('/chat.postMessage',
                       channel: @channel.external_id,
                       text:    I18n.t('.joined',
-                                      id: @user.external_id,
+                                      user_id: @user.external_id,
                                       scope: [:meetings, :show]))
 
     redirect_to room.url

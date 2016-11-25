@@ -11,7 +11,7 @@ class CommandsController < ApplicationController
     response = {
       response_type: :in_channel,
       text: I18n.t('.respond',
-                   id: params.require(:user_id),
+                   user_id: params.require(:user_id),
                    url: url,
                    scope: [:commands])
     }
@@ -40,7 +40,7 @@ class CommandsController < ApplicationController
     @user = @team.users.find_or_initialize_by(
       external_id: params.require(:user_id)
     )
-    @user.name = params.require(:user_name)
+    @user.name = params.require(:user_name) unless @user.name.present?
     @user.save!
   end
 

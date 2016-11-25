@@ -40,7 +40,7 @@ class Team
       team_id: id,
       external_id: identity['id']
     )
-    user.name = identity['name'] unless user.name.present?
+    user.name = identity['name']
     user.avatar = identity['image_48']
     user.save!
     user
