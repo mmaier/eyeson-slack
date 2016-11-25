@@ -83,9 +83,9 @@ class SlackApi
   end
 
   def respond_with(response)
-    raise NotAuthorized unless response.status[0] != 2
+    raise NotAuthorized, response.error if response.error.present?
     body = JSON.parse(response.body)
-    raise NotAuthorized, body['error'] if body['ok'] != true
+    raise NotAuthorized, body['error'] unless body['ok'] == true
     body
   end
 end
