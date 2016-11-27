@@ -10,4 +10,4 @@ en:
 
   meetings:
     show: 
-      joined: ">>><@%{user_id}> joined :eyes:"
+      joined: "><@%{user_id}> joined :eyes:"
