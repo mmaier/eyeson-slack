@@ -20,9 +20,10 @@ class Team
 
   index({ external_id: 1 }, unique: true)
 
-  def self.setup!(access_token: nil, name: nil, identity: {}, webhooks_url: nil)
+  def self.setup!(access_token: nil, identity: {}, webhooks_url: nil)
     team = Team.new
-    api_key = ApiKey.new(name: name, webhooks_url: webhooks_url)
+    api_key = ApiKey.new(name: 'Slack Service Application',
+                         webhooks_url: webhooks_url)
     team.api_key = api_key.key
     team.setup_url = api_key.url
     team.external_id = identity['team']['id']
