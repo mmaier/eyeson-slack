@@ -40,7 +40,7 @@ RSpec.describe UsersController, type: :controller do
 
     get :oauth, params: { redirect_uri: redirect_uri }
     user.reload
-    expect(response).to redirect_to(redirect_uri + "?user_id=#{user.id}")
+    expect(response).to redirect_to(redirect_uri)
   end
 
   it 'should authorize with team id on meetings#show' do
