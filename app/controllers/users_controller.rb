@@ -49,10 +49,7 @@ class UsersController < ApplicationController
       nil
     end
 
-    return nil unless path.present?
-    if path[:controller] == 'meetings' && path[:id].present?
-      return Channel.find_by(external_id: path[:id]).team.external_id
-    end
-    nil
+    return nil if path.nil? || path[:id].nil? || path[:controller] != 'meetings'
+    Channel.find_by(external_id: path[:id]).try(:team).try(:external_id)
   end
 end
