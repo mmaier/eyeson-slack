@@ -47,7 +47,7 @@ class MeetingsController < ApplicationController
     render json: { error: e }, status: :bad_request
   end
 
-  def slack_error(e)
-    return
+  def slack_error(_e)
+    nil
   end
 end

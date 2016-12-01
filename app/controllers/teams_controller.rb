@@ -37,7 +37,6 @@ class TeamsController < ApplicationController
 
   def exists?
     @team = Team.find_by(external_id: @identity['team_id'])
-    byebug
     return unless @team.present?
     @team.access_token = @slack_api.access_token
     @team.save

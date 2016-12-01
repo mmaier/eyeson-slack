@@ -113,10 +113,4 @@ RSpec.describe SlackApi, type: :class do
     expect { slack_api.send(:respond_with, response) }
       .to raise_error(SlackApi::NotAuthorized)
   end
-
-  it 'maps auth.test to user identity' do
-    auth = slack_auth_test(user_id: '123', team_id: '456')
-    identity = slack_identity(user_id: '123', team_id: '456')
-    expect(slack_api.identity_from_auth(auth)).to eq(identity)
-  end
 end

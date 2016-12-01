@@ -41,7 +41,10 @@ class UsersController < ApplicationController
   def user_belongs_to_team!
     @team = Team.find_by(external_id: @identity['team_id'])
     redirect_to(:setup) && return if !@team.present? || !@team.ready?
-    @user = @team.add!(access_token: @slack_api.access_token, identity: @identity)
+    @user = @team.add!(
+      access_token: @slack_api.access_token,
+      identity: @identity
+    )
   end
 
   def team_id_from_url

@@ -15,14 +15,7 @@ RSpec.describe TeamsController, type: :controller do
 
   it 'should setup team and redirect to api console' do
     slack_api_authorized
-    user = slack_auth_test
-    @slack_api.expects(:request).returns(user)
-    @slack_api.expects(:identity_from_auth)
-              .with(user)
-              .returns(slack_identity(
-                         user_id: user['user_id'],
-                         team_id: user['team_id']
-              ))
+    @slack_api.expects(:request).returns(slack_identity)
     @slack_api.expects(:access_token).returns('abc123')
 
     res = mock('Eyeson result', body: {
@@ -40,14 +33,8 @@ RSpec.describe TeamsController, type: :controller do
   it 'should update access token for existing team' do
     slack_api_authorized
     team = create(:team)
-    user = slack_auth_test(team_id: team.external_id)
-    @slack_api.expects(:request).returns(user)
-    @slack_api.expects(:identity_from_auth)
-              .with(user)
-              .returns(slack_identity(
-                         user_id: user['user_id'],
-                         team_id: user['team_id']
-              ))
+    identity = slack_identity(team_id: team.external_id)
+    @slack_api.expects(:request).returns(identity)
     @slack_api.expects(:access_token).returns('abc123')
     get :create
     team.reload
@@ -64,14 +51,7 @@ RSpec.describe TeamsController, type: :controller do
 
   it 'should handle eyeson api error' do
     slack_api_authorized
-    user = slack_auth_test
-    @slack_api.expects(:request).returns(user)
-    @slack_api.expects(:identity_from_auth)
-              .with(user)
-              .returns(slack_identity(
-                         user_id: user['user_id'],
-                         team_id: user['team_id']
-              ))
+    @slack_api.expects(:request).returns(slack_identity)
     @slack_api.expects(:access_token).returns('abc123')
 
     ApiKey.expects(:new)

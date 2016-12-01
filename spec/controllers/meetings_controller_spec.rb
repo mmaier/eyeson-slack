@@ -36,7 +36,7 @@ RSpec.describe MeetingsController, type: :controller do
     rest_response_with(res)
 
     @slack_api = mock('Slack API')
-    SlackApi.expects(:new).with(channel.team.access_token).returns(@slack_api)
+    SlackApi.expects(:new).with(user.access_token).returns(@slack_api)
     @slack_api.expects(:request).once
 
     get :show, params: { id: channel.external_id, user_id: user.id }
