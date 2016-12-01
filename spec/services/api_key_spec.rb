@@ -10,10 +10,7 @@ RSpec.describe ApiKey, type: :class do
     }.to_json)
     rest_response_with(res)
 
-    api = ApiKey.new(
-      name: 'my app'
-    )
-
+    api = ApiKey.new
     expect(api.key).to eq('123')
     expect(api.url).to eq('setup_url')
   end

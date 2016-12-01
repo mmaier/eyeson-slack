@@ -10,16 +10,15 @@ module AuthorizationHelpers
 
   def slack_profile
     {
-      'user' => {
-        'profile' => {
-          'image_48' => 'avatar_url'
-        }
+      'profile' => {
+        'email'    => Faker::Internet.email,
+        'image_48' => 'avatar_url'
       }
     }
   end
 
   def authorized_as(user)
-    session[:user_id] = user.id.to_s
+    session[user.team_id.to_s] = user.id.to_s
   end
 
   def expects_authorize_with(params)

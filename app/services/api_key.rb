@@ -5,9 +5,7 @@ class ApiKey
 
   attr_reader :key, :url
 
-  def initialize(name: nil, webhooks_url: nil)
-    @name         = name
-    @webhooks_url = webhooks_url
+  def initialize
     @key          = nil
     @url          = nil
     @config       = Rails.configuration.services
@@ -18,8 +16,7 @@ class ApiKey
 
   def create!
     team = post('/teams',
-                name: @name,
-                webhooks: { url: @webhooks_url, types: 'team_changed' })
+                name: 'Slack Service Application')
     raise ValidationFailed, team['error'] if team['error'].present?
     @key = team['api_key']
     @url = team['links']['setup']

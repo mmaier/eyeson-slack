@@ -3,7 +3,6 @@ Rails.application.routes.draw do
     # App setup
     get 'setup' => 'teams#setup', as: :setup
     get 'setup/complete' => 'teams#create', as: :setup_complete
-    resources :webhooks, only: [:create]
 
     # Commands will be sent here
     resources :commands, only: [:create]

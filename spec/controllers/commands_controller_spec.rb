@@ -25,14 +25,6 @@ RSpec.describe CommandsController, type: :controller do
     expect(Team.find_by(external_id: command_params[:team_id])).to be_present
   end
 
-  it 'should save user to team' do
-    proper_setup
-    post :create, params: command_params
-    team = Team.find_by(external_id: command_params[:team_id])
-    user = team.users.where(external_id: command_params[:user_id])
-    expect(user).to be_present
-  end
-
   it 'should save channel to team' do
     proper_setup
     post :create, params: command_params

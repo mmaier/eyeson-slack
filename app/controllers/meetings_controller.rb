@@ -1,10 +1,10 @@
 # Join a meeting
 class MeetingsController < ApplicationController
   rescue_from Room::ValidationFailed,  with: :room_error
-  rescue_from SlackApi::NotAuthorized, with: :slack_not_authorized
+  rescue_from SlackApi::NotAuthorized, with: :not_authorized
 
-  before_action :authorized!
   before_action :channel_exists!
+  before_action :authorized!
   before_action :user_belongs_to_team!
 
   def show
@@ -23,31 +23,34 @@ class MeetingsController < ApplicationController
 
   private
 
-  def authorized!
-    @user = User.find_by(id: session[:user_id])
-    return if @user.present?
-    redirect_to login_path(
-      redirect_uri: meeting_path(id: params[:id])
-    )
-  end
-
   def channel_exists!
     @channel = Channel.find_by(external_id: params[:id])
     return if @channel.present?
     redirect_to :setup
   end
 
+  def authorized!
+    @user = User.find_by(id: session[@channel.team_id.to_s])
+    return if @user.present? ||
+              session[:state].present? &&
+              session[:state] == params[:state]
+    not_authorized
+  end
+
   def user_belongs_to_team!
-    return if @user.team_id == @channel.team_id
-    # TODO: raise an error
-    redirect_to login_path(redirect_uri: meeting_path(id: params[:id]))
+    return if @user.present? && @user.team_id == @channel.team_id
+    redirect_to Rails.configuration.services['help_page']
   end
 
   def room_error(e)
     render json: { error: e }, status: :bad_request
   end
 
-  def slack_not_authorized
-    redirect_to login_path(redirect_uri: meeting_path(id: params[:id]))
+  def not_authorized
+    state = SecureRandom.hex(5)
+    redirect_to login_path(
+      redirect_uri: meeting_path(id: params[:id], state: state),
+      state:        state
+    )
   end
 end

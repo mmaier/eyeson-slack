@@ -14,11 +14,12 @@ class SlackApi
     token_from(access_token: @access_token) if @access_token.present?
   end
 
-  def authorize!(redirect_uri: nil, scope: nil, team: nil)
+  def authorize!(redirect_uri: nil, scope: nil, team: nil, state: nil)
     @oauth.auth_code.authorize_url(
       redirect_uri: redirect_uri,
       scope:        scope,
-      team:         team
+      team:         team,
+      state:        state
     )
   end
 

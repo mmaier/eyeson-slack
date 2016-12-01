@@ -2,14 +2,7 @@ require 'rails_helper'
 
 RSpec.describe MeetingsController, type: :controller do
   it { should rescue_from(Room::ValidationFailed).with(:room_error) }
-  it { should rescue_from(SlackApi::NotAuthorized).with(:slack_not_authorized) }
-
-  it 'should redirect to login unless user present' do
-    id = create(:channel).external_id
-    get :show, params: { id: id }
-    redirect = login_path(redirect_uri: meeting_path(id: id))
-    expect(response).to redirect_to(redirect)
-  end
+  it { should rescue_from(SlackApi::NotAuthorized).with(:not_authorized) }
 
   it 'should redirect_to setup unless channel known' do
     authorized_as(create(:user))
@@ -17,7 +10,19 @@ RSpec.describe MeetingsController, type: :controller do
     expect(response).to redirect_to(setup_path)
   end
 
-  it 'should verify that user belongs to channel team' do
+  it 'should redirect to login unless team user present' do
+    id = create(:channel).external_id
+    state = 'state_token'
+    SecureRandom.expects(:hex).returns(state)
+    get :show, params: { id: id }
+    redirect = login_path(
+      redirect_uri: meeting_path(id: id, state: state),
+      state: state
+    )
+    expect(response).to redirect_to(redirect)
+  end
+
+  it 'should redirect to help page unless user gets a team session' do
     team1 = create(:team)
     team2 = create(:team)
     expect(team1).not_to eq(team2)
@@ -25,8 +30,10 @@ RSpec.describe MeetingsController, type: :controller do
     user = create(:user, team: team2)
     authorized_as(user)
 
-    get :show, params: { id: channel.external_id }
-    redirect = login_path(redirect_uri: meeting_path(id: channel.external_id))
+    session[:state] = 'state_token'
+
+    get :show, params: { id: channel.external_id, state: 'state_token' }
+    redirect = Rails.configuration.services['help_page']
     expect(response).to redirect_to(redirect)
   end
 
@@ -79,9 +86,16 @@ RSpec.describe MeetingsController, type: :controller do
     authorized_as(user)
     res = mock('Eyeson result', body: { links: { gui: '' } }.to_json)
     rest_response_with(res)
+
+    state = 'state_token'
+    SecureRandom.expects(:hex).returns(state)
     SlackApi.expects(:new).raises(SlackApi::NotAuthorized)
+
     get :show, params: { id: channel.external_id }
-    redirect = login_path(redirect_uri: meeting_path(id: channel.external_id))
+    redirect = login_path(
+      redirect_uri: meeting_path(id: channel.external_id, state: state),
+      state: state
+    )
     expect(response).to redirect_to(redirect)
   end
 end

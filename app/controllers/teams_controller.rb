@@ -18,8 +18,7 @@ class TeamsController < ApplicationController
     unless @team.present?
       @team = Team.setup!(
         access_token: @slack_api.access_token,
-        identity: @identity,
-        webhooks_url: webhooks_url
+        identity: @identity
       )
     end
     redirect_to @team.setup_url

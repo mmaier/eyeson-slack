@@ -2,7 +2,6 @@
 class CommandsController < ApplicationController
   before_action :valid_slack_token!, only: [:create]
   before_action :team_exists!, only: [:create]
-  before_action :user_belongs_to_team!, only: [:create]
   before_action :channel_belongs_to_team!, only: [:create]
 
   def create
@@ -29,19 +28,8 @@ class CommandsController < ApplicationController
   end
 
   def team_exists!
-    @team = Team.find_by(
-      external_id: params.require(:team_id),
-      ready: true
-    )
+    @team = Team.find_by(external_id: params.require(:team_id))
     invalid_setup_response unless @team.present?
-  end
-
-  def user_belongs_to_team!
-    @user = @team.users.find_or_initialize_by(
-      external_id: params.require(:user_id)
-    )
-    @user.name = params.require(:user_name) unless @user.name.present?
-    @user.save!
   end
 
   def channel_belongs_to_team!
