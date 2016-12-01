@@ -10,4 +10,4 @@ en:
 
   meetings:
     show: 
-      joined: "I joined the <%{url}|video meeting>"
+      joined: "_joined the <%{url}|video meeting>_"
