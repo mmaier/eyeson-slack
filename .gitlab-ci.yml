@@ -1,6 +1,6 @@
 ---
 
-image: docker-reg.test-visocon.com:5000/rails-test
+image: docker-reg.test-visocon.com:5000/visocon/rails-test
 
 services:
   - mongo:3.2
