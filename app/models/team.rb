@@ -26,23 +26,24 @@ class Team
                          webhooks_url: webhooks_url)
     team.api_key = api_key.key
     team.setup_url = api_key.url
-    team.external_id = identity['team']['id']
+    team.external_id = identity['team_id']
     team.access_token = access_token
     team.save!
 
     # TODO : how to handle setup completion in API console??
 
-    team.add!(identity['user'])
+    team.add!(identity: identity)
     team
   end
 
-  def add!(identity)
+  def add!(access_token: nil, identity: {})
     user = User.find_or_initialize_by(
       team_id: id,
-      external_id: identity['id']
+      external_id: identity['user_id']
     )
-    user.name = identity['name']
-    user.avatar = identity['image_48']
+    user.name = identity['user']
+    user.avatar = identity['avatar']
+    user.access_token = access_token
     user.save!
     user
   end

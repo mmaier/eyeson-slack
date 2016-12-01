@@ -32,12 +32,12 @@ class TeamsController < ApplicationController
       params,
       setup_complete_url
     )
-    user = @slack_api.request('/auth.test')
-    @identity = @slack_api.identity_from_auth(user)
+    @identity = @slack_api.request('/auth.test')
   end
 
   def exists?
-    @team = Team.find_by(external_id: @identity['team']['id'])
+    @team = Team.find_by(external_id: @identity['team_id'])
+    byebug
     return unless @team.present?
     @team.access_token = @slack_api.access_token
     @team.save

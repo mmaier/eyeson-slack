@@ -9,7 +9,7 @@ class UsersController < ApplicationController
   def login
     redirect_to @slack_api.authorize!(
       redirect_uri: oauth_url(redirect_uri: params.require(:redirect_uri)),
-      scope:        'identity.basic identity.avatar',
+      scope:        'identify users:read chat:write:user',
       team:         team_id_from_url
     )
   end
@@ -33,13 +33,15 @@ class UsersController < ApplicationController
       params,
       oauth_url(redirect_uri: params.require(:redirect_uri))
     )
-    @identity = @slack_api.request('/users.identity')
+    @identity = @slack_api.request('/auth.test')
+    profile   = @slack_api.request('/users.info', user: @identity['user_id'])
+    @identity.merge!('avatar' => profile['user']['profile']['image_48'])
   end
 
   def user_belongs_to_team!
-    @team = Team.find_by(external_id: @identity['team']['id'])
+    @team = Team.find_by(external_id: @identity['team_id'])
     redirect_to(:setup) && return if !@team.present? || !@team.ready?
-    @user = @team.add!(@identity['user'])
+    @user = @team.add!(access_token: @slack_api.access_token, identity: @identity)
   end
 
   def team_id_from_url

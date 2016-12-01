@@ -37,18 +37,6 @@ class SlackApi
     respond_with(response)
   end
 
-  def identity_from_auth(user)
-    {
-      'user' => {
-        'id' => user['user_id'],
-        'name' => user['user']
-      },
-      'team' => {
-        'id' => user['team_id']
-      }
-    }
-  end
-
   private
 
   def oauth_client
