@@ -1,7 +1,7 @@
 # Join a meeting
 class MeetingsController < ApplicationController
-  rescue_from Room::ValidationFailed, with: :room_error
-  rescue_from SlackApi::NotAuthorized, with: :slack_error
+  rescue_from Room::ValidationFailed,  with: :room_error
+  rescue_from SlackApi::NotAuthorized, with: :slack_not_authorized
 
   before_action :authorized!
   before_action :channel_exists!
@@ -24,7 +24,7 @@ class MeetingsController < ApplicationController
   private
 
   def authorized!
-    @user = User.find_by(id: params[:user_id])
+    @user = User.find_by(id: session[:user_id])
     return if @user.present?
     redirect_to login_path(
       redirect_uri: meeting_path(id: params[:id])
@@ -47,7 +47,7 @@ class MeetingsController < ApplicationController
     render json: { error: e }, status: :bad_request
   end
 
-  def slack_error(_e)
-    nil
+  def slack_not_authorized
+    redirect_to login_path(redirect_uri: meeting_path(id: params[:id]))
   end
 end

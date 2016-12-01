@@ -15,9 +15,8 @@ class UsersController < ApplicationController
   end
 
   def oauth
-    uri = params.require(:redirect_uri)
-    connector = (uri.include?('?') ? '&' : '?')
-    redirect_to uri + connector + "user_id=#{@user.id}"
+    session[:user_id] = @user.id.to_s
+    redirect_to params.require(:redirect_uri)
   end
 
   private
