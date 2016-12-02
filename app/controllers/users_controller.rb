@@ -10,15 +10,14 @@ class UsersController < ApplicationController
     redirect_to @slack_api.authorize!(
       redirect_uri: oauth_url(redirect_uri: params.require(:redirect_uri)),
       scope:        'identify users.profile:read chat:write:user',
-      team:         team_id_from_url,
-      state:        params[:state]
+      team:         team_id_from_url
     )
   end
 
   def oauth
-    session[@team.id.to_s] = @user.id.to_s
-    session[:state]        = params[:state]
-    redirect_to params.require(:redirect_uri)
+    uri = params.require(:redirect_uri)
+    connector = (uri.include?('?') ? '&' : '?')
+    redirect_to uri + connector + "user_id=#{@user.id}"
   end
 
   private

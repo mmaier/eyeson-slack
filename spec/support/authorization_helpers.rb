@@ -20,10 +20,6 @@ module AuthorizationHelpers
     }
   end
 
-  def authorized_as(user)
-    session[user.team_id.to_s] = user.id.to_s
-  end
-
   def expects_authorize_with(params)
     @slack_api = mock('Slack API')
     SlackApi.expects(:new).returns(@slack_api)

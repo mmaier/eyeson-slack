@@ -7,8 +7,7 @@ RSpec.describe UsersController, type: :controller do
     expects_authorize_with(
       redirect_uri: oauth_url(redirect_uri: '/redir'),
       scope:        'identify users.profile:read chat:write:user',
-      team:         nil,
-      state:        nil
+      team:         nil
     )
 
     get :login, params: { redirect_uri: '/redir' }
@@ -41,7 +40,7 @@ RSpec.describe UsersController, type: :controller do
 
     get :oauth, params: { redirect_uri: redirect_uri }
     user.reload
-    expect(response).to redirect_to(redirect_uri)
+    expect(response).to redirect_to(redirect_uri+"?user_id=#{user.id}")
   end
 
   it 'should authorize with team id on meetings#show' do
@@ -51,8 +50,7 @@ RSpec.describe UsersController, type: :controller do
     expects_authorize_with(
       redirect_uri: oauth_url(redirect_uri: redirect_uri),
       scope:        'identify users.profile:read chat:write:user',
-      team:         channel.team.external_id,
-      state:        nil
+      team:         channel.team.external_id
     )
 
     get :login, params: { redirect_uri: redirect_uri }

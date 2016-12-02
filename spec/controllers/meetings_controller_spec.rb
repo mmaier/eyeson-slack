@@ -5,34 +5,27 @@ RSpec.describe MeetingsController, type: :controller do
   it { should rescue_from(SlackApi::NotAuthorized).with(:not_authorized) }
 
   it 'should redirect_to setup unless channel known' do
-    authorized_as(create(:user))
-    get :show, params: { id: Faker::Code.isbn }
+    get :show, params: { id: Faker::Code.isbn, user_id: create(:user).id }
     expect(response).to redirect_to(setup_path)
   end
 
-  it 'should redirect to login unless team user present' do
+  it 'should redirect to login unless user present' do
     id = create(:channel).external_id
-    state = 'state_token'
-    SecureRandom.expects(:hex).returns(state)
     get :show, params: { id: id }
     redirect = login_path(
-      redirect_uri: meeting_path(id: id, state: state),
-      state: state
+      redirect_uri: meeting_path(id: id)
     )
     expect(response).to redirect_to(redirect)
   end
 
-  it 'should redirect to help page unless user gets a team session' do
+  it 'should redirect to help page unless belongs to team' do
     team1 = create(:team)
     team2 = create(:team)
     expect(team1).not_to eq(team2)
     channel = create(:channel, team: team1)
     user = create(:user, team: team2)
-    authorized_as(user)
 
-    session[:state] = 'state_token'
-
-    get :show, params: { id: channel.external_id, state: 'state_token' }
+    get :show, params: { id: channel.external_id, user_id: user.id }
     redirect = Rails.configuration.services['help_page']
     expect(response).to redirect_to(redirect)
   end
@@ -40,7 +33,6 @@ RSpec.describe MeetingsController, type: :controller do
   it 'should add user to room and redirect to room url' do
     channel = create(:channel)
     user = create(:user, team: channel.team)
-    authorized_as(user)
     gui = 'http://test.host/gui'
 
     res = mock('Eyeson result', body: { links: { gui: gui } }.to_json)
@@ -50,7 +42,7 @@ RSpec.describe MeetingsController, type: :controller do
     SlackApi.expects(:new).with(user.access_token).returns(@slack_api)
     @slack_api.expects(:request).once
 
-    get :show, params: { id: channel.external_id }
+    get :show, params: { id: channel.external_id, user_id: user.id }
     expect(response.status).to eq(302)
     expect(response).to redirect_to(gui)
   end
@@ -58,24 +50,22 @@ RSpec.describe MeetingsController, type: :controller do
   it 'should send a chat message after join' do
     channel = create(:channel)
     user = create(:user, team: channel.team)
-    authorized_as(user)
     Room.expects(:new).returns(mock('URL', url: '/'))
     slack_api = mock('Slack API')
     slack_api.expects(:request).once
     SlackApi.expects(:new).returns(slack_api)
-    get :show, params: { id: channel.external_id }
+    get :show, params: { id: channel.external_id, user_id: user.id }
   end
 
   it 'should handle eyeson api error' do
     channel = create(:channel)
     user = create(:user, team: channel.team)
-    authorized_as(user)
     error = 'some error'
 
     res = mock('Eyeson result', body: { error: error }.to_json)
     rest_response_with(res)
 
-    get :show, params: { id: channel.external_id }
+    get :show, params: { id: channel.external_id, user_id: user.id }
     expect(response.status).to eq(400)
     expect(JSON.parse(response.body)['error']).to eq(error)
   end
@@ -83,18 +73,14 @@ RSpec.describe MeetingsController, type: :controller do
   it 'should handle slack api error' do
     channel = create(:channel)
     user = create(:user, team: channel.team)
-    authorized_as(user)
     res = mock('Eyeson result', body: { links: { gui: '' } }.to_json)
     rest_response_with(res)
 
-    state = 'state_token'
-    SecureRandom.expects(:hex).returns(state)
     SlackApi.expects(:new).raises(SlackApi::NotAuthorized)
 
-    get :show, params: { id: channel.external_id }
+    get :show, params: { id: channel.external_id, user_id: user.id }
     redirect = login_path(
-      redirect_uri: meeting_path(id: channel.external_id, state: state),
-      state: state
+      redirect_uri: meeting_path(id: channel.external_id)
     )
     expect(response).to redirect_to(redirect)
   end

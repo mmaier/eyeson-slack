@@ -5,7 +5,6 @@ class MeetingsController < ApplicationController
 
   before_action :channel_exists!
   before_action :authorized!
-  before_action :user_or_session!
   before_action :user_belongs_to_team!
 
   def show
@@ -31,18 +30,13 @@ class MeetingsController < ApplicationController
   end
 
   def authorized!
-    @user = User.find_by(id: session[@channel.team_id.to_s])
-  end
-
-  def user_or_session!
-    return if @user.present? ||
-              session[:state].present? &&
-              session[:state] == params[:state]
+    @user = User.find_by(id: params[:user_id])
+    return if @user.present?
     not_authorized
   end
 
   def user_belongs_to_team!
-    return if @user.present? && @user.team_id == @channel.team_id
+    return if @user.team_id == @channel.team_id
     redirect_to Rails.configuration.services['help_page']
   end
 
@@ -51,10 +45,8 @@ class MeetingsController < ApplicationController
   end
 
   def not_authorized
-    state = SecureRandom.hex(5)
     redirect_to login_path(
-      redirect_uri: meeting_path(id: params[:id], state: state),
-      state:        state
+      redirect_uri: meeting_path(id: params[:id])
     )
   end
 end
