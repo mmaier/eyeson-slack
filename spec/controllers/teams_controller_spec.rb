@@ -15,8 +15,16 @@ RSpec.describe TeamsController, type: :controller do
 
   it 'should setup team and redirect to slack' do
     slack_api_authorized
-    @slack_api.expects(:request).returns(slack_identity)
+    identity = slack_identity
+    @slack_api.expects(:request).with('/auth.test').returns(identity)
     @slack_api.expects(:access_token).returns('abc123')
+    @slack_api.expects(:request).with('/chat.postMessage',
+                                      channel: "@#{identity['user']}",
+                                      as_user: false,
+                                      text:    CGI.escape(
+                                        I18n.t('.setup_complete',
+                                               scope: [:teams, :create])
+                                      ))
 
     res = mock('Eyeson result', body: {
       api_key: Faker::Crypto.md5
@@ -31,7 +39,7 @@ RSpec.describe TeamsController, type: :controller do
     slack_api_authorized
     team = create(:team)
     identity = slack_identity(team_id: team.external_id)
-    @slack_api.expects(:request).returns(identity)
+    @slack_api.expects(:request).returns(identity).twice
     @slack_api.expects(:access_token).returns('abc123')
     get :create
     team.reload

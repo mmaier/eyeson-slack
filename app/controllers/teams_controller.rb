@@ -5,7 +5,6 @@ class TeamsController < ApplicationController
 
   before_action :slack_api
   before_action :authorized!, only: [:create]
-  before_action :exists?, only: [:create]
 
   def setup
     redirect_to @slack_api.authorize!(
@@ -15,12 +14,17 @@ class TeamsController < ApplicationController
   end
 
   def create
-    unless @team.present?
-      @team = Team.setup!(
-        access_token: @slack_api.access_token,
-        identity: @identity
-      )
-    end
+    @team = Team.setup!(
+      access_token: @slack_api.access_token,
+      identity: @identity
+    )
+
+    @slack_api.request('/chat.postMessage',
+                       channel: "@#{@identity['user']}",
+                       as_user: false,
+                       text:    CGI.escape(I18n.t('.setup_complete',
+                                                  scope: [:teams, :create])))
+
     redirect_to @identity['url']
   end
 
@@ -32,13 +36,6 @@ class TeamsController < ApplicationController
       setup_complete_url
     )
     @identity = @slack_api.request('/auth.test')
-  end
-
-  def exists?
-    @team = Team.find_by(external_id: @identity['team_id'])
-    return unless @team.present?
-    @team.access_token = @slack_api.access_token
-    @team.save
   end
 
   def slack_not_authorized

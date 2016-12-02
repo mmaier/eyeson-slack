@@ -7,3 +7,7 @@ en:
   meetings:
     show: 
       joined: "_joined the <%{url}|eyeson meeting>_ :eyes:"
+
+  teams:
+    create:
+      setup_complete: "*Good job!* :thumbsup:\nSeems like everything is working fine.\nEnter `/eyeson` in any channel to start a eyeson meeting."

@@ -17,10 +17,12 @@ class Team
   index({ external_id: 1 }, unique: true)
 
   def self.setup!(access_token: nil, identity: {})
-    team = Team.new
-    api_key = ApiKey.new
-    team.api_key = api_key.key
-    team.external_id = identity['team_id']
+    team = Team.find_or_initialize_by(external_id: identity['team_id'])
+    if team.new_record?
+      api_key = ApiKey.new
+      team.api_key = api_key.key
+      team.external_id = identity['team_id']
+    end
     team.access_token = access_token
     team.save!
     team

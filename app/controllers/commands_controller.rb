@@ -42,9 +42,9 @@ class CommandsController < ApplicationController
 
   def invalid_setup_response
     response = {
-      text: I18n.t('.invalid_setup',
-                   url: setup_url,
-                   scope: [:commands])
+      text: CGI.escape(I18n.t('.invalid_setup',
+                              url: setup_url,
+                              scope: [:commands]))
     }
     render json: response
   end

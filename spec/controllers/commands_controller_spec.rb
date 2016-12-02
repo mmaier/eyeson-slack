@@ -13,9 +13,9 @@ RSpec.describe CommandsController, type: :controller do
     post :create, params: command_params.merge!(team_id: Faker::Code.isbn)
     expect(response.status).to eq(200)
     expect(JSON.parse(response.body)['text']).to eq(
-      I18n.t('.invalid_setup',
-             url: setup_url,
-             scope: [:commands])
+      CGI.escape(I18n.t('.invalid_setup',
+                        url: setup_url,
+                        scope: [:commands]))
     )
   end
 
