@@ -33,6 +33,7 @@ class Team
 
     profile = identity['profile']
     user.name = "#{profile['first_name']} #{profile['last_name']}"
+    user.name = identity['user'] if user.name.blank?
     user.email = profile['email']
     user.avatar = profile['image_48']
     user.access_token = access_token
