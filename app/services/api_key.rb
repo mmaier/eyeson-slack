@@ -15,7 +15,7 @@ class ApiKey
   private
 
   def create!
-    team = post('/teams',
+    team = post('/internal/teams',
                 name: 'Slack Service Application')
     raise ValidationFailed, team['error'] if team['error'].present?
     @key = team['api_key']
