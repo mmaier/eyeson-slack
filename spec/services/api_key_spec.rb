@@ -3,16 +3,12 @@ require 'rails_helper'
 RSpec.describe ApiKey, type: :class do
   it 'creates api key after initialization' do
     res = mock('Eyeson result', body: {
-      api_key: '123',
-      links: {
-        setup: 'setup_url'
-      }
+      api_key: '123'
     }.to_json)
     rest_response_with(res)
 
     api = ApiKey.new
     expect(api.key).to eq('123')
-    expect(api.url).to eq('setup_url')
   end
 
   # it uses webbhooks url on setup

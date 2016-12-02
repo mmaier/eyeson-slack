@@ -13,21 +13,18 @@ RSpec.describe TeamsController, type: :controller do
     expect(response.status).to redirect_to('https://slack/auth_url')
   end
 
-  it 'should setup team and redirect to api console' do
+  it 'should setup team and redirect to slack' do
     slack_api_authorized
     @slack_api.expects(:request).returns(slack_identity)
     @slack_api.expects(:access_token).returns('abc123')
 
     res = mock('Eyeson result', body: {
-      api_key: Faker::Crypto.md5,
-      links: {
-        setup: 'https://test.api/setup_url'
-      }
+      api_key: Faker::Crypto.md5
     }.to_json)
     rest_response_with(res)
 
     get :create
-    expect(response).to redirect_to('https://test.api/setup_url')
+    expect(response).to redirect_to('https://eyeson-test.slack.com')
   end
 
   it 'should update access token for existing team' do

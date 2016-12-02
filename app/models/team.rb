@@ -5,7 +5,6 @@ class Team
   field :external_id, type: String
   field :access_token, type: String
   field :api_key, type: String
-  field :setup_url, type: String
 
   has_many :users, dependent: :destroy
   has_many :channels, dependent: :destroy
@@ -14,7 +13,6 @@ class Team
   validates :external_id, uniqueness: true
   validates :access_token, presence: true
   validates :api_key, presence: true
-  validates :setup_url, presence: true
 
   index({ external_id: 1 }, unique: true)
 
@@ -22,7 +20,6 @@ class Team
     team = Team.new
     api_key = ApiKey.new
     team.api_key = api_key.key
-    team.setup_url = api_key.url
     team.external_id = identity['team_id']
     team.access_token = access_token
     team.save!

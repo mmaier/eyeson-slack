@@ -19,7 +19,6 @@ class ApiKey
                 name: 'Slack Service Application')
     raise ValidationFailed, team['error'] if team['error'].present?
     @key = team['api_key']
-    @url = team['links']['setup']
   end
 
   def post(path, params = {})

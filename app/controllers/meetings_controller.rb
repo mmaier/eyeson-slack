@@ -5,6 +5,7 @@ class MeetingsController < ApplicationController
 
   before_action :channel_exists!
   before_action :authorized!
+  before_action :user_or_session!
   before_action :user_belongs_to_team!
 
   def show
@@ -31,6 +32,9 @@ class MeetingsController < ApplicationController
 
   def authorized!
     @user = User.find_by(id: session[@channel.team_id.to_s])
+  end
+
+  def user_or_session!
     return if @user.present? ||
               session[:state].present? &&
               session[:state] == params[:state]

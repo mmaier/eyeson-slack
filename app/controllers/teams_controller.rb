@@ -21,7 +21,7 @@ class TeamsController < ApplicationController
         identity: @identity
       )
     end
-    redirect_to @team.setup_url
+    redirect_to @identity['url']
   end
 
   private
