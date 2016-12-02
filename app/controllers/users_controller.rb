@@ -34,10 +34,9 @@ class UsersController < ApplicationController
       params,
       oauth_url(redirect_uri: params.require(:redirect_uri))
     )
-    @identity = @slack_api.request('/auth.test')
-    profile   = @slack_api.request('/users.profile.get')
-    @identity['email'] = profile['profile']['email']
-    @identity.merge!('avatar' => profile['profile']['image_48'])
+    @identity    = @slack_api.request('/auth.test')
+    profile      = @slack_api.request('/users.profile.get')
+    @identity['profile'] = profile['profile']
   end
 
   def user_belongs_to_team!

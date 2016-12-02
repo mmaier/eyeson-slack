@@ -28,12 +28,13 @@ class Team
 
   def add!(access_token: nil, identity: {})
     user = User.find_or_initialize_by(
-      team_id: id,
-      external_id: identity['user_id']
+      team_id: id, external_id: identity['user_id']
     )
-    user.name = identity['user']
-    user.email = identity['email']
-    user.avatar = identity['avatar']
+
+    profile = identity['profile']
+    user.name = "#{profile['first_name']} #{profile['last_name']}"
+    user.email = profile['email']
+    user.avatar = profile['image_48']
     user.access_token = access_token
     user.save!
     user
