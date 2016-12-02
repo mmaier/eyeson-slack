@@ -27,9 +27,8 @@ class Team
   end
 
   def add!(access_token: nil, identity: {})
-    user = User.find_or_initialize_by(
-      team_id: id, external_id: identity['user_id']
-    )
+    user = User.find_or_initialize_by(team_id: id,
+                                      external_id: identity['user_id'])
 
     profile = identity['profile']
     user.name = "#{profile['first_name']} #{profile['last_name']}"
