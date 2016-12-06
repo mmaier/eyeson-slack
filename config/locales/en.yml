@@ -2,12 +2,12 @@ en:
   commands:
     invalid_slack_token: "Verification not correct"
     invalid_setup: "Your app hasn't been setup properly.\n*<%{url}|Finalize your setup here>.*"
-    respond: "<@%{user_id}> started an eyeson meeting: *<%{url}|Join here>*"
+    respond: "<@%{user_id}> opened a meeting room: *<%{url}|Join here>*"
 
   meetings:
     show: 
-      joined: "_joined the <%{url}|eyeson meeting>_ :eyes:"
+      joined: "_joined the <%{url}|meeting room>_ :eyes:"
 
   teams:
     create:
-      setup_complete: "*Good job!* :thumbsup:\nSeems like everything is working fine.\nEnter `/eyeson` in any channel to start a eyeson meeting."
+      setup_complete: "*Good job!* :thumbsup:\nSeems like everything is working fine.\nEnter `/eyeson` in any channel to open a meeting room."
