@@ -7,7 +7,7 @@ RSpec.describe TeamsController, type: :controller do
   it 'should ask for command permissions during setup' do
     expects_authorize_with(
       redirect_uri: setup_complete_url,
-      scope:        'identify commands chat:write:bot'
+      scope:        'identify commands chat:write:user chat:write:bot'
     )
     get :setup
     expect(response.status).to redirect_to('https://slack/auth_url')
@@ -15,8 +15,11 @@ RSpec.describe TeamsController, type: :controller do
 
   it 'should setup team and redirect to slack' do
     slack_api_authorized
-    identity = slack_identity
+    identity = slack_auth
     @slack_api.expects(:request).with('/auth.test').returns(identity)
+    @slack_api.expects(:identity_from_auth)
+              .with(identity)
+              .returns(slack_identity(user_id: identity['user_id']))
     @slack_api.expects(:access_token).returns('abc123')
     @slack_api.expects(:request).with('/chat.postMessage',
                                       channel: "@#{identity['user']}",
@@ -35,17 +38,6 @@ RSpec.describe TeamsController, type: :controller do
     expect(response).to redirect_to('https://eyeson-test.slack.com')
   end
 
-  it 'should update access token for existing team' do
-    slack_api_authorized
-    team = create(:team)
-    identity = slack_identity(team_id: team.external_id)
-    @slack_api.expects(:request).returns(identity).twice
-    @slack_api.expects(:access_token).returns('abc123')
-    get :create
-    team.reload
-    expect(team.access_token).to eq('abc123')
-  end
-
   it 'should redirect to setup when error is raised' do
     slack_api_authorized
     @slack_api.expects(:request)
@@ -56,8 +48,7 @@ RSpec.describe TeamsController, type: :controller do
 
   it 'should handle eyeson api error' do
     slack_api_authorized
-    @slack_api.expects(:request).returns(slack_identity)
-    @slack_api.expects(:access_token).returns('abc123')
+    @slack_api.expects(:request).returns(slack_auth)
 
     ApiKey.expects(:new)
           .raises(ApiKey::ValidationFailed)

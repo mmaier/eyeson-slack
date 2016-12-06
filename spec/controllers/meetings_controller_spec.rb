@@ -80,7 +80,8 @@ RSpec.describe MeetingsController, type: :controller do
 
     get :show, params: { id: channel.external_id, user_id: user.id }
     redirect = login_path(
-      redirect_uri: meeting_path(id: channel.external_id)
+      redirect_uri: meeting_path(id: channel.external_id),
+      scope: 'chat:write:user'
     )
     expect(response).to redirect_to(redirect)
   end

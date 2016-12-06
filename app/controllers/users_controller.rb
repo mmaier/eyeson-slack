@@ -8,11 +8,11 @@ class UsersController < ApplicationController
 
   def login
     scope = if params[:scope].present?
-      params[:scope]
-    else
-      'identity.basic identity.email identity.avatar'
-    end
-    
+              params[:scope]
+            else
+              'identity.basic identity.email identity.avatar'
+            end
+
     redirect_to @slack_api.authorize!(
       redirect_uri: oauth_url(redirect_uri: params.require(:redirect_uri)),
       scope:        scope,

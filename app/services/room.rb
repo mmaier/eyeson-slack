@@ -11,7 +11,7 @@ class Room
     @user    = user
     @url     = nil
     @config  = Rails.configuration.services
-    #create!
+    create!
   end
 
   private

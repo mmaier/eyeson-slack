@@ -30,7 +30,7 @@ class Team
     user.name = identity['user']['name']
     user.email = identity['user']['email']
     user.avatar = identity['user']['image_48']
-    user.access_token = access_token if access_token.present?
+    user.access_token = access_token
     user.save!
     user
   end

@@ -1,6 +1,6 @@
 
 module AuthorizationHelpers
-  def slack_identity(user_id: '123', team_id: Faker::Code.isbn)
+  def slack_auth(user_id: '123', team_id: Faker::Code.isbn)
     {
       'url'     => 'https://eyeson-test.slack.com',
       'user'    => 'Tester',
@@ -9,13 +9,16 @@ module AuthorizationHelpers
     }
   end
 
-  def slack_profile
+  def slack_identity(user_id: '123', team_id: Faker::Code.isbn)
     {
-      'profile' => {
-        'first_name' => Faker::Internet.user_name,
-        'last_name'  => Faker::Internet.user_name,
-        'email'      => Faker::Internet.email,
-        'image_48'   => 'avatar_url'
+      'user' => {
+        'id'       => user_id,
+        'email'    => Faker::Internet.email,
+        'name'     => Faker::Internet.user_name,
+        'image_48' => 'avatar_url'
+      },
+      'team' => {
+        'id'       => team_id
       }
     }
   end
