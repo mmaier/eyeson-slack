@@ -32,7 +32,9 @@ class MeetingsController < ApplicationController
   def authorized!
     @user = User.find_by(id: params[:user_id])
     return if @user.present?
-    not_authorized
+    redirect_to login_path(
+      redirect_uri: meeting_path(id: params[:id])
+    )
   end
 
   def user_belongs_to_team!
@@ -46,7 +48,8 @@ class MeetingsController < ApplicationController
 
   def not_authorized
     redirect_to login_path(
-      redirect_uri: meeting_path(id: params[:id])
+      redirect_uri: meeting_path(id: params[:id]),
+      scope:        'chat:write:user'
     )
   end
 end

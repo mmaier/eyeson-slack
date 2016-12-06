@@ -7,9 +7,15 @@ class UsersController < ApplicationController
   before_action :user_belongs_to_team!, only: [:oauth]
 
   def login
+    scope = if params[:scope].present?
+      params[:scope]
+    else
+      'identity.basic identity.email identity.avatar'
+    end
+    
     redirect_to @slack_api.authorize!(
       redirect_uri: oauth_url(redirect_uri: params.require(:redirect_uri)),
-      scope:        'identify users.profile:read chat:write:user',
+      scope:        scope,
       team:         team_id_from_url
     )
   end
@@ -33,13 +39,11 @@ class UsersController < ApplicationController
       params,
       oauth_url(redirect_uri: params.require(:redirect_uri))
     )
-    @identity    = @slack_api.request('/auth.test')
-    profile      = @slack_api.request('/users.profile.get')
-    @identity['profile'] = profile['profile']
+    @identity = @slack_api.request('/users.identity')
   end
 
   def user_belongs_to_team!
-    @team = Team.find_by(external_id: @identity['team_id'])
+    @team = Team.find_by(external_id: @identity['team']['id'])
     redirect_to(:setup) && return unless @team.present?
     @user = @team.add!(
       access_token: @slack_api.access_token,

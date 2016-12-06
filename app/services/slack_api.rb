@@ -37,6 +37,19 @@ class SlackApi
     respond_with(response)
   end
 
+  def identity_from_auth(auth)
+    name = "#{auth['profile']['first_name']} #{auth['profile']['last_name']}"
+    name = auth['user'] if name.blank?
+    {
+      'user' => {
+        'id' => auth['user_id'],
+        'name' => name,
+        'email' => auth['profile']['email'],
+        'image_48' => auth['profile']['image_48']
+      }
+    }
+  end
+
   private
 
   def oauth_client
