@@ -14,7 +14,6 @@ class User
   validates :external_id, uniqueness: { scope: :team_id }
   validates :access_token, presence: true
   validates :name, presence: true
-  validates :email, presence: true
 
   index({ team_id: 1, external_id: 1 }, unique: true)
 end

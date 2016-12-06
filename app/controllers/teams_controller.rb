@@ -9,7 +9,7 @@ class TeamsController < ApplicationController
   def setup
     redirect_to @slack_api.authorize!(
       redirect_uri: setup_complete_url,
-      scope:        'commands users.profile:read chat:write:user chat:write:bot'
+      scope:        'commands chat:write:user chat:write:bot'
     )
   end
 
@@ -37,8 +37,6 @@ class TeamsController < ApplicationController
       setup_complete_url
     )
     @identity = @slack_api.request('/auth.test')
-    profile  = @slack_api.request('/users.profile.get')
-    @identity['profile'] = profile['profile']
   end
 
   def slack_not_authorized(e)
