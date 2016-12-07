@@ -21,7 +21,7 @@ RSpec.describe ApiKey, type: :class do
     @config = Rails.configuration.services
     res = mock('Eyeson result', body: {}.to_json)
     rest_response_with(res)
-    auth = File.open(@config['internal_pwd'], &:readline)
+    auth = 'user:pwd'
     File.expects(:open)
         .with(@config['internal_pwd'])
         .returns(auth)
