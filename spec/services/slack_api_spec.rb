@@ -66,7 +66,7 @@ RSpec.describe SlackApi, type: :class do
 
   it 'sends requests to slack api' do
     body = { 'ok' => true }
-    response = mock('Oauth Response', error: nil, body: body.to_json)
+    response = mock('Oauth Response', body: body.to_json)
     oauth_access = mock('Oauth token')
     oauth_access.expects(:get).returns(response)
     OAuth2::AccessToken.expects(:new).returns(oauth_access)
@@ -90,7 +90,7 @@ RSpec.describe SlackApi, type: :class do
       'ok' => true,
       'key' => 'value'
     }
-    response = mock('Slack API', error: nil, body: body.to_json)
+    response = mock('Slack API', body: body.to_json)
     expect(slack_api.send(:respond_with, response)).to eq(body)
   end
 
@@ -106,18 +106,19 @@ RSpec.describe SlackApi, type: :class do
       .to raise_error(SlackApi::NotAuthorized)
   end
 
-  it 'raises NotAuthorized when api response error is present' do
-    response = mock('Slack API')
-    response.expects(:error).returns(true).twice
-    expect { slack_api.send(:respond_with, response) }
-      .to raise_error(SlackApi::NotAuthorized)
-  end
-
-  it 'raises NotAuthorized when api resonse does not contain ok=true' do
-    response = mock('Slack API', error: nil, body: {
+  it 'raises RequestFailed when api response ok!=true' do
+    response = mock('Slack API', body: {
       'ok' => false
     }.to_json)
     expect { slack_api.send(:respond_with, response) }
-      .to raise_error(SlackApi::NotAuthorized)
+      .to raise_error(SlackApi::RequestFailed)
+  end
+
+  it 'raises MissingScope when api resonse returns missing_scope error' do
+    response = mock('Slack API', body: {
+      'ok' => false, error: 'missing_scope'
+    }.to_json)
+    expect { slack_api.send(:respond_with, response) }
+      .to raise_error(SlackApi::MissingScope)
   end
 end

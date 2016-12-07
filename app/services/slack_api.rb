@@ -2,6 +2,10 @@
 class SlackApi
   class NotAuthorized < StandardError
   end
+  class RequestFailed < StandardError
+  end
+  class MissingScope < StandardError
+  end
 
   attr_reader :access_token
 
@@ -80,9 +84,9 @@ class SlackApi
   end
 
   def respond_with(response)
-    raise NotAuthorized, response.error if response.error.present?
     body = JSON.parse(response.body)
-    raise NotAuthorized, body['error'] unless body['ok'] == true
+    raise MissingScope, body['error'] if body['error'] == "missing_scope"
+    raise RequestFailed, body['error'] unless body['ok'] == true
     body
   end
 end

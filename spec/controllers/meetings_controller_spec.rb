@@ -2,11 +2,13 @@ require 'rails_helper'
 
 RSpec.describe MeetingsController, type: :controller do
   it { should rescue_from(Room::ValidationFailed).with(:room_error) }
-  it { should rescue_from(SlackApi::NotAuthorized).with(:not_authorized) }
+  it { should rescue_from(SlackApi::RequestFailed).with(:slack_failed) }
+  it { should rescue_from(SlackApi::MissingScope).with(:missing_scope) }
 
   it 'should redirect_to setup unless channel known' do
     get :show, params: { id: Faker::Code.isbn, user_id: create(:user).id }
-    expect(response).to redirect_to(setup_path)
+    redirect = Rails.configuration.services['help_page']
+    expect(response).to redirect_to(redirect)
   end
 
   it 'should redirect to login unless user present' do
@@ -70,13 +72,13 @@ RSpec.describe MeetingsController, type: :controller do
     expect(JSON.parse(response.body)['error']).to eq(error)
   end
 
-  it 'should handle slack api error' do
+  it 'should handle missing scope error' do
     channel = create(:channel)
     user = create(:user, team: channel.team)
     res = mock('Eyeson result', body: { links: { gui: '' } }.to_json)
     rest_response_with(res)
 
-    SlackApi.expects(:new).raises(SlackApi::NotAuthorized)
+    SlackApi.expects(:new).raises(SlackApi::MissingScope)
 
     get :show, params: { id: channel.external_id, user_id: user.id }
     redirect = login_path(
@@ -84,5 +86,19 @@ RSpec.describe MeetingsController, type: :controller do
       scope: 'chat:write:user'
     )
     expect(response).to redirect_to(redirect)
+  end
+
+  it 'should handle slack request error' do
+    channel = create(:channel)
+    user = create(:user, team: channel.team)
+    gui = 'http://test.host/gui'
+
+    res = mock('Eyeson result', body: { links: { gui: gui } }.to_json)
+    rest_response_with(res)
+
+    SlackApi.expects(:new).raises(SlackApi::RequestFailed)
+
+    get :show, params: { id: channel.external_id, user_id: user.id }
+    expect(response).to redirect_to(gui)
   end
 end
