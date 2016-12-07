@@ -38,7 +38,7 @@ RSpec.describe MeetingsController, type: :controller do
     gui = 'http://test.host/gui'
 
     res = mock('Eyeson result', body: { links: { gui: gui } }.to_json)
-    rest_response_with(res)
+    api_response_with(res)
 
     @slack_api = mock('Slack API')
     SlackApi.expects(:new).with(user.access_token).returns(@slack_api)
@@ -65,7 +65,7 @@ RSpec.describe MeetingsController, type: :controller do
     error = 'some error'
 
     res = mock('Eyeson result', body: { error: error }.to_json)
-    rest_response_with(res)
+    api_response_with(res)
 
     get :show, params: { id: channel.external_id, user_id: user.id }
     expect(response.status).to eq(400)
@@ -76,7 +76,7 @@ RSpec.describe MeetingsController, type: :controller do
     channel = create(:channel)
     user = create(:user, team: channel.team)
     res = mock('Eyeson result', body: { links: { gui: '' } }.to_json)
-    rest_response_with(res)
+    api_response_with(res)
 
     SlackApi.expects(:new).raises(SlackApi::MissingScope, 'missing_scope')
 
@@ -94,7 +94,7 @@ RSpec.describe MeetingsController, type: :controller do
     gui = 'http://test.host/gui'
 
     res = mock('Eyeson result', body: { links: { gui: gui } }.to_json)
-    rest_response_with(res)
+    api_response_with(res)
 
     SlackApi.expects(:new).raises(SlackApi::RequestFailed)
 

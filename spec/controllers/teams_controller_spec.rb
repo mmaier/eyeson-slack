@@ -32,7 +32,8 @@ RSpec.describe TeamsController, type: :controller do
     res = mock('Eyeson result', body: {
       api_key: Faker::Crypto.md5
     }.to_json)
-    rest_response_with(res)
+    uses_internal_api
+    api_response_with(res)
 
     get :create
     expect(response).to redirect_to('https://eyeson-test.slack.com')
