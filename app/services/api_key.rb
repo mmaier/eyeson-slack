@@ -6,9 +6,10 @@ class ApiKey
   attr_reader :key, :url
 
   def initialize
-    @key          = nil
-    @url          = nil
-    @config       = Rails.configuration.services
+    @key    = nil
+    @url    = nil
+    @config = Rails.configuration.services
+    @auth   = File.open(@config['internal_pwd'], &:readline)
     create!
   end
 
@@ -23,14 +24,18 @@ class ApiKey
 
   def post(path, params = {})
     uri = URI.parse("#{@config['eyeson_api']}#{path}")
+    req = Net::HTTP::Post.new(uri)
+    req.body = params.to_json
+    request(uri, req)
+  end
 
+  def request(uri, req)
     http = Net::HTTP.new(uri.host, uri.port)
     http.use_ssl = true
     http.verify_mode = OpenSSL::SSL::VERIFY_NONE
 
-    req = Net::HTTP::Post.new(uri)
+    req.basic_auth @auth.split(':').first, @auth.split(':').last
     req['Content-Type'] = 'application/json'
-    req.body = params.to_json
 
     res = http.request(req)
     JSON.parse(res.body)

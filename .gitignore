@@ -22,4 +22,5 @@
 
 /config/mongoid.yml
 /config/services.yml
+/config/certs
 /coverage/*
