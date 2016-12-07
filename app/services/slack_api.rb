@@ -85,7 +85,7 @@ class SlackApi
 
   def respond_with(response)
     body = JSON.parse(response.body)
-    raise MissingScope, body['error'] if body['error'] == "missing_scope"
+    raise MissingScope, body['needed'] if body['error'] == 'missing_scope'
     raise RequestFailed, body['error'] unless body['ok'] == true
     body
   end

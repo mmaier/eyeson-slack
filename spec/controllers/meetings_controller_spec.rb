@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe MeetingsController, type: :controller do
   it { should rescue_from(Room::ValidationFailed).with(:room_error) }
-  it { should rescue_from(SlackApi::RequestFailed).with(:slack_failed) }
+  it { should rescue_from(SlackApi::RequestFailed).with(:enter_room) }
   it { should rescue_from(SlackApi::MissingScope).with(:missing_scope) }
 
   it 'should redirect_to setup unless channel known' do
@@ -78,12 +78,12 @@ RSpec.describe MeetingsController, type: :controller do
     res = mock('Eyeson result', body: { links: { gui: '' } }.to_json)
     rest_response_with(res)
 
-    SlackApi.expects(:new).raises(SlackApi::MissingScope)
+    SlackApi.expects(:new).raises(SlackApi::MissingScope, 'missing_scope')
 
     get :show, params: { id: channel.external_id, user_id: user.id }
     redirect = login_path(
       redirect_uri: meeting_path(id: channel.external_id),
-      scope: 'chat:write:user'
+      scope: 'missing_scope'
     )
     expect(response).to redirect_to(redirect)
   end

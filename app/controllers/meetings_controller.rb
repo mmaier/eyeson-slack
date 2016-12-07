@@ -1,8 +1,8 @@
 # Join a meeting
 class MeetingsController < ApplicationController
-  rescue_from Room::ValidationFailed,  with: :room_error
-  rescue_from SlackApi::RequestFailed, with: :slack_failed
+  rescue_from Room::ValidationFailed, with: :room_error
   rescue_from SlackApi::MissingScope, with: :missing_scope
+  rescue_from SlackApi::RequestFailed, with: :enter_room
 
   before_action :channel_exists!
   before_action :authorized!
@@ -19,7 +19,7 @@ class MeetingsController < ApplicationController
                                       url: meeting_url(id: params[:id]),
                                       scope: [:meetings, :show]))
 
-    redirect_to @room.url
+    enter_room
   end
 
   private
@@ -47,14 +47,14 @@ class MeetingsController < ApplicationController
     render json: { error: e }, status: :bad_request
   end
 
-  def slack_failed
+  def enter_room
     redirect_to @room.url
   end
 
-  def missing_scope
+  def missing_scope(scope)
     redirect_to login_path(
       redirect_uri: meeting_path(id: params[:id]),
-      scope:        'chat:write:user'
+      scope:        scope
     )
   end
 end
