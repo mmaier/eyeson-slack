@@ -21,12 +21,15 @@ RSpec.describe ApiKey, type: :class do
     @config = Rails.configuration.services
     res = mock('Eyeson result', body: {}.to_json)
     rest_response_with(res)
-    auth = 'user:pwd'
-    File.expects(:open)
-        .with(@config['internal_pwd'])
+    auth = {
+      'username' => 'user',
+      'password' => 'pwd'
+    }
+    expect(@config['internal_pwd']).to be_present
+    YAML.expects(:load)
         .returns(auth)
     req = mock('REST Request')
-    req.expects(:basic_auth).with(auth.split(':').first, auth.split(':').last)
+    req.expects(:basic_auth).with(auth['username'], auth['password'])
     req.expects(:[]=).once
     req.expects(:body=).once
     Net::HTTP::Post.expects(:new).returns(req)

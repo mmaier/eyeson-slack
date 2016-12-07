@@ -9,7 +9,6 @@ class ApiKey
     @key    = nil
     @url    = nil
     @config = Rails.configuration.services
-    @auth   = File.open(@config['internal_pwd'], &:readline)
     create!
   end
 
@@ -34,7 +33,8 @@ class ApiKey
     http.use_ssl = true
     http.verify_mode = OpenSSL::SSL::VERIFY_NONE
 
-    req.basic_auth @auth.split(':').first, @auth.split(':').last
+    auth = YAML.load(File.read(@config['internal_pwd']))
+    req.basic_auth auth['username'], auth['password']
     req['Content-Type'] = 'application/json'
 
     res = http.request(req)
