@@ -19,7 +19,7 @@ RSpec.describe TeamsController, type: :controller do
     info = slack_info(user_id: identity['user_id'])
     @slack_api.expects(:request).with('/auth.test').returns(identity)
     @slack_api.expects(:request)
-              .with("/users.info?user=#{identity['user_id']}")
+              .with('/users.info', user: identity['user_id'])
               .returns(info)
     @slack_api.expects(:identity_from_info)
               .with(info)
@@ -55,7 +55,7 @@ RSpec.describe TeamsController, type: :controller do
     slack_api_authorized
     @slack_api.expects(:request).with('/auth.test').returns(slack_auth)
     @slack_api.expects(:request)
-              .with("/users.info?user=#{slack_auth['user_id']}")
+              .with('/users.info', user: slack_auth['user_id'])
               .returns(slack_info)
 
     ApiKey.expects(:new)
