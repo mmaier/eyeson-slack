@@ -41,11 +41,14 @@ class SlackApi
     respond_with(response)
   end
 
-  def identity_from_auth(auth)
+  def identity_from_info(info)
+    name = info['user']['profile']['real_name']
+    name ||= info['user']['name']
     {
       'user' => {
-        'id' => auth['user_id'],
-        'name' => auth['user']
+        'id'       => info['user']['id'],
+        'name'     => name,
+        'image_48' => info['user']['profile']['image_48']
       }
     }
   end

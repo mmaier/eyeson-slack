@@ -4,8 +4,8 @@ class MeetingsController < ApplicationController
   rescue_from SlackApi::MissingScope, with: :missing_scope
   rescue_from SlackApi::RequestFailed, with: :enter_room
 
-  before_action :channel_exists!
   before_action :authorized!
+  before_action :channel_exists!
   before_action :user_belongs_to_team!
 
   def show
@@ -24,12 +24,6 @@ class MeetingsController < ApplicationController
 
   private
 
-  def channel_exists!
-    @channel = Channel.find_by(external_id: params[:id])
-    return if @channel.present?
-    redirect_to Rails.configuration.services['help_page']
-  end
-
   def authorized!
     @user = User.find_by(id: params[:user_id])
     return if @user.present?
@@ -38,9 +32,15 @@ class MeetingsController < ApplicationController
     )
   end
 
+  def channel_exists!
+    @channel = Channel.find_by(external_id: params[:id])
+    return if @channel.present?
+    redirect_to @user.team.url
+  end
+
   def user_belongs_to_team!
     return if @user.team_id == @channel.team_id
-    redirect_to Rails.configuration.services['help_page']
+    redirect_to @channel.team.url
   end
 
   def room_error(e)

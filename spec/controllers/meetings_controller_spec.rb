@@ -5,12 +5,6 @@ RSpec.describe MeetingsController, type: :controller do
   it { should rescue_from(SlackApi::RequestFailed).with(:enter_room) }
   it { should rescue_from(SlackApi::MissingScope).with(:missing_scope) }
 
-  it 'should redirect_to setup unless channel known' do
-    get :show, params: { id: Faker::Code.isbn, user_id: create(:user).id }
-    redirect = Rails.configuration.services['help_page']
-    expect(response).to redirect_to(redirect)
-  end
-
   it 'should redirect to login unless user present' do
     id = create(:channel).external_id
     get :show, params: { id: id }
@@ -20,7 +14,13 @@ RSpec.describe MeetingsController, type: :controller do
     expect(response).to redirect_to(redirect)
   end
 
-  it 'should redirect to help page unless belongs to team' do
+  it 'should redirect_to slack unless channel known' do
+    user = create(:user)
+    get :show, params: { id: Faker::Code.isbn, user_id: user.id }
+    expect(response).to redirect_to(user.team.url)
+  end
+
+  it 'should redirect to correct slack team unless user belongs to team' do
     team1 = create(:team)
     team2 = create(:team)
     expect(team1).not_to eq(team2)
@@ -28,8 +28,7 @@ RSpec.describe MeetingsController, type: :controller do
     user = create(:user, team: team2)
 
     get :show, params: { id: channel.external_id, user_id: user.id }
-    redirect = Rails.configuration.services['help_page']
-    expect(response).to redirect_to(redirect)
+    expect(response).to redirect_to(channel.team.url)
   end
 
   it 'should add user to room and redirect to room url' do

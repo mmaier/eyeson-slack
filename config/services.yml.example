@@ -1,7 +1,6 @@
 test:
   eyeson_api: http://test.host/eyeson/api
   internal_pwd: /mnt/certs/internal.htpasswd
-  help_page: https://eyeson.team/slack
   slack_token: "67890"
   slack_key: "abc"
   slack_secret: "def"

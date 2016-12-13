@@ -23,6 +23,20 @@ module AuthorizationHelpers
     }
   end
 
+  def slack_info(user_id: '123')
+    {
+      'user' => {
+        'id'       => user_id,
+        'name'     => Faker::Internet.user_name,
+        'profile'  => {
+          'email'     => Faker::Internet.email,
+          'real_name' => Faker::Internet.user_name,
+          'image_48'  => 'avatar_url'
+        }
+      }
+    }
+  end
+
   def expects_authorize_with(params)
     @slack_api = mock('Slack API')
     SlackApi.expects(:new).returns(@slack_api)

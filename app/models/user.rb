@@ -5,7 +5,6 @@ class User
   field :external_id, type: String
   field :access_token, type: String
   field :name, type: String
-  field :email, type: String
   field :avatar, type: String
 
   belongs_to :team

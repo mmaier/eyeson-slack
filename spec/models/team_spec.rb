@@ -5,9 +5,11 @@ RSpec.describe Team, type: :model do
   it { is_expected.to have_many :channels }
 
   it { is_expected.to have_fields(:api_key, :external_id).of_type(String) }
+  it { is_expected.to have_fields(:url).of_type(String) }
   it { is_expected.to have_index_for(external_id: 1) }
 
   it { is_expected.to validate_presence_of(:api_key) }
+  it { is_expected.to validate_presence_of(:url) }
   it { is_expected.to validate_presence_of(:external_id) }
   it { is_expected.to validate_uniqueness_of(:external_id) }
 
@@ -17,7 +19,11 @@ RSpec.describe Team, type: :model do
 
     key = mock('API Key', key: api_key)
     ApiKey.expects(:new).returns(key)
-    team = Team.setup!(external_id)
+    team = Team.setup!(
+      external_id: external_id,
+      email: Faker::Internet.email,
+      url: Faker::Internet.url
+    )
 
     expect(team.external_id).to eq(external_id)
     expect(team.api_key).to eq(api_key)
@@ -26,7 +32,11 @@ RSpec.describe Team, type: :model do
   it 'should return existing team on setup' do
     team = create(:team)
     ApiKey.expects(:new).never
-    Team.setup!(team.external_id)
+    Team.setup!(
+      external_id: team.external_id,
+      email: Faker::Internet.email,
+      url: Faker::Internet.url
+    )
   end
 
   it 'should add a user to team' do

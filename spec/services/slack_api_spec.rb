@@ -95,10 +95,19 @@ RSpec.describe SlackApi, type: :class do
   end
 
   it 'returns identity from auth object' do
-    auth = slack_auth
-    identity = slack_api.send(:identity_from_auth, auth)
-    expect(identity['user']['id']).to eq(auth['user_id'])
-    expect(identity['user']['name']).to eq(auth['user'])
+    info = slack_info
+    identity = slack_api.send(:identity_from_info, info)
+    expect(identity['user']['id']).to eq(info['user']['id'])
+    expect(identity['user']['name']).to eq(info['user']['profile']['real_name'])
+    expect(identity['user']['image_48'])
+      .to eq(info['user']['profile']['image_48'])
+  end
+
+  it 'returns identity from auth object without profile name present' do
+    info = slack_info
+    info['user']['profile']['real_name'] = nil
+    identity = slack_api.send(:identity_from_info, info)
+    expect(identity['user']['name']).to eq(info['user']['name'])
   end
 
   it 'raises NotAuthorized when error param is set' do

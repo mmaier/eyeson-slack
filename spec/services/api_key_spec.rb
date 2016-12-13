@@ -8,7 +8,7 @@ RSpec.describe ApiKey, type: :class do
     uses_internal_api
     api_response_with(res)
 
-    api = ApiKey.new
+    api = ApiKey.new(Faker::Internet.email)
     expect(api.key).to eq('123')
   end
 
@@ -16,13 +16,14 @@ RSpec.describe ApiKey, type: :class do
     res = mock('Eyeson result', body: { error: 'some_error' }.to_json)
     uses_internal_api
     api_response_with(res)
-    expect { ApiKey.new }.to raise_error(ApiKey::ValidationFailed, 'some_error')
+    expect { ApiKey.new(Faker::Internet.email) }
+      .to raise_error(ApiKey::ValidationFailed, 'some_error')
   end
 
   it 'uses basic auth for internal api' do
     res = mock('Eyeson result', body: {}.to_json)
     uses_internal_api
     api_response_with(res)
-    ApiKey.new
+    ApiKey.new(Faker::Internet.email)
   end
 end

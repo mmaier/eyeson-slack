@@ -10,7 +10,7 @@ class UsersController < ApplicationController
     scope = if params[:scope].present?
               params[:scope]
             else
-              'identity.basic identity.email identity.avatar'
+              'identity.basic identity.avatar'
             end
 
     redirect_to @slack_api.authorize!(

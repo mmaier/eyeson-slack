@@ -5,7 +5,8 @@ class ApiKey
 
   attr_reader :key, :url
 
-  def initialize
+  def initialize(email)
+    @email  = email
     @key    = nil
     @url    = nil
     @config = Rails.configuration.services
@@ -16,6 +17,7 @@ class ApiKey
 
   def create!
     team = post('/internal/teams',
+                email: @email,
                 name: 'Slack Service Application')
     raise ValidationFailed, team['error'] if team['error'].present?
     @key = team['api_key']
