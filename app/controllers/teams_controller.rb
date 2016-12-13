@@ -32,7 +32,7 @@ class TeamsController < ApplicationController
       setup_complete_url
     )
     @identity = @slack_api.request('/auth.test')
-    @info     = @slack_api.request('/users.info')
+    @info     = @slack_api.request("/users.info?user=#{@identity['user_id']}")
   end
 
   def slack_not_authorized(_e)
