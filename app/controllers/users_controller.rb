@@ -47,8 +47,8 @@ class UsersController < ApplicationController
     redirect_to(:setup) && return unless @team.present?
     @user = @team.add!(
       access_token: @slack_api.access_token,
-      scope: params.require(:scope),
-      identity: @identity
+      scope:        @slack_api.scope,
+      identity:     @identity
     )
   end
 

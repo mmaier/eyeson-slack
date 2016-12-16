@@ -25,6 +25,7 @@ RSpec.describe TeamsController, type: :controller do
               .with(info)
               .returns(slack_identity(user_id: identity['user_id']))
     @slack_api.expects(:access_token).returns('abc123')
+    @slack_api.expects(:scope).returns('scope')
     @slack_api.expects(:request).with('/chat.postMessage',
                                       channel: "@#{identity['user']}",
                                       as_user: false,
@@ -39,7 +40,7 @@ RSpec.describe TeamsController, type: :controller do
     uses_internal_api
     api_response_with(res)
 
-    get :create, params: { scope: 'test_scope' }
+    get :create
     expect(response).to redirect_to('https://eyeson-test.slack.com')
   end
 

@@ -7,13 +7,14 @@ class SlackApi
   class MissingScope < StandardError
   end
 
-  attr_reader :access_token
+  attr_reader :access_token, :scope
 
   def initialize(access_token = nil)
-    @config = Rails.configuration.services
-    @oauth = oauth_client
+    @config       = Rails.configuration.services
+    @oauth        = oauth_client
     @oauth_access = nil
     @access_token = access_token
+    @scope        = nil
 
     token_from(access_token: @access_token) if @access_token.present?
   end
@@ -74,6 +75,7 @@ class SlackApi
         redirect_uri: redirect_uri
       )
       @access_token = @oauth_access.token
+      @scope        = @oauth_access.params['scope']
     end
   end
 

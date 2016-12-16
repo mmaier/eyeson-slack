@@ -20,8 +20,8 @@ class TeamsController < ApplicationController
       email:       @info['user']['profile']['email']
     )
     @team.add!(access_token: @slack_api.access_token,
-               scope: params.require(:scope),
-               identity: @slack_api.identity_from_info(@info))
+               scope:        @slack_api.scope,
+               identity:     @slack_api.identity_from_info(@info))
     setup_complete
   end
 

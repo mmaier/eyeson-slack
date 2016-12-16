@@ -42,21 +42,24 @@ RSpec.describe SlackApi, type: :class do
     expect(params['team'][0]).to eq(team)
   end
 
-  it 'sets access token from code' do
-    @oauth_access = mock('Oauth token', token: 'abc123')
+  it 'sets access token and scope from code' do
+    oauth_access = mock('Oauth token')
+    oauth_access.expects(:token).returns('abc123').once
+    oauth_access.expects(:params).returns('scope' => 'scope1,scope2').once
     auth_code = mock('Auth code')
     auth_code.expects(:get_token)
              .with(
                'abc',
                redirect_uri: '/'
              )
-             .returns(@oauth_access)
+             .returns(oauth_access)
     oauth = mock('Oauth')
     oauth.expects(:auth_code).returns(auth_code)
     OAuth2::Client.expects(:new).returns(oauth)
 
     slack_api.send(:token_from, code: 'abc', redirect_uri: '/')
     expect(slack_api.access_token).to eq('abc123')
+    expect(slack_api.scope).to eq('scope1,scope2')
   end
 
   it 'sets token when authorized' do

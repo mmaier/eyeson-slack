@@ -3,12 +3,11 @@ class ApiKey
   class ValidationFailed < StandardError
   end
 
-  attr_reader :key, :url
+  attr_reader :key
 
   def initialize(email)
     @email  = email
     @key    = nil
-    @url    = nil
     @config = Rails.configuration.services
     create!
   end

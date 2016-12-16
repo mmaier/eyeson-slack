@@ -45,8 +45,9 @@ RSpec.describe UsersController, type: :controller do
               ))
 
     @slack_api.expects(:access_token).returns(user.access_token)
+    @slack_api.expects(:scope).returns(user.scope.split(','))
 
-    get :oauth, params: { redirect_uri: redirect_uri, scope: 'identity.basic' }
+    get :oauth, params: { redirect_uri: redirect_uri }
     user.reload
     expect(response).to redirect_to(redirect_uri + "?user_id=#{user.id}")
   end
