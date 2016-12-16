@@ -21,7 +21,7 @@ class SlackApi
   def authorize!(redirect_uri: nil, scope: nil, team: nil)
     @oauth.auth_code.authorize_url(
       redirect_uri: redirect_uri,
-      scope:        scope,
+      scope:        scope.join(','),
       team:         team
     )
   end

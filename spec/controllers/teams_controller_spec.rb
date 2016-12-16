@@ -7,7 +7,7 @@ RSpec.describe TeamsController, type: :controller do
   it 'should ask for command permissions during setup' do
     expects_authorize_with(
       redirect_uri: setup_complete_url,
-      scope: 'identify commands users:read chat:write:user chat:write:bot'
+      scope: %w(identify commands users:read chat:write:user chat:write:bot)
     )
     get :setup
     expect(response.status).to redirect_to('https://slack/auth_url')
@@ -39,7 +39,7 @@ RSpec.describe TeamsController, type: :controller do
     uses_internal_api
     api_response_with(res)
 
-    get :create
+    get :create, params: { scope: 'test_scope' }
     expect(response).to redirect_to('https://eyeson-test.slack.com')
   end
 

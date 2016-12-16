@@ -25,7 +25,7 @@ RSpec.describe SlackApi, type: :class do
 
   it 'returns authroization url' do
     redirect_uri = '/test'
-    scope = 'test_scope'
+    scope = %w(test_scope)
     team = 'my_team'
 
     auth_url = slack_api.authorize!(
@@ -38,7 +38,7 @@ RSpec.describe SlackApi, type: :class do
     expect(params['client_id'][0]).to eq(oauth.id)
     expect(params['redirect_uri'][0]).to eq(redirect_uri)
     expect(params['response_type'][0]).to eq('code')
-    expect(params['scope'][0]).to eq(scope)
+    expect(params['scope'][0]).to eq(scope.join(','))
     expect(params['team'][0]).to eq(team)
   end
 

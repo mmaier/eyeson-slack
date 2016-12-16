@@ -9,7 +9,7 @@ class TeamsController < ApplicationController
   def setup
     redirect_to @slack_api.authorize!(
       redirect_uri: setup_complete_url,
-      scope: 'identify commands users:read chat:write:user chat:write:bot'
+      scope: %w(identify commands users:read chat:write:user chat:write:bot)
     )
   end
 
@@ -20,6 +20,7 @@ class TeamsController < ApplicationController
       email:       @info['user']['profile']['email']
     )
     @team.add!(access_token: @slack_api.access_token,
+               scope: params.require(:scope),
                identity: @slack_api.identity_from_info(@info))
     setup_complete
   end

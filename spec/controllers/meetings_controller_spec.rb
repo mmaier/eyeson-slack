@@ -71,7 +71,19 @@ RSpec.describe MeetingsController, type: :controller do
     expect(JSON.parse(response.body)['error']).to eq(error)
   end
 
-  it 'should handle missing scope error' do
+  it 'should handle user missing scope error' do
+    channel = create(:channel)
+    user = create(:user, team: channel.team, scope: ['some_scope'])
+
+    get :show, params: { id: channel.external_id, user_id: user.id }
+    redirect = login_path(
+      redirect_uri: meeting_path(id: channel.external_id),
+      scope: 'chat:write:user'
+    )
+    expect(response).to redirect_to(redirect)
+  end
+
+  it 'should handle slack missing scope error' do
     channel = create(:channel)
     user = create(:user, team: channel.team)
     res = mock('Eyeson result', body: { links: { gui: '' } }.to_json)

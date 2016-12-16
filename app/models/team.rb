@@ -26,13 +26,14 @@ class Team
     team
   end
 
-  def add!(access_token: nil, identity: {})
+  def add!(access_token: nil, scope: nil, identity: {})
     user = User.find_or_initialize_by(team_id: id,
                                       external_id: identity['user']['id'])
 
     user.name         = identity['user']['name']
     user.avatar       = identity['user']['image_48']
     user.access_token = access_token
+    user.scope        = scope.split(',')
     user.save!
     user
   end

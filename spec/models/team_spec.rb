@@ -44,6 +44,7 @@ RSpec.describe Team, type: :model do
     identity = slack_identity
     team.add!(
       access_token: Faker::Crypto.md5,
+      scope: 'identity.basic',
       identity:     identity
     )
     expect(User.find_by(

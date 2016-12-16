@@ -8,9 +8,9 @@ class UsersController < ApplicationController
 
   def login
     scope = if params[:scope].present?
-              params[:scope]
+              params[:scope].split(',')
             else
-              'identity.basic identity.avatar'
+              %w(identity.basic identity.avatar)
             end
 
     redirect_to @slack_api.authorize!(
@@ -47,6 +47,7 @@ class UsersController < ApplicationController
     redirect_to(:setup) && return unless @team.present?
     @user = @team.add!(
       access_token: @slack_api.access_token,
+      scope: params.require(:scope),
       identity: @identity
     )
   end
