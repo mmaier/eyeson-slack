@@ -5,6 +5,7 @@ module AuthorizationHelpers
       'url'     => 'https://eyeson-test.slack.com',
       'user'    => 'Tester',
       'user_id' => user_id,
+      'team'    => Faker::Team.name,
       'team_id' => team_id
     }
   end

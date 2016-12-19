@@ -17,6 +17,7 @@ class TeamsController < ApplicationController
     @team = Team.setup!(
       external_id: @identity['team_id'],
       url:         @identity['url'],
+      name:        @identity['team'],
       email:       @info['user']['profile']['email']
     )
     @team.add!(access_token: @slack_api.access_token,

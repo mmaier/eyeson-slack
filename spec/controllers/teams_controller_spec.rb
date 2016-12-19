@@ -13,7 +13,7 @@ RSpec.describe TeamsController, type: :controller do
     expect(response.status).to redirect_to('https://slack/auth_url')
   end
 
-  it 'should setup team and redirect to slack' do
+  it 'should set up api key and redirect to slack' do
     slack_api_authorized
     identity = slack_auth
     info = slack_info(user_id: identity['user_id'])
@@ -41,7 +41,37 @@ RSpec.describe TeamsController, type: :controller do
     api_response_with(res)
 
     get :create
-    expect(response).to redirect_to('https://eyeson-test.slack.com')
+    expect(response).to redirect_to(identity['url'])
+  end
+
+  it 'should use team name, user email, url and external id for setup' do
+    slack_api_authorized
+    identity = slack_auth
+    info = slack_info(user_id: identity['user_id'])
+    @slack_api.expects(:request).with('/auth.test').returns(identity)
+    @slack_api.expects(:request)
+              .with('/users.info', user: identity['user_id'])
+              .returns(info)
+    @slack_api.expects(:access_token).once
+    @slack_api.expects(:scope).once
+    @slack_api.expects(:identity_from_info).once
+    team = mock('eyeson Team')
+    Team.expects(:setup!).with(external_id: identity['team_id'],
+                               url:         identity['url'],
+                               name:        identity['team'],
+                               email:       info['user']['profile']['email'])
+        .returns(team)
+    team.expects(:add!).once
+    @slack_api.expects(:request).with('/chat.postMessage',
+                                      channel: "@#{identity['user']}",
+                                      as_user: false,
+                                      text:    CGI.escape(
+                                        I18n.t('.setup_complete',
+                                               scope: [:teams, :create])
+                                      ))
+    team.expects(:url).returns(identity['url'])
+    get :create
+    expect(response).to redirect_to(identity['url'])
   end
 
   it 'should redirect to setup when error is raised' do
