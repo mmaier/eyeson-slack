@@ -52,4 +52,13 @@ RSpec.describe Team, type: :model do
              external_id: identity['user']['id']
     )).to be_present
   end
+
+  
+  it 'uses team name for api key registration' do
+    api = mock('ApiKey')
+    api.expects(:new)
+    api.expects(:post).with().once
+    api.new(name: Faker::Team.name, email: Faker::Internet.email)
+    expect(api.key).to eq('123')
+  end
 end

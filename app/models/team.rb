@@ -19,7 +19,8 @@ class Team
   def self.setup!(external_id: nil, email: nil, url: nil)
     team = Team.find_or_initialize_by(external_id: external_id)
     return team unless team.new_record?
-    api_key      = ApiKey.new(email)
+    name         = URI.parse(url).host.split('.').first.capitalize
+    api_key      = ApiKey.new(name: "Slack / #{name}", email: email)
     team.api_key = api_key.key
     team.url     = url
     team.save!

@@ -8,7 +8,7 @@ RSpec.describe ApiKey, type: :class do
     uses_internal_api
     api_response_with(res)
 
-    api = ApiKey.new(Faker::Internet.email)
+    api = ApiKey.new(name: Faker::Team.name, email: Faker::Internet.email)
     expect(api.key).to eq('123')
   end
 
@@ -16,7 +16,7 @@ RSpec.describe ApiKey, type: :class do
     res = mock('Eyeson result', body: { error: 'some_error' }.to_json)
     uses_internal_api
     api_response_with(res)
-    expect { ApiKey.new(Faker::Internet.email) }
+    expect { ApiKey.new(name: Faker::Team.name, email: Faker::Internet.email) }
       .to raise_error(ApiKey::ValidationFailed, 'some_error')
   end
 
@@ -24,6 +24,6 @@ RSpec.describe ApiKey, type: :class do
     res = mock('Eyeson result', body: {}.to_json)
     uses_internal_api
     api_response_with(res)
-    ApiKey.new(Faker::Internet.email)
+    ApiKey.new(name: Faker::Team.name, email: Faker::Internet.email)
   end
 end
