@@ -68,7 +68,7 @@ class SlackApi
 
   def token_from(code: nil, redirect_uri: nil, access_token: nil)
     if access_token.present?
-      @oauth_access = OAuth2::AccessToken.new(@oauth, @access_token)
+      @oauth_access = OAuth2::AccessToken.new(@oauth, access_token)
     else
       @oauth_access = @oauth.auth_code.get_token(
         code,
