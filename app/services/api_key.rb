@@ -5,11 +5,12 @@ class ApiKey
 
   attr_reader :key
 
-  def initialize(name: nil, email: nil)
-    @name   = name
-    @email  = email
-    @key    = nil
-    @config = Rails.configuration.services
+  def initialize(name: nil, email: nil, company: nil)
+    @name    = name
+    @email   = email
+    @company = company
+    @key     = nil
+    @config  = Rails.configuration.services
     create!
   end
 
@@ -17,8 +18,9 @@ class ApiKey
 
   def create!
     team = post('/internal/teams',
-                email: @email,
-                name:  @name)
+                email:   @email,
+                name:    @name,
+                company: @company)
     raise ValidationFailed, team['error'] if team['error'].present?
     @key = team['api_key']
   end

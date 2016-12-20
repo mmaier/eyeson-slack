@@ -53,13 +53,13 @@ RSpec.describe Team, type: :model do
     )).to be_present
   end
 
-  it 'should use name and email for api key registration' do
+  it 'should use name, email and company for api key registration' do
     name = Faker::Team.name
     email = Faker::Internet.email
     url = 'https://teamname.slack.com'
     api = mock('ApiKey', key: '123')
     ApiKey.expects(:new)
-          .with(name: "Slack / #{name}", email: email)
+          .with(name: name, email: email, company: 'Slack')
           .returns(api)
     Team.setup!(
       external_id: Faker::Code.isbn,
