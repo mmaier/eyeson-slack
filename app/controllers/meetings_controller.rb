@@ -8,6 +8,7 @@ class MeetingsController < ApplicationController
   before_action :channel_exists!
   before_action :user_belongs_to_team!
   before_action :scope_required!
+  before_action :ip_address
 
   def show
     @room = Room.new(channel: @channel, user: @user)
@@ -46,6 +47,10 @@ class MeetingsController < ApplicationController
 
   def scope_required!
     @user.scope_required!(%w(chat:write:user))
+  end
+
+  def ip_address
+    @user.ip_address = request.remote_ip
   end
 
   def room_error(e)

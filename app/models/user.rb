@@ -1,5 +1,6 @@
 # Store user information
 class User
+  attr_accessor :ip_address
   include Mongoid::Document
 
   field :external_id, type: String

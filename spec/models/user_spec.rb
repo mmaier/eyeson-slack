@@ -27,4 +27,10 @@ RSpec.describe User, type: :model do
     expect { user.scope_required!(['required_scope']) }
       .to raise_error(SlackApi::MissingScope)
   end
+
+  it 'should have an ip address attr_accessor' do
+    ip = Faker::Internet.ip_v4_address
+    user.ip_address = ip
+    expect(user.ip_address).to eq(ip)
+  end
 end
