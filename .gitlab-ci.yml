@@ -12,6 +12,7 @@ before_script:
   - ruby -v
   - which ruby
   - cp config/mongoid.yml.example config/mongoid.yml
+  - cp config/secrets.yml.example config/secrets.yml
   - gem install bundler --no-ri --no-rdoc
   - bundle install --jobs $(nproc) --without production development --path=/cache/bundler
   - RAILS_ENV=test bundle exec rails db:mongoid:create_indexes
