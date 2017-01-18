@@ -21,6 +21,5 @@
 .byebug_history
 
 /config/mongoid.yml
-/config/services.yml
 /config/certs
 /coverage/*

@@ -1,6 +1,6 @@
 test:
   eyeson_api: http://test.host/eyeson/api
   internal_pwd: /mnt/certs/internal.yml
-  slack_token: "67890"
-  slack_key: "abc"
-  slack_secret: "def"
+  slack_token: <%= Rails.application.secrets.slack_token %>
+  slack_key: <%= Rails.application.secrets.slack_key %>
+  slack_secret: <%= Rails.application.secrets.slack_secret %>
