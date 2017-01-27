@@ -28,7 +28,7 @@ class TeamsController < ApplicationController
   private
 
   def logged_in!
-    return if params[:team_id].present?
+    return if params[:team_id].present? || params[:user_id].present?
     redirect_to login_path(
       redirect_uri: setup_path
     )
