@@ -33,13 +33,22 @@ RSpec.describe CommandsController, type: :controller do
     expect(channel).to be_present
   end
 
-  it 'should return a message' do
+  it 'should return a meeting link' do
     proper_setup
     post :create, params: command_params
     url = "http://test.host/slack/m/#{command_params[:channel_id]}"
     text = I18n.t('.respond',
                   user_id: command_params[:user_id],
                   url: url,
+                  scope: [:commands])
+    expect(response.status).to eq(200)
+    expect(JSON.parse(response.body)['text']).to eq(text)
+  end
+
+  it 'should provide a help response' do
+    proper_setup
+    post :create, params: command_params.merge!(text: 'help')
+    text = I18n.t('.help',
                   scope: [:commands])
     expect(response.status).to eq(200)
     expect(JSON.parse(response.body)['text']).to eq(text)
