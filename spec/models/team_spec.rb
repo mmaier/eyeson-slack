@@ -49,7 +49,7 @@ RSpec.describe Team, type: :model do
     )
     expect(User.find_by(
              team_id: team.id,
-             external_id: identity['user']['id']
+             external_id: identity['user']['email']
     )).to be_present
   end
 

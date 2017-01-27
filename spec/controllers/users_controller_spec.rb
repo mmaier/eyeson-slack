@@ -6,7 +6,7 @@ RSpec.describe UsersController, type: :controller do
   it 'should invoke oauth and redirect to slack login' do
     expects_authorize_with(
       redirect_uri: oauth_url(redirect_uri: '/redir'),
-      scope:        %w(identity.basic identity.avatar),
+      scope:        %w(identity.basic identity.email identity.avatar),
       team:         nil
     )
 
@@ -40,7 +40,7 @@ RSpec.describe UsersController, type: :controller do
     @slack_api.expects(:request)
               .with('/users.identity')
               .returns(slack_identity(
-                         user_id: user.external_id,
+                         email: user.external_id,
                          team_id: team.external_id
               ))
 
@@ -58,7 +58,7 @@ RSpec.describe UsersController, type: :controller do
 
     expects_authorize_with(
       redirect_uri: oauth_url(redirect_uri: redirect_uri),
-      scope:        %w(identity.basic identity.avatar),
+      scope:        %w(identity.basic identity.email identity.avatar),
       team:         channel.team.external_id
     )
 

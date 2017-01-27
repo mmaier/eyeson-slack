@@ -10,30 +10,16 @@ module AuthorizationHelpers
     }
   end
 
-  def slack_identity(user_id: '123', team_id: Faker::Code.isbn)
+  def slack_identity(user_id: '123', email: Faker::Internet.email, team_id: Faker::Code.isbn)
     {
       'user' => {
         'id'       => user_id,
-        'email'    => Faker::Internet.email,
+        'email'    => email,
         'name'     => Faker::Internet.user_name,
         'image_48' => 'avatar_url'
       },
       'team' => {
         'id'       => team_id
-      }
-    }
-  end
-
-  def slack_info(user_id: '123')
-    {
-      'user' => {
-        'id'       => user_id,
-        'name'     => Faker::Internet.user_name,
-        'profile'  => {
-          'email'     => Faker::Internet.email,
-          'real_name' => Faker::Internet.user_name,
-          'image_48'  => 'avatar_url'
-        }
       }
     }
   end

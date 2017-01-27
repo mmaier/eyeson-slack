@@ -4,36 +4,28 @@ RSpec.describe TeamsController, type: :controller do
   it { should rescue_from(SlackApi::NotAuthorized).with(:slack_not_authorized) }
   it { should rescue_from(ApiKey::ValidationFailed).with(:api_key_error) }
 
+  it 'should redirect_to login unless team_id is set' do
+    get :setup
+    expect(response).to redirect_to(login_path(redirect_uri: setup_path))
+  end
+
   it 'should ask for command permissions during setup' do
     expects_authorize_with(
       redirect_uri: setup_complete_url,
-      scope: %w(identify commands users:read chat:write:user chat:write:bot)
+      scope: %w(identify commands chat:write:user),
+      team: 'xyz'
     )
-    get :setup
+    get :setup, params: { team_id: 'xyz' }
     expect(response.status).to redirect_to('https://slack/auth_url')
   end
 
   it 'should set up api key and redirect to slack' do
     slack_api_authorized
-    identity = slack_auth
-    info = slack_info(user_id: identity['user_id'])
-    @slack_api.expects(:request).with('/auth.test').returns(identity)
+    auth = slack_auth
+    @slack_api.expects(:request).with('/auth.test').returns(auth)
     @slack_api.expects(:request)
-              .with('/users.info', user: identity['user_id'])
-              .returns(info)
-    @slack_api.expects(:identity_from_info)
-              .with(info)
-              .returns(slack_identity(user_id: identity['user_id']))
-    @slack_api.expects(:access_token).returns('abc123')
-    @slack_api.expects(:scope).returns('scope')
-    @slack_api.expects(:request).with('/chat.postMessage',
-                                      channel: "@#{identity['user']}",
-                                      as_user: false,
-                                      text:    CGI.escape(
-                                        I18n.t('.setup_complete',
-                                               scope: [:teams, :create])
-                                      ))
-
+              .with('/users.identity')
+              .returns(slack_identity(user_id: auth['user_id']))
     res = mock('Eyeson result', body: {
       api_key: Faker::Crypto.md5
     }.to_json)
@@ -41,37 +33,25 @@ RSpec.describe TeamsController, type: :controller do
     api_response_with(res)
 
     get :create
-    expect(response).to redirect_to(identity['url'])
+    expect(response).to redirect_to(Rails.configuration.services['help_page'])
   end
 
   it 'should use team name, user email, url and external id for setup' do
     slack_api_authorized
-    identity = slack_auth
-    info = slack_info(user_id: identity['user_id'])
-    @slack_api.expects(:request).with('/auth.test').returns(identity)
+    auth = slack_auth
+    identity = slack_identity(user_id: auth['user_id'])
+    @slack_api.expects(:request).with('/auth.test').returns(auth)
     @slack_api.expects(:request)
-              .with('/users.info', user: identity['user_id'])
-              .returns(info)
-    @slack_api.expects(:access_token).once
-    @slack_api.expects(:scope).once
-    @slack_api.expects(:identity_from_info).once
+              .with('/users.identity')
+              .returns(identity)
     team = mock('eyeson Team')
-    Team.expects(:setup!).with(external_id: identity['team_id'],
-                               url:         identity['url'],
-                               name:        identity['team'],
-                               email:       info['user']['profile']['email'])
+    Team.expects(:setup!).with(external_id: auth['team_id'],
+                               url:         auth['url'],
+                               name:        auth['team'],
+                               email:       identity['user']['email'])
         .returns(team)
-    team.expects(:add!).once
-    @slack_api.expects(:request).with('/chat.postMessage',
-                                      channel: "@#{identity['user']}",
-                                      as_user: false,
-                                      text:    CGI.escape(
-                                        I18n.t('.setup_complete',
-                                               scope: [:teams, :create])
-                                      ))
-    team.expects(:url).returns(identity['url'])
     get :create
-    expect(response).to redirect_to(identity['url'])
+    expect(response).to redirect_to(Rails.configuration.services['help_page'])
   end
 
   it 'should redirect to setup when error is raised' do
@@ -86,8 +66,8 @@ RSpec.describe TeamsController, type: :controller do
     slack_api_authorized
     @slack_api.expects(:request).with('/auth.test').returns(slack_auth)
     @slack_api.expects(:request)
-              .with('/users.info', user: slack_auth['user_id'])
-              .returns(slack_info)
+              .with('/users.identity')
+              .returns(slack_identity)
 
     ApiKey.expects(:new)
           .raises(ApiKey::ValidationFailed)
