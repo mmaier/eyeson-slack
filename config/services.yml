@@ -20,6 +20,14 @@ staging:
   slack_key: "<%= Rails.application.secrets.slack_key %>"
   slack_secret: "<%= Rails.application.secrets.slack_secret %>"
 
+integration:
+  eyeson_api: https://api.dev-visocon.com
+  internal_pwd: /mnt/certs/internal_api.yml
+  help_page: https://eyeson.team/slack
+  slack_token: "<%= Rails.application.secrets.slack_token %>"
+  slack_key: "<%= Rails.application.secrets.slack_key %>"
+  slack_secret: "<%= Rails.application.secrets.slack_secret %>"
+
 production:
   eyeson_api: https://api.eyeson.team
   internal_pwd: /mnt/certs/internal_api.yml
