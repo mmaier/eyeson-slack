@@ -1,6 +1,7 @@
 development:
   eyeson_api: https://localhost:3001
   internal_pwd: config/certs/internal.yml
+  help_page: https://eyeson.team/slack
   slack_token: "<%= Rails.application.secrets.slack_token %>"
   slack_key: "<%= Rails.application.secrets.slack_key %>"
   slack_secret: "<%= Rails.application.secrets.slack_secret %>"
@@ -8,6 +9,7 @@ development:
 test:
   eyeson_api: http://test.host/eyeson/api
   internal_pwd: /mnt/certs/internal.yml
+  help_page: https://eyeson.team/slack
   slack_token: "<%= Rails.application.secrets.slack_token %>"
   slack_key: "<%= Rails.application.secrets.slack_key %>"
   slack_secret: "<%= Rails.application.secrets.slack_secret %>"

@@ -10,7 +10,7 @@ class UsersController < ApplicationController
     scope = if params[:scope].present?
               params[:scope].split(',')
             else
-              %w(identity.basic identity.avatar)
+              %w(identity.basic identity.email identity.avatar)
             end
 
     redirect_to @slack_api.authorize!(
@@ -43,13 +43,12 @@ class UsersController < ApplicationController
   end
 
   def user_belongs_to_team!
-    @team = Team.find_by(external_id: @identity['team']['id'])
-    redirect_to(:setup) && return unless @team.present?
-    @user = @team.add!(
-      access_token: @slack_api.access_token,
+    team_id = @identity['team']['id']
+    @team = Team.find_by(external_id: team_id)
+    redirect_to setup_path(team_id: team_id) and return unless @team.present?
+    @user = @team.add!(access_token: @slack_api.access_token,
       scope:        @slack_api.scope,
-      identity:     @identity
-    )
+      identity:     @identity)
   end
 
   def team_id_from_url

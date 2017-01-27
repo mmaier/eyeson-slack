@@ -42,18 +42,6 @@ class SlackApi
     respond_with(response)
   end
 
-  def identity_from_info(info)
-    name = info['user']['profile']['real_name']
-    name ||= info['user']['name']
-    {
-      'user' => {
-        'id'       => info['user']['id'],
-        'name'     => name,
-        'image_48' => info['user']['profile']['image_48']
-      }
-    }
-  end
-
   private
 
   def oauth_client
