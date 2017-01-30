@@ -38,6 +38,7 @@ class CommandsController < ApplicationController
 
   def meeting_response
     url = meeting_url(id: params.require(:channel_id))
+    params[:text] ||= I18n.t('.join', scope: [:commands])
     {
       response_type: :in_channel,
       text: I18n.t('.respond',
