@@ -33,7 +33,7 @@ RSpec.describe TeamsController, type: :controller do
     api_response_with(res)
 
     get :create
-    expect(response).to redirect_to(Rails.configuration.services['help_page'])
+    expect(response).to redirect_to(Rails.configuration.services['setup_complete_url'])
   end
 
   it 'should use team name, user email, url and external id for setup' do
@@ -51,7 +51,7 @@ RSpec.describe TeamsController, type: :controller do
                                email:       identity['user']['email'])
         .returns(team)
     get :create
-    expect(response).to redirect_to(Rails.configuration.services['help_page'])
+    expect(response).to redirect_to(Rails.configuration.services['setup_complete_url'])
   end
 
   it 'should redirect to setup when error is raised' do

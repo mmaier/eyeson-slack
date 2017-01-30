@@ -1,7 +1,8 @@
 development:
   eyeson_api: https://localhost:3001
   internal_pwd: config/certs/internal.yml
-  help_page: https://eyeson.team/slack
+  setup_complete_url: https://eyeson.team/slack/success
+  faq_url: https://eyeson.team/slack/faq
   slack_token: "<%= Rails.application.secrets.slack_token %>"
   slack_key: "<%= Rails.application.secrets.slack_key %>"
   slack_secret: "<%= Rails.application.secrets.slack_secret %>"
@@ -9,7 +10,8 @@ development:
 test:
   eyeson_api: http://test.host/eyeson/api
   internal_pwd: /mnt/certs/internal.yml
-  help_page: https://eyeson.team/slack
+  setup_complete_url: https://eyeson.team/slack/success
+  faq_url: https://eyeson.team/slack/faq
   slack_token: "<%= Rails.application.secrets.slack_token %>"
   slack_key: "<%= Rails.application.secrets.slack_key %>"
   slack_secret: "<%= Rails.application.secrets.slack_secret %>"
@@ -17,7 +19,8 @@ test:
 staging:
   eyeson_api: https://api.test-visocon.com
   internal_pwd: /mnt/certs/internal_api.yml
-  help_page: https://eyeson.team/slack
+  setup_complete_url: https://eyeson.team/slack/success
+  faq_url: https://eyeson.team/slack/faq
   slack_token: "<%= Rails.application.secrets.slack_token %>"
   slack_key: "<%= Rails.application.secrets.slack_key %>"
   slack_secret: "<%= Rails.application.secrets.slack_secret %>"
@@ -25,7 +28,8 @@ staging:
 integration:
   eyeson_api: https://api.dev-visocon.com
   internal_pwd: /mnt/certs/internal_api.yml
-  help_page: https://eyeson.team/slack
+  setup_complete_url: https://eyeson.team/slack/success
+  faq_url: https://eyeson.team/slack/faq
   slack_token: "<%= Rails.application.secrets.slack_token %>"
   slack_key: "<%= Rails.application.secrets.slack_key %>"
   slack_secret: "<%= Rails.application.secrets.slack_secret %>"
@@ -33,7 +37,8 @@ integration:
 production:
   eyeson_api: https://api.eyeson.team
   internal_pwd: /mnt/certs/internal_api.yml
-  help_page: https://eyeson.team/slack
+  setup_complete_url: https://eyeson.team/slack/success
+  faq_url: https://eyeson.team/slack/faq
   slack_token: "<%= Rails.application.secrets.slack_token %>"
   slack_key: "<%= Rails.application.secrets.slack_key %>"
   slack_secret: "<%= Rails.application.secrets.slack_secret %>"

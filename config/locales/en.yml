@@ -3,7 +3,7 @@ en:
     invalid_slack_token: "Verification not correct"
     invalid_setup: "Your app hasn't been setup properly.\n*<%{url}|Finalize your setup here>.*"
     respond: "<@%{user_id}> opened a meeting room: *<%{url}|Join here>*"
-    help: "Seems like everything is working fine.\nEnter `/eyeson` in any channel to open a meeting room."
+    help: "Seems like everything is working fine.\nEnter `/eyeson` in any channel to open a meeting room.\nGet more infos at %{url}"
 
   meetings:
     show: 

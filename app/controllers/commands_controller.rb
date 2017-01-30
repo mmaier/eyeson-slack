@@ -31,6 +31,7 @@ class CommandsController < ApplicationController
   def help_response
     {
       text: I18n.t('.help',
+                   url: Rails.configuration.services['faq_url'],
                    scope: [:commands])
     }
   end

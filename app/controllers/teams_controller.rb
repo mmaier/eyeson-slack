@@ -22,7 +22,7 @@ class TeamsController < ApplicationController
       name:        @auth['team'],
       email:       @identity['user']['email']
     )
-    redirect_to Rails.configuration.services['help_page']
+    redirect_to Rails.configuration.services['setup_complete_url']
   end
 
   private

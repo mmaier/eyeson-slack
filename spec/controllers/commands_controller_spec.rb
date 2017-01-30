@@ -49,6 +49,7 @@ RSpec.describe CommandsController, type: :controller do
     proper_setup
     post :create, params: command_params.merge!(text: 'help')
     text = I18n.t('.help',
+                  url: Rails.configuration.services['faq_url'],
                   scope: [:commands])
     expect(response.status).to eq(200)
     expect(JSON.parse(response.body)['text']).to eq(text)
