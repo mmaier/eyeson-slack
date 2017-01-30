@@ -13,7 +13,7 @@ gem 'mongoid', '~> 6.0.0'
 
 group :development, :test do
   # Use ruby community standard and best practices
-  gem 'rubocop', '~> 0.47.1', require: false
+  gem 'rubocop', require: false
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
   gem 'byebug', platform: :mri
 end

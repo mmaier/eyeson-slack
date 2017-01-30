@@ -37,7 +37,7 @@ class ApiKey
     http.use_ssl = true
     http.verify_mode = OpenSSL::SSL::VERIFY_NONE
 
-    auth = YAML.safe_load(File.read(@config['internal_pwd']))
+    auth = YAML.load(File.read(@config['internal_pwd']))
     req.basic_auth auth['username'], auth['password']
     req['Content-Type'] = 'application/json'
 

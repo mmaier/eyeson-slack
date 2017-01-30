@@ -16,3 +16,6 @@ Rails:
 
 Rails/FilePath:
   Enabled: false
+
+Security/YAMLLoad:
+  Enabled: false
