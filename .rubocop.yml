@@ -6,10 +6,13 @@ AllCops:
   Exclude:
     - bin/*
     - db/schema.rb
-    - spec/support/authorization_helpers.rb
+    - spec/**/*
 
 Style/FrozenStringLiteralComment:
   Enabled: false
 
 Rails:
   Enabled: true
+
+Rails/FilePath:
+  Enabled: false
