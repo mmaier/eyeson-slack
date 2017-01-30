@@ -2,7 +2,7 @@ en:
   commands:
     invalid_slack_token: "Verification not correct"
     invalid_setup: "Your app hasn't been setup properly.\n*<%{url}|Finalize your setup here>.*"
-    respond: "<@%{user_id}> opened a meeting room: *<%{url}|Join here>*"
+    respond: "<@%{user_id}> opened a meeting room: *<%{url}|%{title.present? ? title : 'Join here'}>*"
     help: "To open a meeting room in the current channel: `/eyeson`\nA meeting link will be posted to all channel members.\n\nMore help is available here: %{url}"
 
   meetings:
