@@ -43,7 +43,7 @@ class Room
 
   def mapped_user
     {
-      id:         @user.external_id,
+      id:         @user.email,
       name:       @user.name,
       avatar:     @user.avatar,
       ip_address: @user.ip_address

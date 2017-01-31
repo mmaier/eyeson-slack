@@ -40,7 +40,7 @@ RSpec.describe UsersController, type: :controller do
     @slack_api.expects(:request)
               .with('/users.identity')
               .returns(slack_identity(
-                         email: user.external_id,
+                         user_id: user.external_id,
                          team_id: team.external_id
               ))
 

@@ -30,7 +30,7 @@ RSpec.describe Room, type: :class do
     api_response_with(res)
     user.ip_address = Faker::Internet.ip_v4_address
     mapped = room.send(:mapped_user)
-    expect(mapped[:id]).to eq(user.external_id)
+    expect(mapped[:id]).to eq(user.email)
     expect(mapped[:name]).to eq(user.name)
     expect(mapped[:avatar]).to eq(user.avatar)
     expect(mapped[:ip_address]).to eq(user.ip_address)

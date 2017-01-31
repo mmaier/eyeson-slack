@@ -7,6 +7,7 @@ class User
   field :access_token, type: String
   field :scope, type: Array
   field :name, type: String
+  field :email, type: String
   field :avatar, type: String
 
   belongs_to :team
@@ -16,6 +17,7 @@ class User
   validates :access_token, presence: true
   validates :scope, presence: true
   validates :name, presence: true
+  validates :email, presence: true
 
   index({ team_id: 1, external_id: 1 }, unique: true)
 
