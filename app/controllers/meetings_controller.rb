@@ -51,7 +51,7 @@ class MeetingsController < ApplicationController
 
   def ip_address
     ip = request.env['HTTP_X_FORWARDED_FOR']
-    @user.ip_address = ip.split(",").first if ip.present?
+    @user.ip_address = ip.split(',').first if ip.present?
   end
 
   def room_error(e)
