@@ -22,5 +22,16 @@ module Slack
     # Application configuration should go into files in config/initializers
     # -- all .rb files in that directory are automatically loaded.
     config.api_only = true
+
+    config.action_dispatch.trusted_proxies = /
+    ^127\.0\.0\.1$                | # localhost IPv4
+    ^::1$                         | # localhost IPv6
+    ^fc00:                        | # private IPv6 range fc00
+    ^10\.                         | # private IPv4 range 10.x.x.x
+    ^213.208.148.[1-9]+$          |
+    ^213.208.129.[1-9]+$          |
+    ^2a01:190:1700:14(\h|:)+$     |
+    ^172\.(1[6-9]|2[0-9]|3[0-1])\.  # private IPv4 range
+    /x
   end
 end
