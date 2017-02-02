@@ -8,7 +8,7 @@ class MeetingsController < ApplicationController
   before_action :channel_exists!
   before_action :user_belongs_to_team!
   before_action :scope_required!
-  before_action :ip_address
+  after_action :update_intercom
 
   def show
     @room = Room.new(channel: @channel, user: @user)
@@ -49,10 +49,6 @@ class MeetingsController < ApplicationController
     @user.scope_required!(%w(chat:write:user))
   end
 
-  def ip_address
-    @user.ip_address = request.remote_ip
-  end
-
   def room_error(e)
     render json: { error: e }, status: :bad_request
   end
@@ -66,5 +62,10 @@ class MeetingsController < ApplicationController
       redirect_uri: meeting_path(id: params[:id]),
       scope:        scope
     )
+  end
+
+  def update_intercom
+    ip = request.remote_ip
+    Intercom::User.new(@user, ip_address: ip)
   end
 end

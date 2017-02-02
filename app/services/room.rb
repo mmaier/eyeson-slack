@@ -45,8 +45,7 @@ class Room
     {
       id:         @user.email,
       name:       @user.name,
-      avatar:     @user.avatar,
-      ip_address: @user.ip_address
+      avatar:     @user.avatar
     }
   end
 end
