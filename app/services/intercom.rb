@@ -13,7 +13,7 @@ module Intercom
     private
 
     def user_item
-      { 
+      {
         email: @email,
         last_seen_ip: @ip_address
       }
