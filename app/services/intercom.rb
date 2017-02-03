@@ -3,11 +3,12 @@ module Intercom
   # Updater User IP
   class User
     def initialize(user, ip_address: nil)
-      return unless Rails.env.production?
       @email = user.email
       @ip_address = ip_address
       uri = URI.parse('https://api.intercom.io/users')
-      Intercom.request(uri, user_item)
+      Thread.new do
+        Intercom.request(uri, user_item)
+      end
     end
 
     private

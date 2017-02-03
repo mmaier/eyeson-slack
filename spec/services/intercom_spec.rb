@@ -3,16 +3,10 @@ require 'rails_helper'
 RSpec.describe Intercom, type: :module do
   include Intercom
 
-  it 'should provide a User class' do
-    Net::HTTP.expects(:new).never
-    intercom = Intercom::User.new(nil)
-    expect(intercom).to be_present
-  end
-
-  it 'should not execute outside of production env' do
-    Rails.env.expects(:production?).returns(false)
-    Intercom.expects(:request).never
-    Intercom::User.new(nil)
+  it 'should execute requests in new thread' do
+    user = create(:user)
+    Thread.expects(:new)
+    Intercom::User.new(user)
   end
 
   it 'should provide a request method' do
@@ -25,22 +19,13 @@ RSpec.describe Intercom, type: :module do
   end
 
   it 'should return ip and email for user update' do
-    Rails.env.expects(:production?).returns(true)
     user = build(:user)
-    Intercom.expects(:request)
+    Thread.expects(:new)
     intercom = Intercom::User.new(user, ip_address: '127.0.0.1')
     user_item = {
       email: user.email,
       last_seen_ip: '127.0.0.1'
     }
     expect(intercom.send(:user_item)).to eq(user_item)
-  end
-
-  it 'should invoke intercom api with user info' do
-    user = create(:user)
-    uri = URI.parse('https://api.intercom.io/bulk/users')
-    Rails.env.expects(:production?).returns(true)
-    Intercom.expects(:request)
-    Intercom::User.new(user, ip_address: nil)
   end
 end
