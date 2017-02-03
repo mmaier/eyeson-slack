@@ -26,7 +26,6 @@ RSpec.describe MeetingsController, type: :controller do
     expect(team1).not_to eq(team2)
     channel = create(:channel, team: team1)
     user = create(:user, team: team2)
-
     get :show, params: { id: channel.external_id, user_id: user.id }
     expect(response).to redirect_to(channel.team.url)
   end
@@ -43,6 +42,8 @@ RSpec.describe MeetingsController, type: :controller do
     SlackApi.expects(:new).with(user.access_token).returns(@slack_api)
     @slack_api.expects(:request).once
 
+    Intercom::User.expects(:new)
+
     get :show, params: { id: channel.external_id, user_id: user.id }
     expect(response.status).to eq(302)
     expect(response).to redirect_to(gui)
@@ -55,6 +56,7 @@ RSpec.describe MeetingsController, type: :controller do
     slack_api = mock('Slack API')
     slack_api.expects(:request).once
     SlackApi.expects(:new).returns(slack_api)
+    Intercom::User.expects(:new)
     get :show, params: { id: channel.external_id, user_id: user.id }
   end
 
