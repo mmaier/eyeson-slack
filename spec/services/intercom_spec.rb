@@ -34,7 +34,7 @@ RSpec.describe Intercom, type: :module do
     custom_attributes = {
       first_login_source: 'Meeting Room',
       last_login_source: 'Meeting Room',
-      first_meeting_date: Time.now.to_i,
+      first_meeting_at: Time.now.to_i,
       first_meeting_info: "Slack #{user.team.name}",
       last_meeting_info: "Slack #{user.team.name}",
       count_slack: 1
@@ -70,7 +70,7 @@ RSpec.describe Intercom, type: :module do
     expect(intercom.send(:user_item)).to eq(user_item)
   end
 
-  it 'should return existing user' do
+  it 'should fetch existing user' do
     user = build(:user, external_id: Faker::Internet.email)
     Thread.expects(:new)
     intercom = Intercom::User.new(user)

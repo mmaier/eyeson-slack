@@ -16,7 +16,7 @@ module Intercom
     def save!
       Thread.new do
         fetch_user!
-        Intercom.request(uri, user_item)
+        Intercom.post(@uri, user_item)
       end
     end
 
@@ -33,7 +33,7 @@ module Intercom
       unless @existing_user.present?
         attributes.merge!(
           first_login_source: default_attributes[:last_login_source],
-          first_meeting_date: Time.now.to_i,
+          first_meeting_at: Time.now.to_i,
           first_meeting_info: default_attributes[:last_meeting_info]
         )
       end
@@ -55,9 +55,9 @@ module Intercom
 
     def fetch_user!
       uri = @uri.dup
-      uri.query = 'email={CGI.escape(@email)}'
+      uri.query = "email=#{CGI.escape(@user.email)}"
       user = Intercom.get(uri)
-      @existing_user = JSON.parse(user.to_s) if user.is_a?(Net::HTTPSuccess)
+      @existing_user = JSON.parse(user.body) if user.is_a?(Net::HTTPSuccess)
     end
   end
 
@@ -80,10 +80,16 @@ module Intercom
 
     req['Content-Type'] = 'application/json'
     req['Accept'] = 'application/json'
-    req.basic_auth(Rails.application.secrets.intercom_key,
-                   Rails.application.secrets.intercom_secret)
+    req['Authorization'] = "Basic #{access_token}"
     req.body = params.to_json
     http.request(req)
   end
   module_function :request
+
+  def access_token
+    Base64.urlsafe_encode64(
+      Rails.application.secrets.intercom_secret
+    )
+  end
+  module_function :access_token
 end
