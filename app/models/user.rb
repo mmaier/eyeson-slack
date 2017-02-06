@@ -1,7 +1,6 @@
 # Store user information
 class User
   include Mongoid::Document
-  include Mongoid::Timestamps
 
   field :external_id, type: String
   field :access_token, type: String

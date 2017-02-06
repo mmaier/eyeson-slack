@@ -10,13 +10,21 @@ RSpec.describe Intercom, type: :module do
   end
 
   it 'should provide a request method' do
-    req = mock('Intercom Request')
-    req.expects(:use_ssl=).with(true)
-    req.expects(:verify_mode=).with(OpenSSL::SSL::VERIFY_NONE)
-    req.expects(:request).returns(true)
-    Net::HTTP.expects(:new).returns(req)
+    expects_intercom_rest_success
     uri = URI.parse('https://test.host/intercom')
     Intercom.request(Net::HTTP::Post.new(uri), uri, {})
+  end
+
+  it 'should provide a get method' do
+    expects_intercom_rest_success
+    uri = URI.parse('https://test.host/intercom')
+    Intercom.get(uri)
+  end
+
+  it 'should provide a post method' do
+    expects_intercom_rest_success
+    uri = URI.parse('https://test.host/intercom')
+    Intercom.post(uri)
   end
 
   it 'should return custom attributes for new user' do
@@ -26,7 +34,7 @@ RSpec.describe Intercom, type: :module do
     custom_attributes = {
       first_login_source: 'Meeting Room',
       last_login_source: 'Meeting Room',
-      first_meeting_date: user.created_at.to_i,
+      first_meeting_date: Time.now.to_i,
       first_meeting_info: "Slack #{user.team.name}",
       last_meeting_info: "Slack #{user.team.name}",
       count_slack: 1
@@ -69,4 +77,12 @@ RSpec.describe Intercom, type: :module do
     Intercom.expects(:get)
     intercom.send(:fetch_user!)
   end
+end
+
+def expects_intercom_rest_success
+  req = mock('Intercom Request')
+  req.expects(:use_ssl=).with(true)
+  req.expects(:verify_mode=).with(OpenSSL::SSL::VERIFY_NONE)
+  req.expects(:request).returns(true)
+  Net::HTTP.expects(:new).returns(req)
 end

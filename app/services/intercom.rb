@@ -29,7 +29,7 @@ module Intercom
       unless @existing_user.present?
         attributes.merge!(
           first_login_source: default_attributes[:last_login_source],
-          first_meeting_date: @user.created_at.to_i,
+          first_meeting_date: Time.now.to_i,
           first_meeting_info: default_attributes[:last_meeting_info]
         )
       end
