@@ -8,13 +8,17 @@ module Intercom
       @ip_address = ip_address
       @uri = URI.parse('https://api.intercom.io/users')
       @existing_user = nil
+      save!
+    end
+
+    private
+
+    def save!
       Thread.new do
         fetch_user!
         Intercom.request(uri, user_item)
       end
     end
-
-    private
 
     def user_item
       { email: @user.email,
