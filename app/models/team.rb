@@ -5,6 +5,7 @@ class Team
   field :external_id, type: String
   field :url, type: String
   field :api_key, type: String
+  field :name, type: String
 
   has_many :users, dependent: :destroy
   has_many :channels, dependent: :destroy
@@ -22,6 +23,7 @@ class Team
     api_key      = ApiKey.new(name: name, email: email, company: 'Slack')
     team.api_key = api_key.key
     team.url     = url
+    team.name    = name
     team.save!
     team
   end
