@@ -23,7 +23,6 @@ RSpec.describe Intercom, type: :module do
     user = build(:user)
     Thread.expects(:new)
     intercom = Intercom::User.new(user)
-    intercom.instance_variable_set(:@existing_user, {})
     custom_attributes = {
       first_login_source: 'Meeting Room',
       last_login_source: 'Meeting Room',
