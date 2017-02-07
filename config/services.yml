@@ -9,7 +9,7 @@ development:
 
 test:
   eyeson_api: http://test.host/eyeson/api
-  internal_pwd: /mnt/certs/internal.yml
+  internal_pwd: config/certs/internal.yml
   setup_complete_url: https://eyeson.team/slack/success
   faq_url: https://eyeson.team/slack/faq
   slack_token: "<%= Rails.application.secrets.slack_token %>"

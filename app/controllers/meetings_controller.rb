@@ -1,8 +1,8 @@
 # Join a meeting
 class MeetingsController < ApplicationController
-  require 'intercom/intercom'
-
-  rescue_from Room::ValidationFailed,  with: :room_error
+  require 'eyeson/api'
+  
+  rescue_from Eyeson::Room::ValidationFailed,  with: :room_error
   rescue_from SlackApi::MissingScope,  with: :missing_scope
   rescue_from SlackApi::RequestFailed, with: :enter_room
 
@@ -13,7 +13,7 @@ class MeetingsController < ApplicationController
   after_action :update_intercom
 
   def show
-    @room = Room.new(channel: @channel, user: @user)
+    @room = Eyeson::Room.new(id: @channel.external_id, name: @channel.name, user: @user)
 
     slack_api = SlackApi.new(@user.access_token)
     slack_api.request('/chat.postMessage',
@@ -67,7 +67,15 @@ class MeetingsController < ApplicationController
   end
 
   def update_intercom
-    ip = request.remote_ip
-    Intercom::User.new(@user, ip_address: ip)
+    Eyeson::Internal.post('/intercom',
+                          email: @user.email,
+                          ref: 'VIDEOMEETING',
+                          fields: {
+                            last_seen_ip: request.remote_ip,
+                            videomeetings_slack_info: @user.team.name
+                          },
+                          increment: {
+                            videomeetings_slack_count: true
+                          })
   end
 end

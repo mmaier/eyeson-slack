@@ -7,7 +7,6 @@ AllCops:
     - bin/*
     - db/schema.rb
     - spec/**/*
-    - lib/intercom/spec/*
 
 Style/FrozenStringLiteralComment:
   Enabled: false

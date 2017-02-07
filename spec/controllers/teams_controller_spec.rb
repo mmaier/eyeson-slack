@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe TeamsController, type: :controller do
   it { should rescue_from(SlackApi::NotAuthorized).with(:slack_not_authorized) }
-  it { should rescue_from(ApiKey::ValidationFailed).with(:api_key_error) }
+  it { should rescue_from(Eyeson::ApiKey::ValidationFailed).with(:api_key_error) }
 
   it 'should redirect_to login unless team_id is set' do
     get :setup
@@ -26,11 +26,9 @@ RSpec.describe TeamsController, type: :controller do
     @slack_api.expects(:request)
               .with('/users.identity')
               .returns(slack_identity(user_id: auth['user_id']))
-    res = mock('Eyeson result', body: {
-      api_key: Faker::Crypto.md5
-    }.to_json)
+              
     uses_internal_api
-    api_response_with(res)
+    api_response_with(api_key: Faker::Crypto.md5)
 
     get :create
     expect(response).to redirect_to(
@@ -73,8 +71,8 @@ RSpec.describe TeamsController, type: :controller do
               .with('/users.identity')
               .returns(slack_identity)
 
-    ApiKey.expects(:new)
-          .raises(ApiKey::ValidationFailed)
+    Eyeson::ApiKey.expects(:new)
+          .raises(Eyeson::ApiKey::ValidationFailed)
     get :create
     expect(response.status).to eq(400)
   end

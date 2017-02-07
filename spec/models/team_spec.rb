@@ -19,7 +19,7 @@ RSpec.describe Team, type: :model do
     api_key = Faker::Crypto.md5
 
     key = mock('API Key', key: api_key)
-    ApiKey.expects(:new).returns(key)
+    Eyeson::ApiKey.expects(:new).returns(key)
     team = Team.setup!(
       external_id: external_id,
       email: Faker::Internet.email,
@@ -33,7 +33,7 @@ RSpec.describe Team, type: :model do
 
   it 'should return existing team on setup' do
     team = create(:team)
-    ApiKey.expects(:new).never
+    Eyeson::ApiKey.expects(:new).never
     Team.setup!(
       external_id: team.external_id,
       email: Faker::Internet.email,
@@ -60,7 +60,7 @@ RSpec.describe Team, type: :model do
     email = Faker::Internet.email
     url = 'https://teamname.slack.com'
     api = mock('ApiKey', key: '123')
-    ApiKey.expects(:new)
+    Eyeson::ApiKey.expects(:new)
           .with(name: name, email: email, company: 'Slack')
           .returns(api)
     Team.setup!(

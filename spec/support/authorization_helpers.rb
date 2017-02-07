@@ -36,31 +36,6 @@ module AuthorizationHelpers
     SlackApi.expects(:new).returns(@slack_api)
     @slack_api.expects(:authorized?).returns(true)
   end
-
-  def api_response_with(res)
-    req = mock('Eyeson Request')
-    req.expects(:use_ssl=).at_least_once
-    req.expects(:verify_mode=).at_least_once
-    req.expects(:request).returns(res).at_least_once
-    Net::HTTP.expects(:new).returns(req).at_least_once
-  end
-
-  def uses_internal_api
-    config = Rails.configuration.services
-    auth = {
-      'username' => 'user',
-      'password' => 'pwd'
-    }
-    expect(config['internal_pwd']).to be_present
-    File.expects(:read)
-    YAML.expects(:load)
-        .returns(auth)
-    req = mock('REST Request')
-    req.expects(:basic_auth).with(auth['username'], auth['password'])
-    req.expects(:[]=).once
-    req.expects(:body=).once
-    Net::HTTP::Post.expects(:new).returns(req)
-  end
 end
 
 RSpec.configure do |config|

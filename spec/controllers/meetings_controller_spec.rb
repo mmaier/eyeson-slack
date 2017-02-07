@@ -1,7 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe MeetingsController, type: :controller do
-  it { should rescue_from(Room::ValidationFailed).with(:room_error) }
+  it { should rescue_from(Eyeson::Room::ValidationFailed).with(:room_error) }
   it { should rescue_from(SlackApi::RequestFailed).with(:enter_room) }
   it { should rescue_from(SlackApi::MissingScope).with(:missing_scope) }
 
@@ -35,14 +35,13 @@ RSpec.describe MeetingsController, type: :controller do
     user = create(:user, team: channel.team)
     gui = 'http://test.host/gui'
 
-    res = mock('Eyeson result', body: { links: { gui: gui } }.to_json)
-    api_response_with(res)
+    api_response_with
 
     @slack_api = mock('Slack API')
     SlackApi.expects(:new).with(user.access_token).returns(@slack_api)
     @slack_api.expects(:request).once
 
-    Intercom::User.expects(:new)
+    Eyeson::Internal.expects(:post)
 
     get :show, params: { id: channel.external_id, user_id: user.id }
     expect(response.status).to eq(302)
@@ -52,11 +51,11 @@ RSpec.describe MeetingsController, type: :controller do
   it 'should send a chat message after join' do
     channel = create(:channel)
     user = create(:user, team: channel.team)
-    Room.expects(:new).returns(mock('URL', url: '/'))
+    Eyeson::Room.expects(:new).returns(mock('URL', url: '/'))
     slack_api = mock('Slack API')
     slack_api.expects(:request).once
     SlackApi.expects(:new).returns(slack_api)
-    Intercom::User.expects(:new)
+    Eyeson::Internal.expects(:post)
     get :show, params: { id: channel.external_id, user_id: user.id }
   end
 
@@ -65,8 +64,7 @@ RSpec.describe MeetingsController, type: :controller do
     user = create(:user, team: channel.team)
     error = 'some error'
 
-    res = mock('Eyeson result', body: { error: error }.to_json)
-    api_response_with(res)
+    api_response_with(error: error)
 
     get :show, params: { id: channel.external_id, user_id: user.id }
     expect(response.status).to eq(400)
@@ -88,8 +86,7 @@ RSpec.describe MeetingsController, type: :controller do
   it 'should handle slack missing scope error' do
     channel = create(:channel)
     user = create(:user, team: channel.team)
-    res = mock('Eyeson result', body: { links: { gui: '' } }.to_json)
-    api_response_with(res)
+    api_response_with
 
     SlackApi.expects(:new).raises(SlackApi::MissingScope, 'missing_scope')
 
@@ -106,8 +103,7 @@ RSpec.describe MeetingsController, type: :controller do
     user = create(:user, team: channel.team)
     gui = 'http://test.host/gui'
 
-    res = mock('Eyeson result', body: { links: { gui: gui } }.to_json)
-    api_response_with(res)
+    api_response_with(gui: gui)
 
     SlackApi.expects(:new).raises(SlackApi::RequestFailed)
 
@@ -115,21 +111,21 @@ RSpec.describe MeetingsController, type: :controller do
     expect(response).to redirect_to(gui)
   end
 
-  it 'should update intercom with ip address' do
-    channel = create(:channel)
-    user = create(:user, team: channel.team)
-    @request.headers['REMOTE_ADDR'] = '127.0.0.1'
-    @request.headers['HTTP_X_FORWARDED_FOR'] = '123.123.123.123, 127.0.0.1'
+  # it 'should update intercom with ip address' do
+  #   channel = create(:channel)
+  #   user = create(:user, team: channel.team)
+  #   @request.headers['REMOTE_ADDR'] = '127.0.0.1'
+  #   @request.headers['HTTP_X_FORWARDED_FOR'] = '123.123.123.123, 127.0.0.1'
 
-    res = mock('Eyeson result', body: { links: { gui: '' } }.to_json)
-    api_response_with(res)
+  #   res = mock('Eyeson result', body: { links: { gui: '' } }.to_json)
+  #   api_response_with(res)
 
-    @slack_api = mock('Slack API')
-    SlackApi.expects(:new).with(user.access_token).returns(@slack_api)
-    @slack_api.expects(:request).once
+  #   @slack_api = mock('Slack API')
+  #   SlackApi.expects(:new).with(user.access_token).returns(@slack_api)
+  #   @slack_api.expects(:request).once
 
-    Intercom::User.expects(:new).with(user, ip_address: '123.123.123.123')
+  #   Intercom::User.expects(:new).with(user, ip_address: '123.123.123.123')
 
-    get :show, params: { id: channel.external_id, user_id: user.id }
-  end
+  #   get :show, params: { id: channel.external_id, user_id: user.id }
+  # end
 end
