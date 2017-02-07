@@ -7,6 +7,7 @@ AllCops:
     - bin/*
     - db/schema.rb
     - spec/**/*
+    - lib/eyeson/spec/*
 
 Style/FrozenStringLiteralComment:
   Enabled: false

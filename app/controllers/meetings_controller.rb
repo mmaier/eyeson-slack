@@ -1,8 +1,8 @@
 # Join a meeting
 class MeetingsController < ApplicationController
   require 'eyeson/api'
-  
-  rescue_from Eyeson::Room::ValidationFailed,  with: :room_error
+
+  rescue_from Eyeson::Room::ValidationFailed, with: :room_error
   rescue_from SlackApi::MissingScope,  with: :missing_scope
   rescue_from SlackApi::RequestFailed, with: :enter_room
 
@@ -10,18 +10,13 @@ class MeetingsController < ApplicationController
   before_action :channel_exists!
   before_action :user_belongs_to_team!
   before_action :scope_required!
+  after_action :post_to_slack
   after_action :update_intercom
 
   def show
-    @room = Eyeson::Room.new(id: @channel.external_id, name: @channel.name, user: @user)
-
-    slack_api = SlackApi.new(@user.access_token)
-    slack_api.request('/chat.postMessage',
-                      channel: @channel.external_id,
-                      as_user: true,
-                      text:    I18n.t('.joined',
-                                      url: meeting_url(id: params[:id]),
-                                      scope: [:meetings, :show]))
+    @room = Eyeson::Room.new(id: @channel.external_id,
+                             name: @channel.name,
+                             user: @user)
 
     enter_room
   end
@@ -64,6 +59,16 @@ class MeetingsController < ApplicationController
       redirect_uri: meeting_path(id: params[:id]),
       scope:        scope
     )
+  end
+
+  def post_to_slack
+    slack_api = SlackApi.new(@user.access_token)
+    slack_api.request('/chat.postMessage',
+                      channel: @channel.external_id,
+                      as_user: true,
+                      text:    I18n.t('.joined',
+                                      url: meeting_url(id: params[:id]),
+                                      scope: [:meetings, :show]))
   end
 
   def update_intercom
