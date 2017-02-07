@@ -12,6 +12,7 @@ RSpec.describe Team, type: :model do
   it { is_expected.to validate_presence_of(:url) }
   it { is_expected.to validate_presence_of(:external_id) }
   it { is_expected.to validate_uniqueness_of(:external_id) }
+  it { is_expected.to validate_presence_of(:name) }
 
   it 'should setup a new team' do
     external_id = Faker::Code.isbn
@@ -22,7 +23,8 @@ RSpec.describe Team, type: :model do
     team = Team.setup!(
       external_id: external_id,
       email: Faker::Internet.email,
-      url: Faker::Internet.url
+      url:   Faker::Internet.url,
+      name:  Faker::Team.name
     )
 
     expect(team.external_id).to eq(external_id)

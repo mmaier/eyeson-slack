@@ -14,6 +14,7 @@ class Team
   validates :external_id, uniqueness: true
   validates :url, presence: true
   validates :api_key, presence: true
+  validates :name, presence: true
 
   index({ external_id: 1 }, unique: true)
 
