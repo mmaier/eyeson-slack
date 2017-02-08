@@ -111,21 +111,29 @@ RSpec.describe MeetingsController, type: :controller do
     expect(response).to redirect_to(gui)
   end
 
-  # it 'should update intercom with ip address' do
-  #   channel = create(:channel)
-  #   user = create(:user, team: channel.team)
-  #   @request.headers['REMOTE_ADDR'] = '127.0.0.1'
-  #   @request.headers['HTTP_X_FORWARDED_FOR'] = '123.123.123.123, 127.0.0.1'
+  it 'should update intercom with ip address' do
+    channel = create(:channel)
+    user = create(:user, team: channel.team)
+    @request.headers['REMOTE_ADDR'] = '127.0.0.1'
+    @request.headers['HTTP_X_FORWARDED_FOR'] = '123.123.123.123, 127.0.0.1'
 
-  #   res = mock('Eyeson result', body: { links: { gui: '' } }.to_json)
-  #   api_response_with(res)
+    api_response_with
 
-  #   @slack_api = mock('Slack API')
-  #   SlackApi.expects(:new).with(user.access_token).returns(@slack_api)
-  #   @slack_api.expects(:request).once
+    @slack_api = mock('Slack API')
+    SlackApi.expects(:new).with(user.access_token).returns(@slack_api)
+    @slack_api.expects(:request).once
 
-  #   Intercom::User.expects(:new).with(user, ip_address: '123.123.123.123')
+    Eyeson::Internal.expects(:post).with('/intercom',
+                          email: user.email,
+                          ref: 'VIDEOMEETING',
+                          fields: {
+                            last_seen_ip: '123.123.123.123',
+                            videomeetings_slack_info: user.team.name
+                          },
+                          increment: {
+                            videomeetings_slack_count: true
+                          })
 
-  #   get :show, params: { id: channel.external_id, user_id: user.id }
-  # end
+    get :show, params: { id: channel.external_id, user_id: user.id }
+  end
 end
