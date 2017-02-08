@@ -10,14 +10,13 @@ class MeetingsController < ApplicationController
   before_action :channel_exists!
   before_action :user_belongs_to_team!
   before_action :scope_required!
-  after_action :post_to_slack
-  after_action :update_intercom
 
   def show
     @room = Eyeson::Room.new(id: @channel.external_id,
                              name: @channel.name,
                              user: @user)
-
+    post_to_slack
+    update_intercom
     enter_room
   end
 

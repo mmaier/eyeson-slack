@@ -10,7 +10,7 @@ class SlackApi
   attr_reader :access_token, :scope
 
   def initialize(access_token = nil)
-    @config       = Rails.configuration.services
+    @config       = Rails.application.secrets
     @oauth        = oauth_client
     @oauth_access = nil
     @access_token = access_token
@@ -46,8 +46,8 @@ class SlackApi
 
   def oauth_client
     OAuth2::Client.new(
-      @config['slack_key'],
-      @config['slack_secret'],
+      @config.slack_key,
+      @config.slack_secret,
       site: 'https://slack.com',
       authorize_url: '/oauth/authorize',
       token_url: '/api/oauth.access'

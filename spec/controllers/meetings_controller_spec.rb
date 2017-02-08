@@ -35,7 +35,7 @@ RSpec.describe MeetingsController, type: :controller do
     user = create(:user, team: channel.team)
     gui = 'http://test.host/gui'
 
-    api_response_with
+    api_response_with(gui: gui)
 
     @slack_api = mock('Slack API')
     SlackApi.expects(:new).with(user.access_token).returns(@slack_api)

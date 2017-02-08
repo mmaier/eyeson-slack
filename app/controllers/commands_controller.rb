@@ -16,8 +16,8 @@ class CommandsController < ApplicationController
   private
 
   def valid_slack_token!
-    return if params.require(:token) == Rails.configuration
-              .services['slack_token']
+    return if params.require(:token) == Rails.application
+              .secrets.slack_token
     render json: {
       text: I18n.t('.invalid_slack_token', scope: [:commands])
     }

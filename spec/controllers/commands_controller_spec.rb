@@ -76,7 +76,7 @@ end
 
 def command_params
   {
-    token: Rails.configuration.services['slack_token'],
+    token: Rails.application.secrets.slack_token,
     user_id:      '123',
     user_name:    'user_name',
     channel_id:   'abc',
