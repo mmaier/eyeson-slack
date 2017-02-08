@@ -9,7 +9,7 @@ GIT
 
 GIT
   remote: ssh://git@gitlab.infra.dev-visocon.com:2222/eyeson/eyeson-gem.git
-  revision: 6c2dfa6f828fff2809519ca591b10aa388e8d139
+  revision: 0c8ecb765e362548aca670478ff28639ea640a87
   specs:
     eyeson (0.1.0)
       rails (~> 5.0.1)
