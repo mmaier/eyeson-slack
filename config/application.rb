@@ -33,5 +33,11 @@ module Slack
     ^2a01:190:1700:14(\h|:)+$     |
     ^172\.(1[6-9]|2[0-9]|3[0-1])\.  # private IPv4 range
     /x
+
+    Eyeson.configure do |config|
+      config.endpoint          = Rails.configuration.services['eyeson_api']
+      config.internal_username = Rails.application.secrets.internal_api_username
+      config.internal_password = Rails.application.secrets.internal_api_password
+    end
   end
 end

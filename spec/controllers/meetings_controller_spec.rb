@@ -1,6 +1,6 @@
 require 'rails_helper'
 
-RSpec.describe MeetingsController, type: :controller do
+RSpec.describe MeetingsController, type: :controller do  
   it { should rescue_from(Eyeson::Room::ValidationFailed).with(:room_error) }
   it { should rescue_from(SlackApi::RequestFailed).with(:enter_room) }
   it { should rescue_from(SlackApi::MissingScope).with(:missing_scope) }

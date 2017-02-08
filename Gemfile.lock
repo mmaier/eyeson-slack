@@ -7,6 +7,13 @@ GIT
       rake
       rspec (> 3)
 
+GIT
+  remote: ssh://git@gitlab.infra.dev-visocon.com:2222/eyeson/eyeson-gem.git
+  revision: 6c2dfa6f828fff2809519ca591b10aa388e8d139
+  specs:
+    eyeson (0.1.0)
+      rails (~> 5.0.1)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -224,6 +231,7 @@ PLATFORMS
 
 DEPENDENCIES
   byebug
+  eyeson!
   factory_girl_rails
   faker
   listen (~> 3.0.5)

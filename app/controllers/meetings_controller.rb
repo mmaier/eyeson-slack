@@ -1,7 +1,5 @@
 # Join a meeting
 class MeetingsController < ApplicationController
-  require 'eyeson/api'
-
   rescue_from Eyeson::Room::ValidationFailed, with: :room_error
   rescue_from SlackApi::MissingScope,  with: :missing_scope
   rescue_from SlackApi::RequestFailed, with: :enter_room
