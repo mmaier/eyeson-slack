@@ -8,8 +8,8 @@ GIT
       rspec (> 3)
 
 GIT
-  remote: https://gitlab.infra.dev-visocon.com/mmaier/eyeson-gem.git
-  revision: 86f7879665ef2fb1b3ebbf1820c2bf03c500b221
+  remote: https://gitlab.infra.dev-visocon.com/eyeson/eyeson-ruby.git
+  revision: 4040da259d1ce2658bd191969be8269e9589d02c
   specs:
     eyeson (0.1.0)
       rails (~> 5.0.1)

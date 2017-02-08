@@ -11,7 +11,7 @@ gem 'slack-ruby-client'
 gem 'oauth2'
 gem 'mongoid', '~> 6.0.0'
 
-gem 'eyeson', git: 'https://gitlab.infra.dev-visocon.com/mmaier/eyeson-gem.git'
+gem 'eyeson', git: 'https://gitlab.infra.dev-visocon.com/eyeson/eyeson-ruby.git'
 
 group :development, :test do
   # Use ruby community standard and best practices
