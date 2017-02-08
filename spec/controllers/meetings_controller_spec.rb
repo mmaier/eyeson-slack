@@ -35,12 +35,12 @@ RSpec.describe MeetingsController, type: :controller do
     user = create(:user, team: channel.team)
     gui = 'http://test.host/gui'
 
-    api_response_with(gui: gui)
+    Eyeson::Room.expects(:new).with(id: channel.external_id,
+                                    name: channel.name,
+                                    user: user)
+                              .returns(mock('Room URL', url: gui))
 
-    @slack_api = mock('Slack API')
-    SlackApi.expects(:new).with(user.access_token).returns(@slack_api)
-    @slack_api.expects(:request).once
-
+    expects_slack_request_with(user.access_token)
     Eyeson::Internal.expects(:post)
 
     get :show, params: { id: channel.external_id, user_id: user.id }
@@ -51,11 +51,11 @@ RSpec.describe MeetingsController, type: :controller do
   it 'should send a chat message after join' do
     channel = create(:channel)
     user = create(:user, team: channel.team)
-    Eyeson::Room.expects(:new).returns(mock('URL', url: '/'))
-    slack_api = mock('Slack API')
-    slack_api.expects(:request).once
-    SlackApi.expects(:new).returns(slack_api)
+
+    expects_eyeson_room_with
+    expects_slack_request_with(user.access_token)
     Eyeson::Internal.expects(:post)
+
     get :show, params: { id: channel.external_id, user_id: user.id }
   end
 
@@ -63,11 +63,11 @@ RSpec.describe MeetingsController, type: :controller do
     channel = create(:channel)
     user = create(:user, team: channel.team)
     Eyeson.configuration.expects(:api_key=).with(user.team.api_key)
-    api_response_with
-    slack_api = mock('Slack API')
-    slack_api.expects(:request).once
-    SlackApi.expects(:new).returns(slack_api)
+    
+    expects_eyeson_room_with
+    expects_slack_request_with(user.access_token)
     Eyeson::Internal.expects(:post)
+
     get :show, params: { id: channel.external_id, user_id: user.id }
   end
 
@@ -76,7 +76,8 @@ RSpec.describe MeetingsController, type: :controller do
     user = create(:user, team: channel.team)
     error = 'some error'
 
-    api_response_with(error: error)
+    Eyeson::Room.expects(:new)
+                .raises(Eyeson::Room::ValidationFailed, error)
 
     get :show, params: { id: channel.external_id, user_id: user.id }
     expect(response.status).to eq(400)
@@ -98,7 +99,8 @@ RSpec.describe MeetingsController, type: :controller do
   it 'should handle slack missing scope error' do
     channel = create(:channel)
     user = create(:user, team: channel.team)
-    api_response_with
+    
+    expects_eyeson_room_with
 
     SlackApi.expects(:new).raises(SlackApi::MissingScope, 'missing_scope')
 
@@ -115,8 +117,7 @@ RSpec.describe MeetingsController, type: :controller do
     user = create(:user, team: channel.team)
     gui = 'http://test.host/gui'
 
-    api_response_with(gui: gui)
-
+    expects_eyeson_room_with(gui)
     SlackApi.expects(:new).raises(SlackApi::RequestFailed)
 
     get :show, params: { id: channel.external_id, user_id: user.id }
@@ -129,11 +130,8 @@ RSpec.describe MeetingsController, type: :controller do
     @request.headers['REMOTE_ADDR'] = '127.0.0.1'
     @request.headers['HTTP_X_FORWARDED_FOR'] = '123.123.123.123, 127.0.0.1'
 
-    api_response_with
-
-    @slack_api = mock('Slack API')
-    SlackApi.expects(:new).with(user.access_token).returns(@slack_api)
-    @slack_api.expects(:request).once
+    expects_eyeson_room_with
+    expects_slack_request_with(user.access_token)
 
     Eyeson::Internal.expects(:post).with('/intercom',
                           email: user.email,

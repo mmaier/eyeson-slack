@@ -19,16 +19,19 @@ RSpec.describe TeamsController, type: :controller do
     expect(response.status).to redirect_to('https://slack/auth_url')
   end
 
-  it 'should set up api key and redirect to slack' do
-    slack_api_authorized
+  it 'should set up api key and redirect to complete page' do
+    expects_slack_api_authorized
     auth = slack_auth
+    identity = slack_identity(user_id: auth['user_id'])
     @slack_api.expects(:request).with('/auth.test').returns(auth)
     @slack_api.expects(:request)
               .with('/users.identity')
-              .returns(slack_identity(user_id: auth['user_id']))
+              .returns(identity)
               
-    uses_internal_api
-    api_response_with(api_key: Faker::Crypto.md5)
+    Eyeson::ApiKey.expects(:new).with(name: auth['team'],
+                                      email: identity['user']['email'],
+                                      company: 'Slack')
+                                .returns(mock('API Key', key: '123'))
 
     get :create
     expect(response).to redirect_to(
@@ -37,7 +40,7 @@ RSpec.describe TeamsController, type: :controller do
   end
 
   it 'should use team name, user email, url and external id for setup' do
-    slack_api_authorized
+    expects_slack_api_authorized
     auth = slack_auth
     identity = slack_identity(user_id: auth['user_id'])
     @slack_api.expects(:request).with('/auth.test').returns(auth)
@@ -57,7 +60,7 @@ RSpec.describe TeamsController, type: :controller do
   end
 
   it 'should redirect to setup when error is raised' do
-    slack_api_authorized
+    expects_slack_api_authorized
     @slack_api.expects(:request)
               .raises(SlackApi::NotAuthorized)
     get :create
@@ -65,7 +68,7 @@ RSpec.describe TeamsController, type: :controller do
   end
 
   it 'should handle eyeson api error' do
-    slack_api_authorized
+    expects_slack_api_authorized
     @slack_api.expects(:request).with('/auth.test').returns(slack_auth)
     @slack_api.expects(:request)
               .with('/users.identity')

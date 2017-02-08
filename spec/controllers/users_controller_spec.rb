@@ -36,7 +36,7 @@ RSpec.describe UsersController, type: :controller do
     user = create(:user, team: team)
     redirect_uri = meeting_path(id: '123')
 
-    slack_api_authorized
+    expects_slack_api_authorized
     @slack_api.expects(:request)
               .with('/users.identity')
               .returns(slack_identity(
@@ -75,7 +75,7 @@ RSpec.describe UsersController, type: :controller do
   it 'should handle invalid user' do
     redirect_uri = meeting_path(id: '123')
 
-    slack_api_authorized
+    expects_slack_api_authorized
     @slack_api.expects(:request)
               .raises(SlackApi::NotAuthorized)
 
