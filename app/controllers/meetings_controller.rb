@@ -75,11 +75,21 @@ class MeetingsController < ApplicationController
                           email: @user.email,
                           ref: 'VIDEOMEETING',
                           fields: {
-                            last_seen_ip: request.remote_ip,
-                            videomeetings_slack_info: @user.team.name
+                            name: @user.name,
+                            last_seen_ip: request.remote_ip
                           },
-                          increment: {
-                            videomeetings_slack_count: true
-                          })
+                          events: intercom_events)
+  end
+
+  def intercom_events
+    [
+      { type: 'videomeeting' },
+      {
+        type: 'videomeeting_slack',
+        data: {
+          team: @user.team.name
+        }
+      }
+    ]
   end
 end
