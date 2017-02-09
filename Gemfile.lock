@@ -9,7 +9,7 @@ GIT
 
 GIT
   remote: https://gitlab.infra.dev-visocon.com/eyeson/eyeson-ruby.git
-  revision: 58b8951867eef59eec84f2ec6f12c20d238e303d
+  revision: 85770fbe831e4ddef797e6c9d874aa56ba2027a3
   specs:
     eyeson (0.1.0)
       rails (~> 5.0.1)
