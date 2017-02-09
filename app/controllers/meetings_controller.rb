@@ -78,18 +78,15 @@ class MeetingsController < ApplicationController
                             name: @user.name,
                             last_seen_ip: request.remote_ip
                           },
-                          events: intercom_events)
+                          event: intercom_event)
   end
 
-  def intercom_events
-    [
-      { type: 'videomeeting' },
-      {
-        type: 'videomeeting_slack',
-        data: {
-          team: @user.team.name
-        }
+  def intercom_event
+    {
+      type: 'videomeeting_slack',
+      data: {
+        team: @user.team.name
       }
-    ]
+    }
   end
 end

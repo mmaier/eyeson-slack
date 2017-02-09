@@ -140,15 +140,12 @@ RSpec.describe MeetingsController, type: :controller do
                             name: user.name,
                             last_seen_ip: '123.123.123.123',
                           },
-                          events: [
-                            { type: 'videomeeting' },
-                            { 
-                              type: 'videomeeting_slack',
-                              data: {
-                                team: user.team.name
-                              }
+                          event: { 
+                            type: 'videomeeting_slack',
+                            data: {
+                              team: user.team.name
                             }
-                          ])
+                          })
 
     get :show, params: { id: channel.external_id, user_id: user.id }
   end
