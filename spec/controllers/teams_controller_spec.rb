@@ -28,7 +28,7 @@ RSpec.describe TeamsController, type: :controller do
               .with('/users.identity')
               .returns(identity)
               
-    Eyeson::ApiKey.expects(:new).with(name: auth['team'],
+    Eyeson::ApiKey.expects(:create!).with(name: auth['team'],
                                       email: identity['user']['email'],
                                       company: 'Slack')
                                 .returns(mock('API Key', key: '123'))
@@ -74,7 +74,7 @@ RSpec.describe TeamsController, type: :controller do
               .with('/users.identity')
               .returns(slack_identity)
 
-    Eyeson::ApiKey.expects(:new)
+    Eyeson::ApiKey.expects(:create!)
           .raises(Eyeson::ApiKey::ValidationFailed)
     get :create
     expect(response.status).to eq(400)

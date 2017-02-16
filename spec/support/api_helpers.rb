@@ -46,7 +46,7 @@ module ApiHelpers
   def expects_eyeson_room_with(url = Faker::Internet.url)
     url_response = mock('Room URL')
     url_response.expects(:url).returns(url).at_most_once
-    Eyeson::Room.expects(:new)
+    Eyeson::Room.expects(:join)
                 .returns(url_response)
   end
 end

@@ -12,9 +12,9 @@ class MeetingsController < ApplicationController
   def show
     Eyeson.configuration.api_key = @user.team.api_key
 
-    @room = Eyeson::Room.new(id: @channel.external_id,
-                             name: @channel.name,
-                             user: @user)
+    @room = Eyeson::Room.join(id: @channel.external_id,
+                              name: @channel.name,
+                              user: @user)
     post_to_slack
     update_intercom
     enter_room

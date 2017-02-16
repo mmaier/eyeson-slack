@@ -35,7 +35,7 @@ RSpec.describe MeetingsController, type: :controller do
     user = create(:user, team: channel.team)
     gui = 'http://test.host/gui'
 
-    Eyeson::Room.expects(:new).with(id: channel.external_id,
+    Eyeson::Room.expects(:join).with(id: channel.external_id,
                                     name: channel.name,
                                     user: user)
                               .returns(mock('Room URL', url: gui))
@@ -76,7 +76,7 @@ RSpec.describe MeetingsController, type: :controller do
     user = create(:user, team: channel.team)
     error = 'some error'
 
-    Eyeson::Room.expects(:new)
+    Eyeson::Room.expects(:join)
                 .raises(Eyeson::Room::ValidationFailed, error)
 
     get :show, params: { id: channel.external_id, user_id: user.id }
