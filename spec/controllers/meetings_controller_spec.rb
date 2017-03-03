@@ -1,17 +1,47 @@
 require 'rails_helper'
 
 RSpec.describe MeetingsController, type: :controller do  
+
+  let(:channel) do
+    create(:channel)
+  end
+
+  let(:user) do
+    create(:user, team: channel.team)
+  end
+
   it { should rescue_from(Eyeson::Room::ValidationFailed).with(:room_error) }
   it { should rescue_from(SlackApi::RequestFailed).with(:enter_room) }
   it { should rescue_from(SlackApi::MissingScope).with(:missing_scope) }
 
   it 'should redirect to login unless user present' do
-    id = create(:channel).external_id
+    id = channel.external_id
     get :show, params: { id: id }
     redirect = login_path(
       redirect_uri: meeting_path(id: id)
     )
     expect(response).to redirect_to(redirect)
+  end
+
+  it 'should redirect to account onboarding unless user confirmed' do
+    user.confirmed = false
+    user.save
+    account = mock('Eyeson account', present?: false, confirmation_url: 'https://confirm')
+    Eyeson::Account.expects(:find_by).returns(account)
+    Eyeson::Room.expects(:join).never
+    get :show, params: { id: channel.external_id, user_id: user.id }
+    expect(response).to redirect_to('https://confirm')
+  end
+
+  it 'should set confirmed status on user' do
+    user.confirmed = false
+    user.save
+    account = mock('Eyeson account', present?: true)
+    Eyeson::Account.expects(:find_by).returns(account)
+    expects_eyeson_room_with
+    get :show, params: { id: channel.external_id, user_id: user.id }
+    user.reload
+    expect(user.confirmed).to eq(true)
   end
 
   it 'should redirect_to slack unless channel known' do
@@ -31,8 +61,6 @@ RSpec.describe MeetingsController, type: :controller do
   end
 
   it 'should add user to room and redirect to room url' do
-    channel = create(:channel)
-    user = create(:user, team: channel.team)
     gui = 'http://test.host/gui'
 
     Eyeson::Room.expects(:join).with(id: channel.external_id,
@@ -49,9 +77,6 @@ RSpec.describe MeetingsController, type: :controller do
   end
 
   it 'should send a chat message after join' do
-    channel = create(:channel)
-    user = create(:user, team: channel.team)
-
     expects_eyeson_room_with
     expects_slack_request_with(user.access_token)
     Eyeson::Internal.expects(:post)
@@ -60,8 +85,6 @@ RSpec.describe MeetingsController, type: :controller do
   end
 
   it 'should set api key on room create' do
-    channel = create(:channel)
-    user = create(:user, team: channel.team)
     Eyeson.configuration.expects(:api_key=).with(user.team.api_key)
     
     expects_eyeson_room_with
@@ -72,8 +95,6 @@ RSpec.describe MeetingsController, type: :controller do
   end
 
   it 'should handle eyeson api error' do
-    channel = create(:channel)
-    user = create(:user, team: channel.team)
     error = 'some error'
 
     Eyeson::Room.expects(:join)
@@ -85,7 +106,6 @@ RSpec.describe MeetingsController, type: :controller do
   end
 
   it 'should handle user missing scope error' do
-    channel = create(:channel)
     user = create(:user, team: channel.team, scope: ['some_scope'])
 
     get :show, params: { id: channel.external_id, user_id: user.id }
@@ -96,10 +116,7 @@ RSpec.describe MeetingsController, type: :controller do
     expect(response).to redirect_to(redirect)
   end
 
-  it 'should handle slack missing scope error' do
-    channel = create(:channel)
-    user = create(:user, team: channel.team)
-    
+  it 'should handle slack missing scope error' do    
     expects_eyeson_room_with
 
     SlackApi.expects(:new).raises(SlackApi::MissingScope, 'missing_scope')
@@ -113,8 +130,6 @@ RSpec.describe MeetingsController, type: :controller do
   end
 
   it 'should handle slack request error' do
-    channel = create(:channel)
-    user = create(:user, team: channel.team)
     gui = 'http://test.host/gui'
 
     expects_eyeson_room_with(gui)
@@ -125,8 +140,6 @@ RSpec.describe MeetingsController, type: :controller do
   end
 
   it 'should update intercom with ip address' do
-    channel = create(:channel)
-    user = create(:user, team: channel.team)
     @request.headers['REMOTE_ADDR'] = '127.0.0.1'
     @request.headers['HTTP_X_FORWARDED_FOR'] = '123.123.123.123, 127.0.0.1'
 

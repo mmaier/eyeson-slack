@@ -7,5 +7,6 @@ FactoryGirl.define do
     name { Faker::Internet.user_name }
     email { Faker::Internet.email }
     avatar { Faker::Internet.url }
+    confirmed { true }
   end
 end

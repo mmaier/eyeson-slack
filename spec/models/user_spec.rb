@@ -12,6 +12,7 @@ RSpec.describe User, type: :model do
   it { is_expected.to have_fields(:scope).of_type(Array) }
   it { is_expected.to have_fields(:avatar, :name, :email).of_type(String) }
   it { is_expected.to have_index_for(team_id: 1, external_id: 1) }
+  it { is_expected.to have_fields(:confirmed).of_type(Mongoid::Boolean) }
 
   it { is_expected.to validate_presence_of(:external_id) }
   it { is_expected.to validate_uniqueness_of(:external_id) }
@@ -19,6 +20,7 @@ RSpec.describe User, type: :model do
   it { is_expected.to validate_presence_of(:scope) }
   it { is_expected.to validate_presence_of(:name) }
   it { is_expected.to validate_presence_of(:email) }
+  it { is_expected.to validate_presence_of(:confirmed) }
 
   it 'provides a scope check' do
     expect(user.scope_required!([user.scope.first])).to be_nil

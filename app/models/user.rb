@@ -8,6 +8,7 @@ class User
   field :name, type: String
   field :email, type: String
   field :avatar, type: String
+  field :confirmed, type: Boolean, default: false
 
   belongs_to :team
 
@@ -17,6 +18,7 @@ class User
   validates :scope, presence: true
   validates :name, presence: true
   validates :email, presence: true
+  validates :confirmed, presence: true
 
   index({ team_id: 1, external_id: 1 }, unique: true)
 
