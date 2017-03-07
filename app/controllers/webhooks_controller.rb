@@ -15,10 +15,26 @@ class WebhooksController < ApplicationController
   end
 
   def presentation_update
-    # TODO: Upload slide to slack thread
+    channel = Channel.find_by(external_id: presentation_params[:room_id])
+    access_token = User.find_by(external_id: presentation_params[:user_id])
+                       .try(:access_token)
+    slack_api = SlackApi.new(access_token)
+    slack_api.request('/chat.postMessage',
+                      channel:   channel.external_id,
+                      text:      'Test: Slide...',
+                      thread_ts: channel.thread_id)
   end
 
   def room_params
     params.require(:room)
+  end
+
+  def presentation_params
+    presentation = params.require(:presentation)
+    {
+      slide:   presentation.require(:slide),
+      room_id: presentation.require(:room).require(:id),
+      user_id: presentation.require(:user).require(:id)
+    }
   end
 end

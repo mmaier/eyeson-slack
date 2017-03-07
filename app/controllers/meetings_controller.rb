@@ -5,7 +5,7 @@ class MeetingsController < ApplicationController
   rescue_from SlackApi::RequestFailed, with: :enter_room
 
   before_action :authorized!
-  #before_action :user_confirmed!
+  # before_action :user_confirmed!
   before_action :channel_exists!
   before_action :user_belongs_to_team!
   before_action :scope_required!
@@ -76,7 +76,7 @@ class MeetingsController < ApplicationController
     slack_api = SlackApi.new(@user.access_token)
     message = slack_api.request(
       '/chat.postMessage',
-      channel: @channel.external_id, as_user: true,
+      channel: @channel.external_id, thread_ts: @channel.thread_id,
       text:    I18n.t('.joined', url: meeting_url(id: params[:id]),
                                  scope: [:meetings, :show])
     )
