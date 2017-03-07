@@ -6,21 +6,12 @@ class CommandsController < ApplicationController
 
   def create
     response = if 'help' == params[:text]
-      help_response
-    else
-      meeting_response
-    end
+                 help_response
+               else
+                 meeting_response
+               end
 
-    uri = URI.parse(params[:response_url])
-    req = Net::HTTP::Post.new(uri)
-
-    http = Net::HTTP.new(uri.host, uri.port)
-    http.use_ssl = true
-
-    req['Content-Type'] = 'application/json'
-    req.body = response.to_json
-    puts "RESPONSE:"
-    puts http.request(req).body
+    respond_to_command_with(response)
 
     head :ok
   end
@@ -66,6 +57,7 @@ class CommandsController < ApplicationController
       external_id: params.require(:channel_id)
     )
     @channel.name = params.require(:channel_name)
+    @channel.new_command = true
     @channel.save!
   end
 
@@ -76,5 +68,17 @@ class CommandsController < ApplicationController
                    scope: [:commands])
     }
     render json: response
+  end
+
+  def respond_to_command_with(response)
+    uri = URI.parse(params[:response_url])
+    req = Net::HTTP::Post.new(uri)
+
+    http = Net::HTTP.new(uri.host, uri.port)
+    http.use_ssl = true
+
+    req['Content-Type'] = 'application/json'
+    req.body = response.to_json
+    http.request(req)
   end
 end

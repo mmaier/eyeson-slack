@@ -21,9 +21,9 @@ class Team
   def self.setup!(external_id: nil, email: nil, name: nil, url: nil)
     team = Team.find_or_initialize_by(external_id: external_id)
     return team unless team.new_record?
-    api_key      = Eyeson::ApiKey.create!(name: name,
-                                          email: email,
-                                          company: 'Slack')
+    api_key = Eyeson::ApiKey.create!(name: name, email: email,
+                                     company: 'Slack')
+    team.add_webhook(api_key)
     team.api_key = api_key.key
     team.url     = url
     team.name    = name
@@ -42,5 +42,12 @@ class Team
     user.scope        = scope.split(',')
     user.save!
     user
+  end
+
+  def add_webhook(api_key)
+    api_key.webhooks.create!(
+      url: Rails.application.routes.url_helpers.webhooks_url,
+      types: %w(presentation_update)
+    )
   end
 end
