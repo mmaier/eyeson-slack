@@ -5,12 +5,24 @@ class CommandsController < ApplicationController
   before_action :setup_channel!, only: [:create]
 
   def create
-    # Send immediate response to slack (must be <300ms)
-    if 'help' == params[:text]
-      render json: help_response
+    response = if 'help' == params[:text]
+      help_response
     else
-      render json: meeting_response
+      meeting_response
     end
+
+    uri = URI.parse(params[:response_url])
+    req = Net::HTTP::Post.new(uri)
+
+    http = Net::HTTP.new(uri.host, uri.port)
+    http.use_ssl = true
+
+    req['Content-Type'] = 'application/json'
+    req.body = response.to_json
+    puts "RESPONSE:"
+    puts http.request(req).body
+
+    head :ok
   end
 
   private
