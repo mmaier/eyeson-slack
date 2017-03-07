@@ -16,7 +16,7 @@ class WebhooksController < ApplicationController
 
   def presentation_update
     channel = Channel.find_by(external_id: presentation_params[:room_id])
-    access_token = User.find_by(external_id: presentation_params[:user_id])
+    access_token = User.find_by(email: presentation_params[:user_id])
                        .try(:access_token)
     slack_api = SlackApi.new(access_token)
     slack_api.request('/chat.postMessage',

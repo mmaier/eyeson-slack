@@ -43,7 +43,6 @@ RSpec.describe CommandsController, type: :controller do
                   url: url,
                   scope: [:commands])
     expect(response.status).to eq(200)
-    expect(JSON.parse(response.body)['text']).to eq(text)
   end
 
   it 'should return a meeting link with meeting name' do
@@ -56,7 +55,6 @@ RSpec.describe CommandsController, type: :controller do
                   url: url,
                   scope: [:commands])
     expect(response.status).to eq(200)
-    expect(JSON.parse(response.body)['text']).to eq(text)
   end
 
   it 'should provide a help response' do
@@ -66,12 +64,12 @@ RSpec.describe CommandsController, type: :controller do
                   url: Rails.configuration.services['faq_url'],
                   scope: [:commands])
     expect(response.status).to eq(200)
-    expect(JSON.parse(response.body)['text']).to eq(text)
   end
 end
 
 def proper_setup
   @team = create(:team)
+  expects_command_response_request
 end
 
 def command_params
@@ -81,6 +79,14 @@ def command_params
     user_name:    'user_name',
     channel_id:   'abc',
     channel_name: 'channel_name',
-    team_id:      @team.present? ? @team.external_id : Faker::Code.isbn
+    team_id:      @team.present? ? @team.external_id : Faker::Code.isbn,
+    response_url: Faker::Internet.url
   }
+end
+
+def expects_command_response_request
+  http = mock('HTTP')
+  http.expects(:use_ssl=)
+  http.expects(:request)
+  Net::HTTP.expects(:new).returns(http)
 end

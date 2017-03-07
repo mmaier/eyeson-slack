@@ -77,4 +77,6 @@ Rails.application.configure do
     logger.formatter = config.log_formatter
     config.logger = ActiveSupport::TaggedLogging.new(logger)
   end
+
+  Rails.application.routes.default_url_options[:host] = 'https://integrations.eyeson.team'
 end

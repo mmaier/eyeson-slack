@@ -18,7 +18,7 @@ RSpec.describe Team, type: :model do
     external_id = Faker::Code.isbn
     api_key = Faker::Crypto.md5
 
-    key = mock('API Key', key: api_key)
+    key = mock('API Key', key: api_key, webhooks: mock('Webhooks', create!: nil))
     Eyeson::ApiKey.expects(:create!).returns(key)
     team = Team.setup!(
       external_id: external_id,
@@ -59,7 +59,7 @@ RSpec.describe Team, type: :model do
     name = Faker::Team.name
     email = Faker::Internet.email
     url = 'https://teamname.slack.com'
-    api = mock('ApiKey', key: '123')
+    api = mock('API Key', key: '123', webhooks: mock('Webhooks', create!: nil))
     Eyeson::ApiKey.expects(:create!)
           .with(name: name, email: email, company: 'Slack')
           .returns(api)

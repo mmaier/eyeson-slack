@@ -31,7 +31,7 @@ RSpec.describe TeamsController, type: :controller do
     Eyeson::ApiKey.expects(:create!).with(name: auth['team'],
                                       email: identity['user']['email'],
                                       company: 'Slack')
-                                .returns(mock('API Key', key: '123'))
+                                .returns(mock('API Key', key: '123', webhooks: mock('Webhooks', create!: nil)))
 
     get :create
     expect(response).to redirect_to(
