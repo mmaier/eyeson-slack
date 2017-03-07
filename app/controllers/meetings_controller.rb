@@ -74,15 +74,15 @@ class MeetingsController < ApplicationController
 
   def post_to_slack
     slack_api = SlackApi.new(@user.access_token)
+    thread_id = (@channel.new_command? ? nil : @channel.thread_id)
     message = slack_api.request(
       '/chat.postMessage',
-      channel: @channel.external_id, thread_ts: @channel.thread_id,
+      channel: @channel.external_id, thread_ts: thread_id,
       text:    I18n.t('.joined', url: meeting_url(id: params[:id]),
                                  scope: [:meetings, :show])
     )
-    return unless @channel.new_command?
     @channel.thread_id = message['ts']
-    @channel.save!
+    @channel.save
   end
 
   def update_intercom
