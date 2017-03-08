@@ -1,11 +1,10 @@
 # Adds files to Slack
 module SlackFile
-
-  def upload_file!(body)
-    request('/files.upload',
-            channel:   channel.external_id,
-            text:      'Test: Slide...',
-            thread_ts: channel.thread_id)
+  def upload_file!(file: nil, filename: nil)
+    request(
+      '/files.upload',
+      file:     file,
+      filename: filename
+    )
   end
-
 end

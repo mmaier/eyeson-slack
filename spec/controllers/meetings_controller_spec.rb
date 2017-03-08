@@ -111,7 +111,7 @@ RSpec.describe MeetingsController, type: :controller do
     get :show, params: { id: channel.external_id, user_id: user.id }
     redirect = login_path(
       redirect_uri: meeting_path(id: channel.external_id),
-      scope: 'chat:write:user'
+      scope: 'chat:write:user,files:write:user'
     )
     expect(response).to redirect_to(redirect)
   end
@@ -162,4 +162,8 @@ RSpec.describe MeetingsController, type: :controller do
 
     get :show, params: { id: channel.external_id, user_id: user.id }
   end
+end
+
+def expects_slack_request_with(access_token)
+  SlackApi.expects(:new).with(access_token).returns(mock('Slack API', post_message!: { 'ts' => nil }))
 end

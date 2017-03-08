@@ -54,7 +54,7 @@ class MeetingsController < ApplicationController
   end
 
   def scope_required!
-    @user.scope_required!(%w(chat:write:user))
+    @user.scope_required!(%w(chat:write:user files:write:user))
   end
 
   def room_error(e)
@@ -75,9 +75,9 @@ class MeetingsController < ApplicationController
   def post_to_slack
     slack_api = SlackApi.new(@user.access_token)
     thread_id = (@channel.new_command? ? nil : @channel.thread_id)
-    message = slack_api.request(
-      '/chat.postMessage',
-      channel: @channel.external_id, thread_ts: thread_id,
+    message = slack_api.post_message!(
+      channel: @channel.external_id,
+      thread_ts: thread_id,
       text:    I18n.t('.joined', url: meeting_url(id: params[:id]),
                                  scope: [:meetings, :show])
     )
