@@ -26,7 +26,7 @@ RSpec.describe WebhooksController, type: :controller do
     preview = Faker::Internet.url
     upload = {
       'file' => {
-        'thumb_360' => preview
+        'url' => preview
       }
     }
     controller = WebhooksController.new
@@ -34,12 +34,7 @@ RSpec.describe WebhooksController, type: :controller do
     channel = create(:channel)
     slack_api.expects(:post_message!).with(channel: channel.external_id,
                                            thread_ts: channel.thread_id,
-                                           text: 'Presentation slide',
-                                           attachments: [
-                                             {
-                                               image_url: preview
-                                             }
-                                           ])
+                                           text: preview)
     controller.instance_variable_set(:@channel, channel)
     controller.instance_variable_set(:@slack_api, slack_api)
     controller.send(:post_message_for, upload)

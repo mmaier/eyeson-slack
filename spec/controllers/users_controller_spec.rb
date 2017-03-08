@@ -37,15 +37,16 @@ RSpec.describe UsersController, type: :controller do
     redirect_uri = meeting_path(id: '123')
 
     expects_slack_api_authorized
-    @slack_api.expects(:get)
-              .with('/users.identity')
-              .returns(slack_identity(
-                         user_id: user.external_id,
-                         team_id: team.external_id
-              ))
 
     @slack_api.expects(:access_token).returns(user.access_token)
-    @slack_api.expects(:scope).returns(user.scope.split(','))
+
+    identity = slack_identity(user_id: user.external_id,
+                              team_id: team.external_id)
+    @slack_api.expects(:params).returns({
+      'team' => identity['team'],
+      'user' => identity['user'],
+      'scope' => user.scope.split(',')
+    }).at_least_once
 
     get :oauth, params: { redirect_uri: redirect_uri }
     user.reload
@@ -69,17 +70,6 @@ RSpec.describe UsersController, type: :controller do
   it 'should handle slack api error' do
     redirect_uri = meeting_path(id: '123')
     get :oauth, params: { error: 'some_error', redirect_uri: redirect_uri }
-    expect(response).to redirect_to(login_path(redirect_uri: redirect_uri))
-  end
-
-  it 'should handle invalid user' do
-    redirect_uri = meeting_path(id: '123')
-
-    expects_slack_api_authorized
-    @slack_api.expects(:get)
-              .raises(SlackApi::NotAuthorized)
-
-    get :oauth, params: { redirect_uri: redirect_uri }
     expect(response).to redirect_to(login_path(redirect_uri: redirect_uri))
   end
 end

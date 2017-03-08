@@ -40,12 +40,7 @@ class WebhooksController < ApplicationController
   def post_message_for(upload)
     @slack_api.post_message!(channel: @channel.external_id,
                              thread_ts: @channel.thread_id,
-                             text: 'Presentation slide',
-                             attachments: [
-                               {
-                                 image_url: upload['file']['thumb_360']
-                               }
-                             ])
+                             text: upload['file']['url'])
   end
 
   def presentation_params

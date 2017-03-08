@@ -23,7 +23,7 @@ RSpec.describe TeamsController, type: :controller do
     expects_slack_api_authorized
     auth = slack_auth
     identity = slack_identity(user_id: auth['user_id'])
-    @slack_api.expects(:get).with('/auth.test').returns(auth)
+    @slack_api.expects(:params).returns(auth).at_least_once
     @slack_api.expects(:get)
               .with('/users.identity')
               .returns(identity)
@@ -43,7 +43,7 @@ RSpec.describe TeamsController, type: :controller do
     expects_slack_api_authorized
     auth = slack_auth
     identity = slack_identity(user_id: auth['user_id'])
-    @slack_api.expects(:get).with('/auth.test').returns(auth)
+    @slack_api.expects(:params).returns(auth).at_least_once
     @slack_api.expects(:get)
               .with('/users.identity')
               .returns(identity)
@@ -69,7 +69,7 @@ RSpec.describe TeamsController, type: :controller do
 
   it 'should handle eyeson api error' do
     expects_slack_api_authorized
-    @slack_api.expects(:get).with('/auth.test').returns(slack_auth)
+    @slack_api.expects(:params).returns(slack_auth).at_least_once
     @slack_api.expects(:get)
               .with('/users.identity')
               .returns(slack_identity)

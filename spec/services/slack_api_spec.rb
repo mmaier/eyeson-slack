@@ -42,7 +42,7 @@ RSpec.describe SlackApi, type: :class do
     expect(params['team'][0]).to eq(team)
   end
 
-  it 'sets access token and scope from code' do
+  it 'sets access token and params from code' do
     oauth_access = mock('Oauth token')
     oauth_access.expects(:token).returns('abc123').once
     oauth_access.expects(:params).returns('scope' => 'scope1,scope2').once
@@ -57,14 +57,9 @@ RSpec.describe SlackApi, type: :class do
     oauth.expects(:auth_code).returns(auth_code)
     OAuth2::Client.expects(:new).returns(oauth)
 
-    slack_api.send(:token_from, code: 'abc', redirect_uri: '/')
+    slack_api.send(:authorized?, { code: 'abc' }, '/')
     expect(slack_api.access_token).to eq('abc123')
-    expect(slack_api.scope).to eq('scope1,scope2')
-  end
-
-  it 'sets token when authorized' do
-    slack_api.expects(:token_from).with(code: 'abc', redirect_uri: '/')
-    slack_api.authorized?({ code: 'abc' }, '/')
+    expect(slack_api.params['scope']).to eq('scope1,scope2')
   end
 
   it 'should provide a get method' do
@@ -81,12 +76,27 @@ RSpec.describe SlackApi, type: :class do
     RestClient::Request.expects(:new).with(
       method: :get,
       url: 'https://slack.com/api/user.identity',
-      payload: { token: 'abc123' }
+      payload: nil,
+      headers: { params: { token: 'abc123' } }
     )
 
     slack_api = SlackApi.new('abc123')
     slack_api.expects(:response_for)
     slack_api.get('/user.identity')
+  end
+
+  it 'should handle multipart requests' do
+    file = Tempfile.new('test')
+    RestClient::Request.expects(:new).with(
+      method: :post,
+      url: 'https://slack.com/api/files.upload',
+      payload: { file: file },
+      headers: { params: { token: 'abc123' } }
+    )
+
+    slack_api = SlackApi.new('abc123')
+    slack_api.expects(:response_for)
+    slack_api.multipart('/files.upload', file: file)
   end
 
   it 'returns json response from oauth client' do
