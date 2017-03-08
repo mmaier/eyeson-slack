@@ -10,13 +10,13 @@ class SlackApi
   include SlackFile
   include SlackMessage
 
-  attr_reader :access_token, :scope
+  attr_reader :access_token, :params
 
   def initialize(access_token = nil)
     @config       = Rails.application.secrets
     @oauth        = oauth_client
     @access_token = access_token
-    @scope        = nil
+    @params       = {}
   end
 
   def authorize!(redirect_uri: nil, scope: nil, team: nil)
@@ -29,10 +29,12 @@ class SlackApi
 
   def authorized?(params, redirect_uri)
     raise NotAuthorized, params[:error] if params[:error].present?
-    token_from(
-      code: params[:code],
+    oauth_access = @oauth.auth_code.get_token(
+      params[:code],
       redirect_uri: redirect_uri
     )
+    @access_token = oauth_access.token
+    @params       = oauth_access.params
   end
 
   def get(path, params = {})
@@ -55,20 +57,15 @@ class SlackApi
     )
   end
 
-  def token_from(code: nil, redirect_uri: nil)
-    oauth_access = @oauth.auth_code.get_token(
-      code,
-      redirect_uri: redirect_uri
-    )
-    @access_token = oauth_access.token
-    @scope        = oauth_access.params['scope']
-  end
-
   def request(method, path, params)
     req = RestClient::Request.new(
       method: method,
       url: @oauth.site + '/api' + path,
-      payload: { token: @access_token }.merge!(params)
+      headers: {
+        accept: 'application/json',
+        content_type: 'application/json',
+        params: { token: @access_token }.merge!(params)
+      }
     )
     response_for(req)
   end

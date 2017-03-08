@@ -17,9 +17,9 @@ class TeamsController < ApplicationController
 
   def create
     @team = Team.setup!(
-      external_id: @auth['team_id'],
-      url:         @auth['url'],
-      name:        @auth['team'],
+      external_id: @slack_api.params['team_id'],
+      url:         @slack_api.params['url'],
+      name:        @slack_api.params['team'],
       email:       @identity['user']['email']
     )
     redirect_to Rails.configuration.services['setup_complete_url']
@@ -39,7 +39,6 @@ class TeamsController < ApplicationController
       params,
       setup_complete_url
     )
-    @auth = @slack_api.get('/auth.test')
     @identity = @slack_api.get('/users.identity')
   end
 
