@@ -25,23 +25,23 @@ class WebhooksController < ApplicationController
 
     @slack_api = SlackApi.new(access_token)
 
-    # Thread.new do
-    upload = upload_from_url(presentation_params[:slide])
-    public_file = @slack_api.get('/files.sharedPublicURL', file: upload['file']['id'])
-    post_message_for(public_file)
-    # end
+    Thread.new do
+      upload = upload_from_url(presentation_params[:slide])
+      post_message_for(upload)
+    end
   end
 
   def upload_from_url(url)
-    file = open(url)
-    @slack_api.upload_file!(file: file,
-                            filename: "#{Time.current}.png")
+    file   = open(url)
+    upload = @slack_api.upload_file!(file: file,
+                                     filename: "#{Time.current}.png")
+    @slack_api.get('/files.sharedPublicURL', file: upload['file']['id'])
   end
 
   def post_message_for(upload)
     @slack_api.post_message!(channel: @channel.external_id,
                              thread_ts: @channel.thread_id,
-                             text: upload['file']['url'])
+                             text: upload['file']['permalink_public'])
   end
 
   def presentation_params

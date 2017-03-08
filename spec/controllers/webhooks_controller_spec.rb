@@ -16,9 +16,17 @@ RSpec.describe WebhooksController, type: :controller do
 
   it 'should upload from url' do
     url = Faker::Internet.url
+    file = Tempfile.new('upload')
     controller = WebhooksController.new
-    controller.instance_variable_set(:@slack_api, mock('Slack API', upload_file!: nil))
-    controller.expects(:open).with(url)
+
+    slack_api = mock('Slack API')
+    slack_api.expects(:upload_file!)
+             .with(file: file, filename: "#{Time.current}.png")
+            .returns({'file' => {'id' => 'xyz'}})
+    slack_api.expects(:get).with('/files.sharedPublicURL', file: 'xyz')
+
+    controller.instance_variable_set(:@slack_api, slack_api)
+    controller.expects(:open).with(url).returns(file)
     controller.send(:upload_from_url, url)
   end
 
@@ -26,7 +34,7 @@ RSpec.describe WebhooksController, type: :controller do
     preview = Faker::Internet.url
     upload = {
       'file' => {
-        'url' => preview
+        'permalink_public' => preview
       }
     }
     controller = WebhooksController.new

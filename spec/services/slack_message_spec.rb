@@ -10,8 +10,7 @@ RSpec.describe SlackMessage, type: :class do
     slack_api.expects(:post).with('/chat.postMessage',
                                   channel:     channel.external_id,
 														      thread_ts:   channel.thread_id,
-														      text:        'hello',
-														      attachments: [])
-    slack_api.post_message!(channel: channel.external_id, thread_ts: channel.thread_id, text: 'hello', attachments: [])
+														      text:        'hello')
+    slack_api.post_message!(channel: channel.external_id, thread_ts: channel.thread_id, text: 'hello')
   end
 end
