@@ -94,7 +94,7 @@ RSpec.describe SlackApi, type: :class do
       'ok' => true,
       'key' => 'value'
     }
-    expect(slack_api.send(:respond_with, slack_api_response_with(body))).to eq(body)
+    expect(slack_api.send(:response_for, slack_api_response_with(body))).to eq(body)
   end
 
   it 'raises NotAuthorized when error param is set' do
@@ -106,7 +106,7 @@ RSpec.describe SlackApi, type: :class do
     body = {
       'ok' => false
     }
-    expect { slack_api.send(:respond_with, slack_api_response_with(body)) }
+    expect { slack_api.send(:response_for, slack_api_response_with(body)) }
       .to raise_error(SlackApi::RequestFailed)
   end
 
@@ -114,7 +114,7 @@ RSpec.describe SlackApi, type: :class do
     body = {
       'ok' => false, error: 'missing_scope'
     }
-    expect { slack_api.send(:respond_with, slack_api_response_with(body)) }
+    expect { slack_api.send(:response_for, slack_api_response_with(body)) }
       .to raise_error(SlackApi::MissingScope)
   end
 end

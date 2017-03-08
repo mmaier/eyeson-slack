@@ -73,7 +73,7 @@ class SlackApi
     response_for(req)
   end
 
-  def respond_with(req)
+  def response_for(req)
     res = begin
       req.execute
     rescue RestClient::ExceptionWithResponse => e
