@@ -8,6 +8,7 @@ class SlackApi
   end
 
   include SlackFile
+  include SlackMessage
 
   attr_reader :access_token, :scope
 

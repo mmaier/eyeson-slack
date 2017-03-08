@@ -3,7 +3,7 @@ class WebhooksController < ApplicationController
   before_action :valid_api_key!
 
   def create
-    send(params[:type])
+    send(params[:type]) if params[:type].present?
     head :ok
   end
 
@@ -36,19 +36,14 @@ class WebhooksController < ApplicationController
   end
 
   def post_message_for(upload)
-    slack_api.post_message!(channel: @channel.external_id,
-                            thread_ts: @channel.thread_id,
-                            text: 'Presentation slide',
-                            attachments: [
-                              {
-                                image_url: upload['file']['thumb_360']
-                              }
-                            ])
-  end
-
-  def
-  def(_room_params)
-    params.require(:room)
+    @slack_api.post_message!(channel: @channel.external_id,
+                             thread_ts: @channel.thread_id,
+                             text: 'Presentation slide',
+                             attachments: [
+                               {
+                                 image_url: upload['file']['thumb_360']
+                               }
+                             ])
   end
 
   def presentation_params
