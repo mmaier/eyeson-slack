@@ -78,16 +78,15 @@ RSpec.describe SlackApi, type: :class do
   end
 
   it 'should send requests to slack api' do
-    body = { 'ok' => true }
-    response = mock('Oauth Response', body: body.to_json)
-    oauth_access = mock('Oauth token')
-    oauth_access.expects(:request)
-                .with(:get, '/api/user.identity', { params: { token: 'abc123' } })
-                .returns(response)
-    OAuth2::AccessToken.expects(:new).returns(oauth_access)
+    RestClient::Request.expects(:new).with(
+      method: :get,
+      url: 'https://slack.com/api/user.identity',
+      payload: { token: 'abc123' }
+    )
 
     slack_api = SlackApi.new('abc123')
-    expect(slack_api.get('/user.identity')).to eq(body)
+    slack_api.expects(:response_for)
+    slack_api.get('/user.identity')
   end
 
   it 'returns json response from oauth client' do
@@ -95,8 +94,7 @@ RSpec.describe SlackApi, type: :class do
       'ok' => true,
       'key' => 'value'
     }
-    response = mock('Slack API', body: body.to_json)
-    expect(slack_api.send(:respond_with, response)).to eq(body)
+    expect(slack_api.send(:respond_with, slack_api_response_with(body))).to eq(body)
   end
 
   it 'raises NotAuthorized when error param is set' do
@@ -105,18 +103,24 @@ RSpec.describe SlackApi, type: :class do
   end
 
   it 'raises RequestFailed when api response ok!=true' do
-    response = mock('Slack API', body: {
+    body = {
       'ok' => false
-    }.to_json)
-    expect { slack_api.send(:respond_with, response) }
+    }
+    expect { slack_api.send(:respond_with, slack_api_response_with(body)) }
       .to raise_error(SlackApi::RequestFailed)
   end
 
   it 'raises MissingScope when api resonse returns missing_scope error' do
-    response = mock('Slack API', body: {
+    body = {
       'ok' => false, error: 'missing_scope'
-    }.to_json)
-    expect { slack_api.send(:respond_with, response) }
+    }
+    expect { slack_api.send(:respond_with, slack_api_response_with(body)) }
       .to raise_error(SlackApi::MissingScope)
   end
+end
+
+def slack_api_response_with(body)
+  res = mock('Response')
+  res.expects(:body).returns(body.to_json).twice
+  mock('Rest Client', execute: res)
 end

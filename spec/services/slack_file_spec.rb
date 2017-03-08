@@ -6,9 +6,10 @@ RSpec.describe SlackFile, type: :class do
   end
 
   it 'should upload a file' do
+  	file = Tempfile.new('file')
     slack_api.expects(:post).with('/files.upload',
-                                  content: 'content',
+                                  file: file,
                                   filename: 'name')
-    slack_api.upload_file!(content: 'content', filename: 'name')
+    slack_api.upload_file!(file: file, filename: 'name')
   end
 end

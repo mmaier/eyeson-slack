@@ -15,11 +15,8 @@ class SlackApi
   def initialize(access_token = nil)
     @config       = Rails.application.secrets
     @oauth        = oauth_client
-    @oauth_access = nil
     @access_token = access_token
     @scope        = nil
-
-    token_from(access_token: @access_token) if @access_token.present?
   end
 
   def authorize!(redirect_uri: nil, scope: nil, team: nil)
@@ -58,30 +55,32 @@ class SlackApi
     )
   end
 
-  def token_from(code: nil, redirect_uri: nil, access_token: nil)
-    if access_token.present?
-      @oauth_access = OAuth2::AccessToken.new(@oauth, access_token)
-    else
-      @oauth_access = @oauth.auth_code.get_token(
-        code,
-        redirect_uri: redirect_uri
-      )
-      @access_token = @oauth_access.token
-      @scope        = @oauth_access.params['scope']
-    end
-  end
-
-  def request(method, path, params = {})
-    response = @oauth_access.request(
-      method,
-      '/api' + path,
-      params: { token: @access_token }.merge!(params)
+  def token_from(code: nil, redirect_uri: nil)
+    oauth_access = @oauth.auth_code.get_token(
+      code,
+      redirect_uri: redirect_uri
     )
-    respond_with(response)
+    @access_token = oauth_access.token
+    @scope        = oauth_access.params['scope']
   end
 
-  def respond_with(response)
-    body = JSON.parse(response.body)
+  def request(method, path, params)
+    req = RestClient::Request.new(
+      method: method,
+      url: @oauth.site + '/api' + path,
+      payload: { token: @access_token }.merge!(params)
+    )
+    response_for(req)
+  end
+
+  def respond_with(req)
+    res = begin
+      req.execute
+    rescue RestClient::ExceptionWithResponse => e
+      e.response
+    end
+    return {} unless res.body.present?
+    body = JSON.parse(res.body)
     raise MissingScope, body['needed'] if body['error'] == 'missing_scope'
     raise RequestFailed, body['error'] unless body['ok'] == true
     body

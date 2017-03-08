@@ -18,7 +18,7 @@ RSpec.describe WebhooksController, type: :controller do
     url = Faker::Internet.url
     controller = WebhooksController.new
     controller.instance_variable_set(:@slack_api, mock('Slack API', upload_file!: nil))
-    controller.expects(:open).with(url).returns(mock('File', read: 'content'))
+    controller.expects(:open).with(url)
     controller.send(:upload_from_url, url)
   end
 
