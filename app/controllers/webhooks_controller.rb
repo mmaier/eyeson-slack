@@ -27,7 +27,8 @@ class WebhooksController < ApplicationController
 
     # Thread.new do
     upload = upload_from_url(presentation_params[:slide])
-    post_message_for(upload)
+    public_file = @slack_api.get('/files.sharedPublicURL', file: upload['file']['id'])
+    post_message_for(public_file)
     # end
   end
 
