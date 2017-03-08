@@ -10,6 +10,7 @@ gem 'syslog-logger'
 gem 'slack-ruby-client'
 gem 'oauth2'
 gem 'mongoid', '~> 6.0.0'
+gem 'rest-client'
 
 gem 'eyeson', git: 'https://gitlab.infra.dev-visocon.com/eyeson/eyeson-ruby.git'
 

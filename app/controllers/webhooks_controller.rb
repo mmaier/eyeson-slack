@@ -1,8 +1,7 @@
 # Webhook handling
 class WebhooksController < ApplicationController
-
   require 'open-uri'
-  
+
   before_action :valid_api_key!
 
   def create
@@ -26,15 +25,15 @@ class WebhooksController < ApplicationController
 
     @slack_api = SlackApi.new(access_token)
 
-    #Thread.new do
-      upload = upload_from_url(presentation_params[:slide])
-      post_message_for(upload)
-    #end
+    # Thread.new do
+    upload = upload_from_url(presentation_params[:slide])
+    post_message_for(upload)
+    # end
   end
 
   def upload_from_url(url)
     file = open(url)
-    @slack_api.upload_file!(content: file.read,
+    @slack_api.upload_file!(file: file,
                             filename: "#{Time.current}.png")
   end
 
