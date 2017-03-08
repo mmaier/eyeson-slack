@@ -39,7 +39,7 @@ class UsersController < ApplicationController
       params,
       oauth_url(redirect_uri: params.require(:redirect_uri))
     )
-    @identity = @slack_api.request('/users.identity')
+    @identity = @slack_api.get('/users.identity')
   end
 
   def user_belongs_to_team!

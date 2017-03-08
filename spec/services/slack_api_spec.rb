@@ -67,25 +67,27 @@ RSpec.describe SlackApi, type: :class do
     slack_api.authorized?({ code: 'abc' }, '/')
   end
 
-  it 'sends requests to slack api' do
+  it 'should provide a get method' do
+    slack_api.expects(:request).with(:get, 'test', test: true)
+    slack_api.get('test', test: true)
+  end
+
+  it 'should provide a post method' do
+    slack_api.expects(:request).with(:post, 'test', test: true)
+    slack_api.post('test', test: true)
+  end
+
+  it 'should send requests to slack api' do
     body = { 'ok' => true }
     response = mock('Oauth Response', body: body.to_json)
     oauth_access = mock('Oauth token')
-    oauth_access.expects(:get).returns(response)
+    oauth_access.expects(:request)
+                .with(:get, '/api/user.identity', { params: { token: 'abc123' } })
+                .returns(response)
     OAuth2::AccessToken.expects(:new).returns(oauth_access)
 
-    slack_api.send(:token_from, access_token: 'abc123')
-    expect(slack_api.request('/user.identity')).to eq(body)
-  end
-
-  it 'appends access_token to url query' do
-    url = '?token=abc123&key=value&key2=value2'
     slack_api = SlackApi.new('abc123')
-    params = {
-      key: 'value',
-      key2: 'value2'
-    }
-    expect(slack_api.send(:url_params_from, params)).to eq(url)
+    expect(slack_api.get('/user.identity')).to eq(body)
   end
 
   it 'returns json response from oauth client' do

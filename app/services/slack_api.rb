@@ -38,11 +38,12 @@ class SlackApi
     )
   end
 
-  def request(path, params = {})
-    response = @oauth_access.get(
-      "/api#{path}" + url_params_from(params)
-    )
-    respond_with(response)
+  def get(path, params = {})
+    request(:get, path, params)
+  end
+
+  def post(path, params = {})
+    request(:post, path, params)
   end
 
   private
@@ -70,13 +71,13 @@ class SlackApi
     end
   end
 
-  def url_params_from(params)
-    p = "?token=#{@access_token}"
-    if params.any?
-      p << '&'
-      p << params.map { |k, v| "#{k}=#{v}" }.join('&')
-    end
-    p
+  def request(method, path, params = {})
+    response = @oauth_access.request(
+      method,
+      '/api' + path,
+      params: { token: @access_token }.merge!(params)
+    )
+    respond_with(response)
   end
 
   def respond_with(response)

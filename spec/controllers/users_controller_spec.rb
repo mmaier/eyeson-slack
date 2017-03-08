@@ -37,7 +37,7 @@ RSpec.describe UsersController, type: :controller do
     redirect_uri = meeting_path(id: '123')
 
     expects_slack_api_authorized
-    @slack_api.expects(:request)
+    @slack_api.expects(:get)
               .with('/users.identity')
               .returns(slack_identity(
                          user_id: user.external_id,
@@ -76,7 +76,7 @@ RSpec.describe UsersController, type: :controller do
     redirect_uri = meeting_path(id: '123')
 
     expects_slack_api_authorized
-    @slack_api.expects(:request)
+    @slack_api.expects(:get)
               .raises(SlackApi::NotAuthorized)
 
     get :oauth, params: { redirect_uri: redirect_uri }
