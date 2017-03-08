@@ -23,10 +23,10 @@ class WebhooksController < ApplicationController
 
     @slack_api = SlackApi.new(access_token)
 
-    Thread.new do
+    #Thread.new do
       upload = upload_from_url(presentation_params[:slide])
       post_message_for(upload)
-    end
+    #end
   end
 
   def upload_from_url(url)
