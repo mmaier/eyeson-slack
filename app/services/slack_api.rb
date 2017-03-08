@@ -45,6 +45,10 @@ class SlackApi
     request(:post, path, params)
   end
 
+  def multipart(path, payload = {})
+    request(:post, path, {}, payload)
+  end
+
   private
 
   def oauth_client
@@ -57,13 +61,12 @@ class SlackApi
     )
   end
 
-  def request(method, path, params)
+  def request(method, path, params, payload = nil)
     req = RestClient::Request.new(
       method: method,
       url: @oauth.site + '/api' + path,
+      payload: payload,
       headers: {
-        accept: 'application/json',
-        content_type: 'application/json',
         params: { token: @access_token }.merge!(params)
       }
     )
