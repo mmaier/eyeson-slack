@@ -18,11 +18,17 @@ class WebhooksController < ApplicationController
     channel = Channel.find_by(external_id: presentation_params[:room_id])
     access_token = User.find_by(email: presentation_params[:user_id])
                        .try(:access_token)
+
+    Thread.new do
+      upload_from_url(access_token, presentation_params[:slide])
+    end
+  end
+
+  def upload_from_url(access_token, url)
+    return unless access_token.present?
     slack_api = SlackApi.new(access_token)
-    slack_api.request('/chat.postMessage',
-                      channel:   channel.external_id,
-                      text:      'Test: Slide...',
-                      thread_ts: channel.thread_id)
+    file      = open(url)
+    slack_api.upload_file!(file.read)
   end
 
   def room_params

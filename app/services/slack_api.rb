@@ -7,6 +7,8 @@ class SlackApi
   class MissingScope < StandardError
   end
 
+  include SlackFile
+
   attr_reader :access_token, :scope
 
   def initialize(access_token = nil)

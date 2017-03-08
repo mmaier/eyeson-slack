@@ -31,6 +31,19 @@ RSpec.describe Team, type: :model do
     expect(team.api_key).to eq(api_key)
   end
 
+  it 'should create webhooks after setup' do
+    team     = create(:team)
+    key      = mock('API Key')
+    webhooks = mock('API Webhooks')
+    key.expects(:webhooks).returns(webhooks)
+    webhooks.expects(:create!)
+            .with({
+              url: Rails.application.routes.url_helpers.webhooks_url,
+              types: %w(presentation_update)
+            })
+    team.add_webhook(key)
+  end
+
   it 'should return existing team on setup' do
     team = create(:team)
     Eyeson::ApiKey.expects(:create!).never
