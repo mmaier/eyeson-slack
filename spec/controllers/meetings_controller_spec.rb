@@ -69,7 +69,7 @@ RSpec.describe MeetingsController, type: :controller do
                               .returns(mock('Room URL', url: gui))
 
     expects_slack_request_with(user.access_token)
-    Eyeson::Internal.expects(:post)
+    Eyeson::Intercom.expects(:post)
 
     get :show, params: { id: channel.external_id, user_id: user.id }
     expect(response.status).to eq(302)
@@ -79,7 +79,7 @@ RSpec.describe MeetingsController, type: :controller do
   it 'should send a chat message after join' do
     expects_eyeson_room_with
     expects_slack_request_with(user.access_token)
-    Eyeson::Internal.expects(:post)
+    Eyeson::Intercom.expects(:post)
 
     get :show, params: { id: channel.external_id, user_id: user.id }
   end
@@ -89,7 +89,7 @@ RSpec.describe MeetingsController, type: :controller do
     
     expects_eyeson_room_with
     expects_slack_request_with(user.access_token)
-    Eyeson::Internal.expects(:post)
+    Eyeson::Intercom.expects(:post)
 
     get :show, params: { id: channel.external_id, user_id: user.id }
   end
@@ -146,8 +146,7 @@ RSpec.describe MeetingsController, type: :controller do
     expects_eyeson_room_with
     expects_slack_request_with(user.access_token)
 
-    Eyeson::Internal.expects(:post).with('/intercom',
-                          email: user.email,
+    Eyeson::Intercom.expects(:post).with(email: user.email,
                           ref: 'VIDEOMEETING',
                           fields: {
                             name: user.name,

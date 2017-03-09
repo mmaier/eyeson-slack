@@ -86,8 +86,7 @@ class MeetingsController < ApplicationController
   end
 
   def update_intercom
-    Eyeson::Internal.post('/intercom',
-                          email: @user.email,
+    Eyeson::Intercom.post(email: @user.email,
                           ref: 'VIDEOMEETING',
                           fields: {
                             name: @user.name,
