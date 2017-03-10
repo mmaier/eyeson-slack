@@ -10,15 +10,15 @@ test:
   setup_complete_url: https://eyeson.team/slack/success
   faq_url: https://eyeson.team/slack/faq
 
-staging:
-  eyeson_api: https://api.test-visocon.com
+integration:
+  eyeson_api: https://api.dev-visocon.com
   eyeson_account_api: https://accounts.dev-visocon.com/api
   setup_complete_url: https://eyeson.team/slack/success
   faq_url: https://eyeson.team/slack/faq
 
-integration:
-  eyeson_api: https://api.dev-visocon.com
-  eyeson_account_api: https://accounts.eyeson.team/api
+staging:
+  eyeson_api: https://api.test-visocon.com
+  eyeson_account_api: https://accounts.test-visocon.com/api
   setup_complete_url: https://eyeson.team/slack/success
   faq_url: https://eyeson.team/slack/faq
 

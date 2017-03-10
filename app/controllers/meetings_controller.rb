@@ -17,7 +17,7 @@ class MeetingsController < ApplicationController
                               name: @channel.name,
                               user: @user)
     post_to_slack
-    update_intercom
+    #update_intercom
     enter_room
   end
 
@@ -84,8 +84,14 @@ class MeetingsController < ApplicationController
   def post_open_info
     message = @slack_api.post_message!(
       channel: @channel.external_id,
-      text:    I18n.t('.opened', url: meeting_url(id: params[:id]),
-                                 scope: [:meetings, :show])
+      attachments: [
+        {
+            color: "#9e206c",
+            text: I18n.t('.opened', url: meeting_url(id: params[:id]),
+                                    scope: [:meetings, :show]),
+            thumb_url: root_url + '/icon.png'
+        }
+      ]
     )
     @channel.thread_id = message['ts']
     @channel.save

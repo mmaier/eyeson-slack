@@ -11,9 +11,7 @@ class CommandsController < ApplicationController
                  meeting_response
                end
 
-    respond_to_command_with(response)
-
-    head :ok
+    render json: response
   end
 
   private
@@ -64,17 +62,5 @@ class CommandsController < ApplicationController
                    scope: [:commands])
     }
     render json: response
-  end
-
-  def respond_to_command_with(response)
-    uri = URI.parse(params[:response_url])
-    req = Net::HTTP::Post.new(uri)
-
-    http = Net::HTTP.new(uri.host, uri.port)
-    http.use_ssl = true
-
-    req['Content-Type'] = 'application/json'
-    req.body = response.to_json
-    http.request(req)
   end
 end

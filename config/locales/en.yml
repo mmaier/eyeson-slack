@@ -2,10 +2,10 @@ en:
   commands:
     invalid_slack_token: "Verification not correct"
     invalid_setup: "Your app hasn't been setup properly.\n*<%{url}|Finalize your setup here>.*"
-    respond: "You eyeson room is ready: *<%{url}|Open>*"
+    respond: "Your eyeson room is ready: *<%{url}|Open>*"
     help: "To open an eyeson room in the current channel: `/eyeson` (optionally add a room name)\nA link to the eyeson room will be posted to all channel members.\n\nMore help is available here: %{url}"
 
   meetings:
     show:
-      opened: "has opened an eyeson room: *<%{url}|Join here>*"
+      opened: "Opened an eyeson room\n<%{url}|Join here>"
       joined: "_joined the eyeson room_ :eyes:"
