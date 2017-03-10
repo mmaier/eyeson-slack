@@ -41,12 +41,8 @@ class CommandsController < ApplicationController
 
   def meeting_response
     url = meeting_url(id: params.require(:channel_id))
-    params[:text] = I18n.t('.join', scope: [:commands]) if params[:text].blank?
     {
-      response_type: :in_channel,
       text: I18n.t('.respond',
-                   title: params[:text],
-                   user_id: params.require(:user_id),
                    url: url,
                    scope: [:commands])
     }
