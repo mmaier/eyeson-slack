@@ -5,7 +5,7 @@ class MeetingsController < ApplicationController
   rescue_from SlackApi::RequestFailed, with: :enter_room
 
   before_action :authorized!
-  # before_action :user_confirmed!
+  before_action :user_confirmed!
   before_action :channel_exists!
   before_action :user_belongs_to_team!
   before_action :scope_required!
@@ -17,7 +17,7 @@ class MeetingsController < ApplicationController
                               name: @channel.name,
                               user: @user)
     post_to_slack
-    #update_intercom
+    update_intercom
     enter_room
   end
 
@@ -84,14 +84,10 @@ class MeetingsController < ApplicationController
   def post_open_info
     message = @slack_api.post_message!(
       channel: @channel.external_id,
-      attachments: [
-        {
-            color: "#9e206c",
-            text: I18n.t('.opened', url: meeting_url(id: params[:id]),
-                                    scope: [:meetings, :show]),
-            thumb_url: root_url + '/icon.png'
-        }
-      ]
+      attachments: [{ color: '#9e206c', thumb_url: root_url + '/icon.png',
+                      text: I18n.t('.opened',
+                                   url: meeting_url(id: params[:id]),
+                                   scope: [:meetings, :show]) }]
     )
     @channel.thread_id = message['ts']
     @channel.save
@@ -116,11 +112,7 @@ class MeetingsController < ApplicationController
   end
 
   def intercom_event
-    {
-      type: 'videomeeting_slack',
-      data: {
-        team: @user.team.name
-      }
-    }
+    { type: 'videomeeting_slack',
+      data: { team: @user.team.name } }
   end
 end

@@ -76,11 +76,44 @@ RSpec.describe MeetingsController, type: :controller do
     expect(response).to redirect_to(gui)
   end
 
-  it 'should send a chat message after join' do
+  it 'should post opened info after new command' do
+    channel.new_command = true
+    channel.save
+
     expects_eyeson_room_with
-    expects_slack_request_with(user.access_token)
+    slack_api = mock('Slack Api')
+    slack_api.expects(:post_message!).with(
+      channel: channel.external_id,
+      attachments: [
+        {
+            color: '#9e206c',
+            text: I18n.t('.opened', url: meeting_url(id: channel.external_id),
+                                    scope: [:meetings, :show]),
+            thumb_url: root_url + '/icon.png'
+        }
+      ]
+    ).returns({ 'ts' => '123' })
+    SlackApi.expects(:new).returns(slack_api)
     Eyeson::Intercom.expects(:post)
 
+    get :show, params: { id: channel.external_id, user_id: user.id }
+
+    channel.reload
+    expect(channel.new_command).to eq(false)
+    expect(channel.thread_id).to eq('123')
+  end
+
+  it 'should post join info into thread after join' do
+    expects_eyeson_room_with
+    slack_api = mock('Slack Api')
+    slack_api.expects(:post_message!).with(
+      channel: channel.external_id,
+      thread_ts: channel.thread_id,
+      text: I18n.t('.joined', url: meeting_url(id: channel.external_id),
+                              scope: [:meetings, :show])
+    )
+    SlackApi.expects(:new).returns(slack_api)
+    Eyeson::Intercom.expects(:post)
     get :show, params: { id: channel.external_id, user_id: user.id }
   end
 
