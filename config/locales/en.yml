@@ -6,6 +6,6 @@ en:
     help: "To open an eyeson room in the current channel: `/eyeson` (optionally add a room name)\nA link to the eyeson room will be posted to all channel members.\n\nMore help is available here: %{url}"
 
   meetings:
-    show: 
-    	opened: "has opened an eyeson room: *<%{url}|Join here>*"
+    show:
+      opened: "has opened an eyeson room: *<%{url}|Join here>*"
       joined: "_joined the eyeson room_ :eyes:"

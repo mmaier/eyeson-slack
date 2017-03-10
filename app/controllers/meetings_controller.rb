@@ -73,7 +73,7 @@ class MeetingsController < ApplicationController
   end
 
   def post_to_slack
-    slack_api = SlackApi.new(@user.access_token)
+    @slack_api = SlackApi.new(@user.access_token)
     if @channel.new_command?
       post_open_info
     else
@@ -82,7 +82,7 @@ class MeetingsController < ApplicationController
   end
 
   def post_open_info
-    message = slack_api.post_message!(
+    message = @slack_api.post_message!(
       channel: @channel.external_id,
       text:    I18n.t('.opened', url: meeting_url(id: params[:id]),
                                  scope: [:meetings, :show])
@@ -92,7 +92,7 @@ class MeetingsController < ApplicationController
   end
 
   def post_join_info
-    message = slack_api.post_message!(
+    @slack_api.post_message!(
       channel: @channel.external_id,
       thread_ts: @channel.thread_id,
       text:    I18n.t('.joined', scope: [:meetings, :show])
