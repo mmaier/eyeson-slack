@@ -82,13 +82,14 @@ RSpec.describe MeetingsController, type: :controller do
 
     expects_eyeson_room_with
     slack_api = mock('Slack Api')
+    text = I18n.t('.opened', url: meeting_url(id: channel.external_id),
+                             scope: [:meetings, :show])
     slack_api.expects(:post_message!).with(
       channel: channel.external_id,
       attachments: [
         {
             color: '#9e206c',
-            text: I18n.t('.opened', url: meeting_url(id: channel.external_id),
-                                    scope: [:meetings, :show]),
+            text: text, fallback: text,
             thumb_url: root_url + '/icon.png'
         }
       ]
