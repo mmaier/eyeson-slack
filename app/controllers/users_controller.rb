@@ -1,6 +1,7 @@
 # Authenticat users via oauth
 class UsersController < ApplicationController
   rescue_from SlackApi::NotAuthorized, with: :slack_not_authorized
+  rescue_from OAuth2::Error, with: :slack_not_authorized
 
   before_action :slack_api
   before_action :authorized!, only: [:oauth]

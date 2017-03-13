@@ -2,6 +2,7 @@ require 'rails_helper'
 
 RSpec.describe TeamsController, type: :controller do
   it { should rescue_from(SlackApi::NotAuthorized).with(:slack_not_authorized) }
+  it { should rescue_from(OAuth2::Error).with(:slack_not_authorized) }
   it { should rescue_from(Eyeson::ApiKey::ValidationFailed).with(:api_key_error) }
 
   it 'should redirect_to login unless team_id is set' do

@@ -5,7 +5,7 @@ class MeetingsController < ApplicationController
   rescue_from SlackApi::RequestFailed, with: :enter_room
 
   before_action :authorized!
-  #before_action :user_confirmed!
+  # before_action :user_confirmed!
   before_action :channel_exists!
   before_action :user_belongs_to_team!
   before_action :scope_required!
@@ -17,7 +17,7 @@ class MeetingsController < ApplicationController
                               name: @channel.name,
                               user: @user)
     post_to_slack
-    #update_intercom
+    # update_intercom
     enter_room
   end
 

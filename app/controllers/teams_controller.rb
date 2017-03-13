@@ -1,6 +1,7 @@
 # handles the team setup process
 class TeamsController < ApplicationController
   rescue_from SlackApi::NotAuthorized, with: :slack_not_authorized
+  rescue_from OAuth2::Error, with: :slack_not_authorized
   rescue_from Eyeson::ApiKey::ValidationFailed, with: :api_key_error
 
   before_action :slack_api
