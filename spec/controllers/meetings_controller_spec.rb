@@ -26,8 +26,8 @@ RSpec.describe MeetingsController, type: :controller do
   it 'should redirect to account onboarding unless user confirmed' do
     user.confirmed = false
     user.save
-    account = mock('Eyeson account', present?: false, confirmation_url: 'https://confirm')
-    Eyeson::Account.expects(:find_by).returns(account)
+    account = mock('Eyeson account', new_record?: true, confirmation_url: 'https://confirm')
+    Eyeson::Account.expects(:find_or_initialize_by).returns(account)
     Eyeson::Room.expects(:join).never
     get :show, params: { id: channel.external_id, user_id: user.id }
     expect(response).to redirect_to('https://confirm')
@@ -36,8 +36,8 @@ RSpec.describe MeetingsController, type: :controller do
   it 'should set confirmed status on user' do
     user.confirmed = false
     user.save
-    account = mock('Eyeson account', present?: true)
-    Eyeson::Account.expects(:find_by).returns(account)
+    account = mock('Eyeson account', new_record?: false)
+    Eyeson::Account.expects(:find_or_initialize_by).returns(account)
     expects_eyeson_room_with
     get :show, params: { id: channel.external_id, user_id: user.id }
     user.reload
