@@ -24,10 +24,8 @@ RSpec.describe TeamsController, type: :controller do
     expects_slack_api_authorized
     auth = slack_auth
     identity = slack_identity(user_id: auth['user_id'])
-    @slack_api.expects(:params).returns(auth).at_least_once
-    @slack_api.expects(:get)
-              .with('/users.identity')
-              .returns(identity)
+    @slack_api.expects(:auth).returns(auth).at_least_once
+    @slack_api.expects(:identity).returns(identity)
               
     Eyeson::ApiKey.expects(:create!).with(name: auth['team'],
                                       email: identity['user']['email'],
@@ -44,10 +42,8 @@ RSpec.describe TeamsController, type: :controller do
     expects_slack_api_authorized
     auth = slack_auth
     identity = slack_identity(user_id: auth['user_id'])
-    @slack_api.expects(:params).returns(auth).at_least_once
-    @slack_api.expects(:get)
-              .with('/users.identity')
-              .returns(identity)
+    @slack_api.expects(:auth).returns(auth).at_least_once
+    @slack_api.expects(:identity).returns(identity)
     team = mock('eyeson Team')
     Team.expects(:setup!).with(external_id: auth['team_id'],
                                url:         auth['url'],
@@ -62,7 +58,7 @@ RSpec.describe TeamsController, type: :controller do
 
   it 'should redirect to setup when error is raised' do
     expects_slack_api_authorized
-    @slack_api.expects(:get)
+    @slack_api.expects(:auth)
               .raises(SlackApi::NotAuthorized)
     get :create
     expect(response).to redirect_to(setup_path)
@@ -70,10 +66,8 @@ RSpec.describe TeamsController, type: :controller do
 
   it 'should handle eyeson api error' do
     expects_slack_api_authorized
-    @slack_api.expects(:params).returns(slack_auth).at_least_once
-    @slack_api.expects(:get)
-              .with('/users.identity')
-              .returns(slack_identity)
+    @slack_api.expects(:auth).returns(slack_auth).at_least_once
+    @slack_api.expects(:identity).returns(slack_identity)
 
     Eyeson::ApiKey.expects(:create!)
           .raises(Eyeson::ApiKey::ValidationFailed)

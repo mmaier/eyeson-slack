@@ -43,10 +43,10 @@ RSpec.describe UsersController, type: :controller do
 
     identity = slack_identity(user_id: user.external_id,
                               team_id: team.external_id)
-    @slack_api.expects(:params).returns({
+    @slack_api.expects(:scope).returns(user.scope.split(','))
+    @slack_api.expects(:identity).returns({
       'team' => identity['team'],
-      'user' => identity['user'],
-      'scope' => user.scope.split(',')
+      'user' => identity['user']
     }).at_least_once
 
     get :oauth, params: { redirect_uri: redirect_uri }

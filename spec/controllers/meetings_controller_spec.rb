@@ -30,7 +30,7 @@ RSpec.describe MeetingsController, type: :controller do
     Eyeson::Account.expects(:find_or_initialize_by).returns(account)
     Eyeson::Room.expects(:join).never
     get :show, params: { id: channel.external_id, user_id: user.id }
-    expect(response).to redirect_to('https://confirm')
+    expect(response).to redirect_to('https://confirm?callback_url='+meeting_url(user_id: user.id))
   end
 
   it 'should set confirmed status on user' do

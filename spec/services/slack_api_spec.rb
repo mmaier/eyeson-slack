@@ -59,7 +59,7 @@ RSpec.describe SlackApi, type: :class do
 
     slack_api.send(:authorized?, { code: 'abc' }, '/')
     expect(slack_api.access_token).to eq('abc123')
-    expect(slack_api.params['scope']).to eq('scope1,scope2')
+    expect(slack_api.scope).to eq('scope1,scope2')
   end
 
   it 'should provide a get method' do
@@ -126,6 +126,31 @@ RSpec.describe SlackApi, type: :class do
     }
     expect { slack_api.send(:response_for, slack_api_response_with(body)) }
       .to raise_error(SlackApi::MissingScope)
+  end
+
+  it 'should return scope from params' do
+    slack_api.instance_variable_set(:@params, { 'scope' => 'test1,test2' })
+    expect(slack_api.scope).to eq('test1,test2')
+  end
+
+  it 'should return existing auth from authorization' do
+    slack_api.instance_variable_set(:@auth, { 'user' => 'value' })
+    expect(slack_api.auth).to eq({ 'user' => 'value' })
+  end
+
+  it 'should fetch auth' do
+    slack_api.expects(:get).with('/auth.test').returns({ 'user' => 'value' })
+    expect(slack_api.auth).to eq({ 'user' => 'value' })
+  end
+
+  it 'should return existing identity from authorization' do
+    slack_api.instance_variable_set(:@identity, { 'user' => { 'name' => 'value' } })
+    expect(slack_api.identity).to eq({ 'user' => { 'name' => 'value' } })
+  end
+
+  it 'should fetch identity' do
+    slack_api.expects(:get).with('/users.identity').returns({ 'user' => { 'name' => 'value' } })
+    expect(slack_api.identity).to eq({ 'user' => { 'name' => 'value' } })
   end
 end
 

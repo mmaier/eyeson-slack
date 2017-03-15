@@ -36,8 +36,8 @@ class MeetingsController < ApplicationController
     account = Eyeson::Account.find_or_initialize_by(user: @user)
     if account.new_record?
       url = account.confirmation_url
-      url += (url.include?('?') ? '&' : '?') + 'callback_url=' + request.original_url
-      redirect_to url
+      url += (url.include?('?') ? '&' : '?')
+      redirect_to url + 'callback_url=' + request.original_url
     else
       @user.confirmed = true
       @user.save
@@ -84,9 +84,8 @@ class MeetingsController < ApplicationController
   end
 
   def post_open_info
-    text = I18n.t('.opened',
-                  url: meeting_url(id: params[:id]),
-                  scope: [:meetings, :show])
+    text = I18n.t('.opened', url: meeting_url(id: params[:id]),
+                             scope: [:meetings, :show])
     message = @slack_api.post_message!(
       channel: @channel.external_id,
       attachments: [{ color: '#9e206c', thumb_url: root_url + '/icon.png',

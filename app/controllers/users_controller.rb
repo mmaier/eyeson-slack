@@ -43,12 +43,12 @@ class UsersController < ApplicationController
   end
 
   def user_belongs_to_team!
-    team_id = @slack_api.params['team']['id']
+    team_id = @slack_api.identity['team']['id']
     @team = Team.find_by(external_id: team_id)
     redirect_to(setup_path(team_id: team_id)) && return unless @team.present?
     @user = @team.add!(access_token: @slack_api.access_token,
-                       scope:        @slack_api.params['scope'],
-                       identity:     @slack_api.params)
+                       scope:        @slack_api.scope,
+                       identity:     @slack_api.identity)
   end
 
   def team_id_from_url

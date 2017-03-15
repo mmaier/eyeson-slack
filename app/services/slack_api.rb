@@ -10,13 +10,15 @@ class SlackApi
   include SlackFile
   include SlackMessage
 
-  attr_reader :access_token, :params
+  attr_reader :access_token
 
   def initialize(access_token = nil)
     @config       = Rails.application.secrets
     @oauth        = oauth_client
     @access_token = access_token
     @params       = {}
+    @auth         = nil
+    @identity     = nil
   end
 
   def authorize!(redirect_uri: nil, scope: nil, team: nil)
@@ -47,6 +49,22 @@ class SlackApi
 
   def multipart(path, payload = {})
     request(:post, path, {}, payload)
+  end
+
+  def scope
+    @params['scope']
+  end
+
+  def auth
+    @auth ||= @params if @params['user_id'].present?
+    @auth ||= get('/auth.test')
+    @auth
+  end
+
+  def identity
+    @identity ||= @params if @params['user'].is_a?(Hash)
+    @identity ||= get('/users.identity')
+    @identity
   end
 
   private
