@@ -35,7 +35,9 @@ class MeetingsController < ApplicationController
     return if @user.confirmed?
     account = Eyeson::Account.find_or_initialize_by(user: @user)
     if account.new_record?
-      redirect_to account.confirmation_url
+      url = account.confirmation_url
+      url += (url.include?('?') ? '&' : '?') + 'callback_url=' + request.original_url
+      redirect_to url
     else
       @user.confirmed = true
       @user.save
