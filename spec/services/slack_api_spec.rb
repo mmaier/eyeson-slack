@@ -128,11 +128,6 @@ RSpec.describe SlackApi, type: :class do
       .to raise_error(SlackApi::MissingScope)
   end
 
-  it 'should return scope from params' do
-    slack_api.instance_variable_set(:@params, { 'scope' => 'test1,test2' })
-    expect(slack_api.scope).to eq('test1,test2')
-  end
-
   it 'should return existing auth from authorization' do
     slack_api.instance_variable_set(:@auth, { 'user' => 'value' })
     expect(slack_api.auth).to eq({ 'user' => 'value' })
