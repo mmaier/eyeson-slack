@@ -17,14 +17,22 @@ class WebhooksController < ApplicationController
   end
 
   def presentation_update
-    @channel      = Channel.find_by(external_id: presentation_params[:room_id])
-    access_token  = User.find_by(email: presentation_params[:user_id])
-                        .try(:access_token)
+    @channel = Channel.find_by(external_id: presentation_params[:room_id])
+
+    return unless @channel.present?
+
+    access_token = User.find_by(team: @channel.team,
+                                email: presentation_params[:user_id])
+                       .try(:access_token)
 
     return unless access_token.present?
 
     @slack_api = SlackApi.new(access_token)
 
+    upload_slide
+  end
+
+  def upload_slide
     Thread.new do
       upload = upload_from_url(presentation_params[:slide])
       post_message_for(upload)

@@ -67,4 +67,32 @@ RSpec.describe WebhooksController, type: :controller do
     }
   end
 
+  it 'should check for valid channel' do
+    SlackApi.expects(:new).never
+
+    post :create, params: {
+      api_key: team.api_key,
+      type: 'presentation_update',
+      presentation: {
+        user: { id: Faker::Internet.email },
+        room: { id: Faker::Code.isbn },
+        slide: Faker::Internet.email
+      }
+    }
+  end
+
+  it 'should check team user' do
+    SlackApi.expects(:new).never
+
+    post :create, params: {
+      api_key: team.api_key,
+      type: 'presentation_update',
+      presentation: {
+        user: { id: create(:user).external_id },
+        room: { id: create(:channel, team: team).external_id },
+        slide: Faker::Internet.email
+      }
+    }
+  end
+
 end
