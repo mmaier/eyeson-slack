@@ -56,7 +56,7 @@ class MeetingsController < ApplicationController
   end
 
   def scope_required!
-    @user.scope_required!(%w(chat:write:user files:write:user))
+    @user.scope_required!(SlackApi::DEFAULT_SCOPE)
   end
 
   def room_error(e)
