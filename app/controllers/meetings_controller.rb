@@ -105,7 +105,7 @@ class MeetingsController < ApplicationController
 
   def update_intercom
     Eyeson::Intercom.post(email: @user.email,
-                          ref: 'VIDEOMEETING',
+                          ref: 'Slack',
                           fields: {
                             name: @user.name,
                             last_seen_ip: request.remote_ip

@@ -181,7 +181,7 @@ RSpec.describe MeetingsController, type: :controller do
     expects_slack_request_with(user.access_token)
 
     Eyeson::Intercom.expects(:post).with(email: user.email,
-                          ref: 'VIDEOMEETING',
+                          ref: 'Slack',
                           fields: {
                             name: user.name,
                             last_seen_ip: '123.123.123.123',
