@@ -38,6 +38,7 @@ module Slack
       config.api_endpoint      = Rails.configuration.services['eyeson_api']
       config.account_endpoint  = Rails.configuration
                                       .services['eyeson_account_api']
+      config.account_api_key   = Rails.application.secrets.accounts_api_key
       config.internal_username = Rails.application.secrets.internal_api_username
       config.internal_password = Rails.application.secrets.internal_api_password
     end
