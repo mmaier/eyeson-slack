@@ -6,7 +6,8 @@ module SlackMessage
       channel:     channel,
       thread_ts:   thread_ts,
       text:        text,
-      attachments: attachments.to_json
+      attachments: attachments.to_json,
+      as_user:     true
     )
   end
 end

@@ -11,7 +11,8 @@ RSpec.describe SlackMessage, type: :class do
                                   channel:     channel.external_id,
 														      thread_ts:   channel.thread_id,
 														      text:        'hello',
-                                  attachments: [{ test: true }].to_json)
+                                  attachments: [{ test: true }].to_json,
+                                  as_user:     true)
     slack_api.post_message!(channel: channel.external_id, thread_ts: channel.thread_id, text: 'hello', attachments: [{ test: true }])
   end
 end
