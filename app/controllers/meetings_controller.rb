@@ -107,7 +107,6 @@ class MeetingsController < ApplicationController
     Eyeson::Intercom.post(email: @user.email,
                           ref: 'Slack',
                           fields: {
-                            name: @user.name,
                             last_seen_ip: request.remote_ip
                           },
                           event: intercom_event)
