@@ -183,7 +183,6 @@ RSpec.describe MeetingsController, type: :controller do
     Eyeson::Intercom.expects(:post).with(email: user.email,
                           ref: 'Slack',
                           fields: {
-                            name: user.name,
                             last_seen_ip: '123.123.123.123',
                           },
                           event: { 
