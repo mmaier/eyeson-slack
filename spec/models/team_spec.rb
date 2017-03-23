@@ -6,12 +6,14 @@ RSpec.describe Team, type: :model do
 
   it { is_expected.to have_fields(:api_key, :external_id).of_type(String) }
   it { is_expected.to have_fields(:url).of_type(String) }
-  it { is_expected.to have_index_for(external_id: 1) }
+  it { is_expected.to have_index_for(external_id: 1).with_options(unique: true) }
+  it { is_expected.to have_index_for(api_key: 1).with_options(unique: true) }
 
   it { is_expected.to validate_presence_of(:api_key) }
   it { is_expected.to validate_presence_of(:url) }
   it { is_expected.to validate_presence_of(:external_id) }
   it { is_expected.to validate_uniqueness_of(:external_id) }
+  it { is_expected.to validate_uniqueness_of(:api_key) }
   it { is_expected.to validate_presence_of(:name) }
 
   it 'should setup a new team' do
@@ -72,7 +74,7 @@ RSpec.describe Team, type: :model do
     name = Faker::Team.name
     email = Faker::Internet.email
     url = 'https://teamname.slack.com'
-    api = mock('API Key', key: '123', webhooks: mock('Webhooks', create!: nil))
+    api = mock('API Key', key: Faker::Code.isbn, webhooks: mock('Webhooks', create!: nil))
     Eyeson::ApiKey.expects(:create!)
           .with(name: name, email: email, company: 'Slack')
           .returns(api)

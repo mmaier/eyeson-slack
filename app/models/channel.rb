@@ -10,11 +10,11 @@ class Channel
   belongs_to :team
 
   validates :external_id, presence: true
-  validates :external_id, uniqueness: { scope: :team_id }
+  validates :external_id, uniqueness: true
   validates :name, presence: true
   validates :new_command, presence: true
 
-  index({ team_id: 1, external_id: 1 }, unique: true)
+  index({ external_id: 1 }, unique: true)
 
   before_update do
     self.new_command = false if thread_id_changed?

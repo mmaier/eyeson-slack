@@ -1,6 +1,10 @@
 require 'rails_helper'
 
 RSpec.describe CommandsController, type: :controller do
+  let(:team) { create(:team) }
+  let(:channel) { create(:channel, team: team) }
+  let(:user) { create(:user, team: team) }
+
   it 'should raise an error with invalid token' do
     post :create, params: { token: 'blabla' }
     expect(response.status).to eq(200)
@@ -20,13 +24,11 @@ RSpec.describe CommandsController, type: :controller do
   end
 
   it 'should find team by team_id' do
-    proper_setup
     post :create, params: command_params
     expect(Team.find_by(external_id: command_params[:team_id])).to be_present
   end
 
   it 'should save channel to team' do
-    proper_setup
     post :create, params: command_params
     team = Team.find_by(external_id: command_params[:team_id])
     channel = team.channels.where(external_id: command_params[:channel_id])
@@ -34,7 +36,6 @@ RSpec.describe CommandsController, type: :controller do
   end
 
   it 'should return a meeting link' do
-    proper_setup
     post :create, params: command_params
     url = "http://test.host/slack/m/#{command_params[:channel_id]}"
     text = I18n.t('.respond',
@@ -45,7 +46,6 @@ RSpec.describe CommandsController, type: :controller do
   end
 
   it 'should provide a help response' do
-    proper_setup
     post :create, params: command_params.merge!(text: 'help')
     text = I18n.t('.help',
                   url: Rails.configuration.services['faq_url'],
@@ -55,18 +55,14 @@ RSpec.describe CommandsController, type: :controller do
   end
 end
 
-def proper_setup
-  @team = create(:team)
-end
-
 def command_params
   {
     token: Rails.application.secrets.slack_token,
-    user_id:      '123',
-    user_name:    'user_name',
-    channel_id:   'abc',
-    channel_name: 'channel_name',
-    team_id:      @team.present? ? @team.external_id : Faker::Code.isbn,
+    user_id:      user.external_id,
+    user_name:    user.name,
+    channel_id:   channel.external_id,
+    channel_name: channel.name,
+    team_id:      team.external_id,
     response_url: Faker::Internet.url
   }
 end

@@ -11,7 +11,9 @@ RSpec.describe User, type: :model do
   it { is_expected.to have_fields(:access_token).of_type(String) }
   it { is_expected.to have_fields(:scope).of_type(Array) }
   it { is_expected.to have_fields(:avatar, :name, :email).of_type(String) }
-  it { is_expected.to have_index_for(team_id: 1, external_id: 1) }
+  it { is_expected.to have_index_for(external_id: 1)}
+  it { is_expected.to have_index_for(team_id: 1, external_id: 1).with_options(unique: true) }
+  it { is_expected.to have_index_for(team_id: 1, email: 1) }
   it { is_expected.to have_fields(:confirmed).of_type(Mongoid::Boolean) }
 
   it { is_expected.to validate_presence_of(:external_id) }

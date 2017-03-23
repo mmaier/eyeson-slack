@@ -14,9 +14,11 @@ class Team
   validates :external_id, uniqueness: true
   validates :url, presence: true
   validates :api_key, presence: true
+  validates :api_key, uniqueness: true
   validates :name, presence: true
 
   index({ external_id: 1 }, unique: true)
+  index({ api_key: 1 }, unique: true)
 
   def self.setup!(external_id: nil, email: nil, name: nil, url: nil)
     team = Team.find_or_initialize_by(external_id: external_id)

@@ -5,7 +5,7 @@ RSpec.describe Channel, type: :model do
 
   it { is_expected.to have_fields(:external_id, :name, :thread_id).of_type(String) }
   it { is_expected.to have_fields(:new_command).of_type(Mongoid::Boolean) }
-  it { is_expected.to have_index_for(team_id: 1, external_id: 1) }
+  it { is_expected.to have_index_for(external_id: 1).with_options(unique: true) }
 
   it { is_expected.to validate_presence_of(:name) }
   it { is_expected.to validate_presence_of(:new_command) }

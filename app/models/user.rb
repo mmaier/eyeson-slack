@@ -20,7 +20,9 @@ class User
   validates :email, presence: true
   validates :confirmed, presence: true
 
+  index(external_id: 1)
   index({ team_id: 1, external_id: 1 }, unique: true)
+  index(team_id: 1, email: 1)
 
   def scope_required!(required)
     missing = []
