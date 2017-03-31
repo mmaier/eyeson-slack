@@ -3,10 +3,9 @@
 image: docker-reg.test-visocon.com:5000/visocon/rails-test
 
 services:
-  - mongo:3.2
-
+  - docker-reg.test-visocon.com:5000/mongodb-runner
 variables:
-  MONGO_HOST: mongo
+  MONGO_HOST: docker-reg.test-visocon.com-mongodb-runner
 
 before_script:
   - eval $(ssh-agent -s)
