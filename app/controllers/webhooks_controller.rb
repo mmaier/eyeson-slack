@@ -13,19 +13,19 @@ class WebhooksController < ApplicationController
 
   def valid_api_key!
     @team = Team.find_by(api_key: params.require(:api_key))
-    head :unauthorized unless @team.present?
+    head :unauthorized if @team.blank?
   end
 
   def presentation_update
     @channel = Channel.find_by(external_id: presentation_params[:room_id])
 
-    return unless @channel.present?
+    return if @channel.blank?
 
     access_token = User.find_by(team: @channel.team,
                                 email: presentation_params[:user_id])
                        .try(:access_token)
 
-    return unless access_token.present?
+    return if access_token.blank?
 
     @slack_api = SlackApi.new(access_token)
 

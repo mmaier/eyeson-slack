@@ -93,7 +93,7 @@ class SlackApi
     rescue RestClient::ExceptionWithResponse => e
       e.response
     end
-    return {} unless res.body.present?
+    return {} if res.body.blank?
     body = JSON.parse(res.body)
     raise MissingScope, body['needed'] if body['error'] == 'missing_scope'
     raise RequestFailed, body['error'] unless body['ok'] == true
