@@ -26,7 +26,7 @@ class CommandsController < ApplicationController
 
   def team_exists!
     @team = Team.find_by(external_id: params.require(:team_id))
-    invalid_setup_response unless @team.present?
+    invalid_setup_response if @team.blank?
   end
 
   def help_response
