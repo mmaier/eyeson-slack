@@ -84,10 +84,11 @@ class MeetingsController < ApplicationController
   end
 
   def post_open_info
-    text = I18n.t('.opened', url: meeting_url(id: params[:id]),
-                             scope: %i(meetings show))
+    url  = meeting_url(id: params[:id])
+    text = I18n.t('.opened', url: url, scope: %i(meetings show))
     message = @slack_api.post_message!(
-      channel: @channel.external_id,
+      channel:     @channel.external_id,
+      text:        url,
       attachments: [{ color: '#9e206c', thumb_url: root_url + '/icon.png',
                       fallback: text, text: text }]
     )
