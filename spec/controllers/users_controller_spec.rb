@@ -67,10 +67,4 @@ RSpec.describe UsersController, type: :controller do
     get :login, params: { redirect_uri: redirect_uri }
     expect(response).to redirect_to('https://slack/auth_url')
   end
-
-  it 'should handle slack api error' do
-    redirect_uri = meeting_path(id: '123')
-    get :oauth, params: { error: 'some_error', redirect_uri: redirect_uri }
-    expect(response).to redirect_to(login_path(redirect_uri: redirect_uri))
-  end
 end

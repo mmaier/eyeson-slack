@@ -38,7 +38,7 @@ RSpec.describe CommandsController, type: :controller do
   it 'should return a meeting link' do
     post :create, params: command_params
     url = "http://test.host/slack/m/#{command_params[:channel_id]}"
-    text = I18n.t('.respond',
+    text = I18n.t('.response',
                   url: url,
                   scope: [:commands])
     expect(response.status).to eq(200)

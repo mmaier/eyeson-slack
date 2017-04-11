@@ -23,7 +23,7 @@ RSpec.describe SlackApi, type: :class do
     expect(slack_api.access_token).to eq('abc123')
   end
 
-  it 'returns authroization url' do
+  it 'returns authorization url' do
     redirect_uri = '/test'
     scope = %w(test_scope)
     team = 'my_team'

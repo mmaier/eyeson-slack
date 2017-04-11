@@ -7,7 +7,6 @@ gem 'puma', '~> 3.0'
 
 gem 'unicorn'
 gem 'syslog-logger'
-gem 'slack-ruby-client'
 gem 'oauth2'
 gem 'mongoid', '~> 6.0.0'
 gem 'rest-client'

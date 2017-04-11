@@ -40,7 +40,7 @@ class CommandsController < ApplicationController
   def meeting_response
     url = meeting_url(id: params.require(:channel_id))
     {
-      text: I18n.t('.respond',
+      text: I18n.t('.response',
                    url: url,
                    scope: [:commands])
     }
