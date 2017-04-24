@@ -120,16 +120,6 @@ RSpec.describe MeetingsController, type: :controller do
     get :show, params: { id: channel.external_id, user_id: user.id }
   end
 
-  it 'should set api key on room create' do
-    Eyeson.configuration.expects(:api_key=).with(user.team.api_key)
-    
-    expects_eyeson_room_with
-    expects_slack_request_with(user.access_token)
-    Eyeson::Intercom.expects(:post)
-
-    get :show, params: { id: channel.external_id, user_id: user.id }
-  end
-
   it 'should handle eyeson api error' do
     error = 'some error'
 

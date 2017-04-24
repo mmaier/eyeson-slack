@@ -10,7 +10,7 @@ RSpec.describe WebhooksController, type: :controller do
   end
 
   it 'should return ok' do
-    post :create, params: { api_key: team.api_key }
+    post :create, params: { api_key: 'test' }
     expect(response.status).to eq(200)
   end
 
@@ -57,7 +57,7 @@ RSpec.describe WebhooksController, type: :controller do
     Thread.expects(:new)
 
     post :create, params: {
-      api_key: team.api_key,
+      api_key: 'test',
       type: 'presentation_update',
       presentation: {
         user: { id: user.email },
@@ -71,7 +71,7 @@ RSpec.describe WebhooksController, type: :controller do
     SlackApi.expects(:new).never
 
     post :create, params: {
-      api_key: team.api_key,
+      api_key: 'test',
       type: 'presentation_update',
       presentation: {
         user: { id: Faker::Internet.email },
@@ -85,7 +85,7 @@ RSpec.describe WebhooksController, type: :controller do
     SlackApi.expects(:new).never
 
     post :create, params: {
-      api_key: team.api_key,
+      api_key: 'test',
       type: 'presentation_update',
       presentation: {
         user: { id: create(:user).external_id },

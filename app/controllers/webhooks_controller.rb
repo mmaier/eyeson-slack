@@ -12,8 +12,9 @@ class WebhooksController < ApplicationController
   private
 
   def valid_api_key!
-    @team = Team.find_by(api_key: params.require(:api_key))
-    head :unauthorized if @team.blank?
+    return if params.require(:api_key) == Rails.application
+              .secrets.eyeson_api_key
+    head :unauthorized
   end
 
   def presentation_update

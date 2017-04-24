@@ -2,7 +2,6 @@
 class TeamsController < ApplicationController
   rescue_from SlackApi::NotAuthorized, with: :slack_not_authorized
   rescue_from OAuth2::Error, with: :slack_not_authorized
-  rescue_from Eyeson::ApiKey::ValidationFailed, with: :api_key_error
 
   before_action :slack_api
   before_action :logged_in!, only: [:setup]
@@ -20,8 +19,7 @@ class TeamsController < ApplicationController
     @team = Team.setup!(
       external_id: @slack_api.auth['team_id'],
       url:         @slack_api.auth['url'],
-      name:        @slack_api.auth['team'],
-      email:       @slack_api.identity['user']['email']
+      name:        @slack_api.auth['team']
     )
     redirect_to Rails.configuration.services['setup_complete_url']
   end
@@ -44,9 +42,5 @@ class TeamsController < ApplicationController
 
   def slack_not_authorized(_e)
     redirect_to :setup
-  end
-
-  def api_key_error(e)
-    render json: { error: e }, status: :bad_request
   end
 end
