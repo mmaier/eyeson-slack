@@ -17,7 +17,6 @@ RSpec.describe Team, type: :model do
     external_id = Faker::Code.isbn
     name        = Faker::Team.name
     url         = Faker::Internet.url
-    Eyeson::Webhook.expects(:create!)
     team = Team.setup!(
       external_id: external_id,
       url:   url,
@@ -29,20 +28,9 @@ RSpec.describe Team, type: :model do
     expect(team.url).to eq(url)
   end
 
-  it 'should provide a webhook method' do
-    team     = create(:team)
-    Eyeson::Webhook.expects(:create!)
-                   .with({
-                     url: Rails.application.routes.url_helpers.webhooks_url,
-                     types: %w(presentation_update)
-                   })
-    team.add_webhook
-  end
-
   it 'should return existing team on setup' do
     team = create(:team)
     Team.expects(:find_or_initialize_by).with(external_id: team.external_id).returns(team)
-    team.expects(:add_webhook).never
     Team.setup!(
       external_id: team.external_id,
       url: Faker::Internet.url

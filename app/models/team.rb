@@ -19,7 +19,6 @@ class Team
   def self.setup!(external_id: nil, name: nil, url: nil)
     team = Team.find_or_initialize_by(external_id: external_id)
     return team unless team.new_record?
-    team.add_webhook
     team.url     = url
     team.name    = name
     team.save!
@@ -37,12 +36,5 @@ class Team
     user.scope        = scope.split(',')
     user.save!
     user
-  end
-
-  def add_webhook
-    Eyeson::Webhook.create!(
-      url: Rails.application.routes.url_helpers.webhooks_url,
-      types: %w(presentation_update)
-    )
   end
 end
