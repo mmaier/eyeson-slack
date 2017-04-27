@@ -10,7 +10,7 @@ class SlackApi
   include SlackFile
   include SlackMessage
 
-  DEFAULT_SCOPE = %w(chat:write:user files:write:user).freeze
+  DEFAULT_SCOPE = %w[chat:write:user files:write:user].freeze
 
   attr_reader :access_token, :scope
 

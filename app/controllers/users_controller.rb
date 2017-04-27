@@ -11,7 +11,7 @@ class UsersController < ApplicationController
     scope = if params[:scope].present?
               params[:scope].split(',')
             else
-              %w(identity.basic identity.email identity.avatar)
+              %w[identity.basic identity.email identity.avatar]
             end
 
     redirect_to @slack_api.authorize!(
