@@ -83,7 +83,7 @@ class MeetingsController < ApplicationController
 
   def post_open_info
     url  = meeting_url(id: params[:id])
-    text = I18n.t('.opened', url: url, scope: %i(meetings show))
+    text = I18n.t('.opened', url: url, scope: %i[meetings show])
     message = @slack_api.post_message!(
       channel:     @channel.external_id,
       text:        url,
@@ -98,7 +98,7 @@ class MeetingsController < ApplicationController
     @slack_api.post_message!(
       channel: @channel.external_id,
       thread_ts: @channel.thread_id,
-      text:    I18n.t('.joined', scope: %i(meetings show))
+      text:    I18n.t('.joined', scope: %i[meetings show])
     )
   end
 
