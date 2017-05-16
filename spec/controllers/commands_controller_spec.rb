@@ -53,11 +53,22 @@ RSpec.describe CommandsController, type: :controller do
     expect(response.status).to eq(200)
     expect(JSON.parse(response.body)['text']).to eq(text)
   end
+
+  it 'should handle question command' do
+    access_token = nil
+    image_url = nil
+    layer = mock('Layer API')
+    layer.expects(:create).with(url: image_url)
+    Eyeson::Layer.expects(:new).with(access_token).returns(layer)
+    post :create, params: command_params.merge!(command: 'question')
+    expect(response.status).to eq(200)
+  end
 end
 
 def command_params
   {
     token: Rails.application.secrets.slack_token,
+    command:      'eyeson',
     user_id:      user.external_id,
     user_name:    user.name,
     channel_id:   channel.external_id,

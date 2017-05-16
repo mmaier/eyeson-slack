@@ -39,6 +39,8 @@ RSpec.describe MeetingsController, type: :controller do
     account = mock('Eyeson account', new_record?: false)
     Eyeson::Account.expects(:find_or_initialize_by).returns(account)
     expects_eyeson_room_with
+    expects_slack_request_with(user.access_token)
+    Eyeson::Intercom.expects(:post)
     get :show, params: { id: channel.external_id, user_id: user.id }
     user.reload
     expect(user.confirmed).to eq(true)

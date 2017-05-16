@@ -5,16 +5,29 @@ class CommandsController < ApplicationController
   before_action :setup_channel!, only: [:create]
 
   def create
+    send 'command_' + params.require(:command)
+  end
+
+  private
+
+  def command_eyeson
     response = if 'help' == params[:text]
                  help_response
                else
                  meeting_response
                end
-
     render json: response
   end
 
-  private
+  def command_question
+    access_token = nil
+    # TODO: Which access_token to take?
+    layer = Eyeson::Layer.new(access_token)
+    image_url = nil
+    # TODO: Generate image url
+    layer.create(url: image_url)
+    head :ok
+  end
 
   def valid_slack_token!
     return if params.require(:token) == Rails.application
