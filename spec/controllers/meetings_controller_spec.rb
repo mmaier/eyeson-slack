@@ -149,6 +149,6 @@ end
 
 def expects_slack_notification(webinar = false)
   sn = mock('Slack Notification Service')
-  sn.expects(:call).with(webinar)
+  sn.expects(:start).with(webinar)
   SlackNotificationService.expects(:new).with(user.access_token, channel).returns(sn)
 end

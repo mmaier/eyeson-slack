@@ -18,26 +18,37 @@ class WebhooksController < ApplicationController
   end
 
   def presentation_update
-    @channel = Channel.find_by(external_id: presentation_params[:room_id])
+    slack_api_from(presentation_params)
+    return if @slack_api.nil?
+    return if @channel.thread_id.blank?
+    Thread.new do
+      upload = upload_from_url(presentation_params[:slide])
+      SlackNotificationService.new(@access_token, @channel)
+                              .presentation(upload)
+    end
+  end
+
+  def broadcast_update
+    slack_api_from(broadcast_params)
+    return if @slack_api.nil?
+    Thread.new do
+      SlackNotificationService.new(@access_token, @channel)
+                              .broadcast(broadcast_params[:url])
+    end
+  end
+
+  def slack_api_from(params)
+    @channel = Channel.find_by(external_id: params[:room_id])
 
     return if @channel.blank?
 
-    access_token = User.find_by(team: @channel.team,
-                                email: presentation_params[:user_id])
-                       .try(:access_token)
+    @access_token = User.find_by(team: @channel.team,
+                                 email: params[:user_id])
+                        .try(:access_token)
 
-    return if access_token.blank?
+    return if @access_token.blank?
 
-    @slack_api = SlackApi.new(access_token)
-
-    upload_slide
-  end
-
-  def upload_slide
-    Thread.new do
-      upload = upload_from_url(presentation_params[:slide])
-      post_message_for(upload)
-    end
+    @slack_api = SlackApi.new(@access_token)
   end
 
   def upload_from_url(url)
@@ -47,18 +58,21 @@ class WebhooksController < ApplicationController
     @slack_api.get('/files.sharedPublicURL', file: upload['file']['id'])
   end
 
-  def post_message_for(upload)
-    @slack_api.post_message!(channel: @channel.external_id,
-                             thread_ts: @channel.thread_id,
-                             text: upload['file']['permalink_public'])
-  end
-
   def presentation_params
     presentation = params.require(:presentation)
     {
       slide:   presentation.require(:slide),
       room_id: presentation.require(:room).require(:id),
       user_id: presentation.require(:user).require(:id)
+    }
+  end
+
+  def broadcast_params
+    broadcast = params.require(:broadcast)
+    {
+      url:   broadcast.require(:url),
+      room_id: broadcast.require(:room).require(:id),
+      user_id: broadcast.require(:user).require(:id)
     }
   end
 end

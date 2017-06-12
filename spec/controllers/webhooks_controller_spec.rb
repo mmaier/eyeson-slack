@@ -30,30 +30,12 @@ RSpec.describe WebhooksController, type: :controller do
     controller.send(:upload_from_url, url)
   end
 
-  it 'should post upload message' do
-    preview = Faker::Internet.url
-    upload = {
-      'file' => {
-        'permalink_public' => preview
-      }
-    }
-    controller = WebhooksController.new
-    slack_api  = mock('Slack API')
-    channel = create(:channel)
-    slack_api.expects(:post_message!).with(channel: channel.external_id,
-                                           thread_ts: channel.thread_id,
-                                           text: preview)
-    controller.instance_variable_set(:@channel, channel)
-    controller.instance_variable_set(:@slack_api, slack_api)
-    controller.send(:post_message_for, upload)
-  end
-
   it 'should handle presentation_update' do
     user    = create(:user, team: team)
-    channel = create(:channel, team: team)
+    channel = create(:channel, team: team, thread_id: Faker::Crypto.md5)
     slide   = Faker::Internet.url
 
-    SlackApi.expects(:new).with(user.access_token)
+    SlackApi.expects(:new).with(user.access_token).returns(true)
     Thread.expects(:new)
 
     post :create, params: {
@@ -63,6 +45,44 @@ RSpec.describe WebhooksController, type: :controller do
         user: { id: user.email },
         room: { id: channel.external_id },
         slide: slide
+      }
+    }
+  end
+
+  it 'should not execute presentation_update without thread id' do
+    user    = create(:user, team: team)
+    channel = create(:channel, team: team)
+    slide   = Faker::Internet.url
+
+    SlackApi.expects(:new).with(user.access_token).returns(true)
+    Thread.expects(:new).never
+
+    post :create, params: {
+      api_key: 'test',
+      type: 'presentation_update',
+      presentation: {
+        user: { id: user.email },
+        room: { id: channel.external_id },
+        slide: slide
+      }
+    }
+  end
+
+  it 'should handle broadcast_update' do
+    user    = create(:user, team: team)
+    channel = create(:channel, team: team)
+    url     = Faker::Internet.url
+
+    SlackApi.expects(:new).with(user.access_token).returns(true)
+    Thread.expects(:new)
+
+    post :create, params: {
+      api_key: 'test',
+      type: 'broadcast_update',
+      broadcast: {
+        user: { id: user.email },
+        room: { id: channel.external_id },
+        url:  url
       }
     }
   end
