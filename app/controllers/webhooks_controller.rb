@@ -13,7 +13,7 @@ class WebhooksController < ApplicationController
 
   def valid_api_key!
     return if params.require(:api_key) == Rails.application
-              .secrets.eyeson_api_key
+                                               .secrets.eyeson_api_key
     head :unauthorized
   end
 

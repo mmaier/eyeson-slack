@@ -11,7 +11,7 @@ class CommandsController < ApplicationController
   private
 
   def command_eyeson
-    response = if 'help' == params[:text]
+    response = if params[:text] == 'help'
                  help_response
                elsif params[:text].try(:start_with?, 'webinar')
                  webinar_response
@@ -33,7 +33,7 @@ class CommandsController < ApplicationController
 
   def valid_slack_token!
     return if params.require(:token) == Rails.application
-              .secrets.slack_token
+                                             .secrets.slack_token
     render json: {
       text: I18n.t('.invalid_slack_token', scope: [:commands])
     }
