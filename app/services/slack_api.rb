@@ -81,7 +81,7 @@ class SlackApi
       url: @oauth.site + '/api' + path,
       payload: payload,
       headers: {
-        params: { token: @access_token }.merge!(params)
+        params: { token: @access_token }.merge(params)
       }
     )
     response_for(req)

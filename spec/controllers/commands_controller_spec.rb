@@ -14,7 +14,7 @@ RSpec.describe CommandsController, type: :controller do
   end
 
   it 'should raise an error with invalid team setup' do
-    post :create, params: command_params.merge!(team_id: Faker::Code.isbn)
+    post :create, params: command_params.merge(team_id: Faker::Code.isbn)
     expect(response.status).to eq(200)
     expect(JSON.parse(response.body)['text']).to eq(
       I18n.t('.invalid_setup',
@@ -35,18 +35,51 @@ RSpec.describe CommandsController, type: :controller do
     expect(channel).to be_present
   end
 
+  it 'should save new_command and user_mentioned info' do
+    post :create, params: command_params
+    channel.reload
+    expect(channel.new_command).to eq(true)
+    expect(channel.users_mentioned).to eq(nil)
+
+    post :create, params: command_params.merge(text: 'webinar @test @test2')
+    channel.reload
+    expect(channel.users_mentioned).to eq(['@test', '@test2'])
+  end
+
   it 'should return a meeting link' do
     post :create, params: command_params
     url = "http://test.host/slack/m/#{command_params[:channel_id]}"
-    text = I18n.t('.response',
+    text = I18n.t('.meeting_response',
                   url: url,
                   scope: [:commands])
     expect(response.status).to eq(200)
     expect(JSON.parse(response.body)['text']).to eq(text)
   end
 
+  it 'should return a webinar link' do
+    post :create, params: command_params.merge(webinar: true, text: 'webinar')
+    url = "http://test.host/slack/w/#{command_params[:channel_id]}"
+    text = I18n.t('.webinar_response',
+                  url: url,
+                  users: nil,
+                  scope: [:commands])
+    expect(response.status).to eq(200)
+    expect(JSON.parse(response.body)['text']).to eq(text)
+  end
+
+  it 'should return a webinar link when speakers are mentioned' do
+    post :create, params: command_params.merge(webinar: true, text: 'webinar @test @test2')
+    url = "http://test.host/slack/w/#{command_params[:channel_id]}"
+    text = I18n.t('.webinar_response',
+                  url: url,
+                  users: '@test, @test2',
+                  scope: [:commands])
+    expect(response.status).to eq(200)
+    expect(JSON.parse(response.body)['text']).to eq(text)
+  end
+
   it 'should provide a help response' do
-    post :create, params: command_params.merge!(text: 'help')
+    post :create, params: command_params.merge(text: 'help')
     text = I18n.t('.help',
                   url: Rails.configuration.services['faq_url'],
                   scope: [:commands])
@@ -60,7 +93,7 @@ RSpec.describe CommandsController, type: :controller do
     layer = mock('Layer API')
     layer.expects(:create).with(url: image_url)
     Eyeson::Layer.expects(:new).with(access_token).returns(layer)
-    post :create, params: command_params.merge!(command: 'question')
+    post :create, params: command_params.merge(command: 'question')
     expect(response.status).to eq(200)
   end
 end

@@ -13,6 +13,8 @@ class CommandsController < ApplicationController
   def command_eyeson
     response = if 'help' == params[:text]
                  help_response
+               elsif params[:text].try(:start_with?, 'webinar')
+                 webinar_response
                else
                  meeting_response
                end
@@ -20,9 +22,9 @@ class CommandsController < ApplicationController
   end
 
   def command_question
-    access_token = nil
-    # TODO: Which access_token to take?
-    layer = Eyeson::Layer.new(access_token)
+    access_key = nil
+    # TODO: Which access_key to take? -> last_user_access_key??
+    layer = Eyeson::Layer.new(access_key)
     image_url = nil
     # TODO: Generate image url
     layer.create(url: image_url)
@@ -53,8 +55,18 @@ class CommandsController < ApplicationController
   def meeting_response
     url = meeting_url(id: params.require(:channel_id))
     {
-      text: I18n.t('.response',
+      text: I18n.t('.meeting_response',
                    url: url,
+                   scope: [:commands])
+    }
+  end
+
+  def webinar_response
+    url = webinar_url(id: params.require(:channel_id))
+    {
+      text: I18n.t('.webinar_response',
+                   url:   url,
+                   users: @channel.users_mentioned.try(:join, ', '),
                    scope: [:commands])
     }
   end
@@ -64,7 +76,8 @@ class CommandsController < ApplicationController
       external_id: params.require(:channel_id)
     )
     @channel.name = params.require(:channel_name)
-    @channel.new_command = true
+    @channel.new_command     = true
+    @channel.users_mentioned = params[:text].try(:scan, /@[A-Za-z0-9]+/)
     @channel.save!
   end
 

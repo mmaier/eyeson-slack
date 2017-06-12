@@ -2,28 +2,28 @@ development:
   eyeson_api: https://localhost:3001
   eyeson_account_api: https://accounts.dev-visocon.com/api
   setup_complete_url: https://eyeson.team/slack/success
-  faq_url: https://eyeson.team/slack/faq
+  faq_url: http://help.eyeson.team
 
 test:
   eyeson_api: http://test.host/eyeson/api
   eyeson_account_api: http://localhost:3001
   setup_complete_url: https://eyeson.team/slack/success
-  faq_url: https://eyeson.team/slack/faq
+  faq_url: http://help.eyeson.team
 
 integration:
   eyeson_api: https://api.dev-visocon.com
   eyeson_account_api: https://accounts.dev-visocon.com/api
   setup_complete_url: https://eyeson.team/slack/success
-  faq_url: https://eyeson.team/slack/faq
+  faq_url: http://help.eyeson.team
 
 staging:
   eyeson_api: https://api.test-visocon.com
   eyeson_account_api: https://accounts.test-visocon.com/api
   setup_complete_url: https://eyeson.team/slack/success
-  faq_url: https://eyeson.team/slack/faq
+  faq_url: http://help.eyeson.team
 
 production:
   eyeson_api: https://api.eyeson.team
   eyeson_account_api: https://accounts.eyeson.team/api
   setup_complete_url: https://eyeson.team/slack/success
-  faq_url: https://eyeson.team/slack/faq
+  faq_url: http://help.eyeson.team

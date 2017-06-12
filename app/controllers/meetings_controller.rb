@@ -14,7 +14,10 @@ class MeetingsController < ApplicationController
     @room = Eyeson::Room.join(id: @channel.external_id,
                               name: @channel.name,
                               user: @user)
-    post_to_slack
+
+    SlackNotificationService.new(@user.access_token, @channel)
+                            .call(params[:webinar] == true)
+
     update_intercom
     enter_room
   end
@@ -69,36 +72,6 @@ class MeetingsController < ApplicationController
     redirect_to login_path(
       redirect_uri: meeting_path(id: params[:id]),
       scope:        scope
-    )
-  end
-
-  def post_to_slack
-    @slack_api = SlackApi.new(@user.access_token)
-    if @channel.new_command?
-      post_open_info
-    else
-      post_join_info
-    end
-  end
-
-  def post_open_info
-    url  = meeting_url(id: params[:id])
-    text = I18n.t('.opened', url: url, scope: %i[meetings show])
-    message = @slack_api.post_message!(
-      channel:     @channel.external_id,
-      text:        url,
-      attachments: [{ color: '#9e206c', thumb_url: root_url + '/icon.png',
-                      fallback: text, text: text }]
-    )
-    @channel.thread_id = message['ts']
-    @channel.save
-  end
-
-  def post_join_info
-    @slack_api.post_message!(
-      channel: @channel.external_id,
-      thread_ts: @channel.thread_id,
-      text:    I18n.t('.joined', scope: %i[meetings show])
     )
   end
 

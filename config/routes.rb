@@ -14,6 +14,7 @@ Rails.application.routes.draw do
 
     # Resolves meeting link
     get 'm/:id' => 'meetings#show', as: :meeting
+    get 'w/:id' => 'meetings#show', as: :webinar, defaults: { webinar: true }
 
     root 'teams#setup'
   end

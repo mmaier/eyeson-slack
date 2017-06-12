@@ -6,6 +6,7 @@ class Channel
   field :name, type: String
   field :new_command, type: Boolean, default: false
   field :thread_id, type: String
+  field :users_mentioned, type: Array
 
   belongs_to :team
 

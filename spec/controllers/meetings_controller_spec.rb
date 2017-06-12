@@ -39,7 +39,7 @@ RSpec.describe MeetingsController, type: :controller do
     account = mock('Eyeson account', new_record?: false)
     Eyeson::Account.expects(:find_or_initialize_by).returns(account)
     expects_eyeson_room_with
-    expects_slack_request_with(user.access_token)
+    expects_slack_notification
     Eyeson::Intercom.expects(:post)
     get :show, params: { id: channel.external_id, user_id: user.id }
     user.reload
@@ -70,56 +70,13 @@ RSpec.describe MeetingsController, type: :controller do
                                     user: user)
                               .returns(mock('Room URL', url: gui))
 
-    expects_slack_request_with(user.access_token)
+    expects_slack_notification
+
     Eyeson::Intercom.expects(:post)
 
     get :show, params: { id: channel.external_id, user_id: user.id }
     expect(response.status).to eq(302)
     expect(response).to redirect_to(gui)
-  end
-
-  it 'should post opened info after new command' do
-    channel.new_command = true
-    channel.save
-
-    expects_eyeson_room_with
-    slack_api = mock('Slack Api')
-    url = meeting_url(id: channel.external_id)
-    text = I18n.t('.opened', url: url,
-                             scope: [:meetings, :show])
-    slack_api.expects(:post_message!).with(
-      channel: channel.external_id,
-      text: url,
-      attachments: [
-        {
-            color: '#9e206c',
-            text: text, fallback: text,
-            thumb_url: root_url + '/icon.png'
-        }
-      ]
-    ).returns({ 'ts' => '123' })
-    SlackApi.expects(:new).returns(slack_api)
-    Eyeson::Intercom.expects(:post)
-
-    get :show, params: { id: channel.external_id, user_id: user.id }
-
-    channel.reload
-    expect(channel.new_command).to eq(false)
-    expect(channel.thread_id).to eq('123')
-  end
-
-  it 'should post join info into thread after join' do
-    expects_eyeson_room_with
-    slack_api = mock('Slack Api')
-    slack_api.expects(:post_message!).with(
-      channel: channel.external_id,
-      thread_ts: channel.thread_id,
-      text: I18n.t('.joined', url: meeting_url(id: channel.external_id),
-                              scope: [:meetings, :show])
-    )
-    SlackApi.expects(:new).returns(slack_api)
-    Eyeson::Intercom.expects(:post)
-    get :show, params: { id: channel.external_id, user_id: user.id }
   end
 
   it 'should handle eyeson api error' do
@@ -172,7 +129,7 @@ RSpec.describe MeetingsController, type: :controller do
     @request.headers['HTTP_X_FORWARDED_FOR'] = '123.123.123.123, 127.0.0.1'
 
     expects_eyeson_room_with
-    expects_slack_request_with(user.access_token)
+    expects_slack_notification
 
     Eyeson::Intercom.expects(:post).with(email: user.email,
                           ref: 'Slack',
@@ -190,6 +147,8 @@ RSpec.describe MeetingsController, type: :controller do
   end
 end
 
-def expects_slack_request_with(access_token)
-  SlackApi.expects(:new).with(access_token).returns(mock('Slack API', post_message!: { 'ts' => nil }))
+def expects_slack_notification(webinar = false)
+  sn = mock('Slack Notification Service')
+  sn.expects(:call).with(webinar)
+  SlackNotificationService.expects(:new).with(user.access_token, channel).returns(sn)
 end
