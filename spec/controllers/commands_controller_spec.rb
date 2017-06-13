@@ -43,7 +43,7 @@ RSpec.describe CommandsController, type: :controller do
 
     post :create, params: command_params.merge(text: 'webinar <@test|Test1> <@test2|Test2>')
     channel.reload
-    expect(channel.users_mentioned).to eq(['test', 'test2'])
+    expect(channel.users_mentioned).to eq(['test|Test1', 'test2|Test2'])
   end
 
   it 'should return a meeting link' do
@@ -68,11 +68,11 @@ RSpec.describe CommandsController, type: :controller do
   end
 
   it 'should return a webinar link when speakers are mentioned' do
-    post :create, params: command_params.merge(webinar: true, text: 'webinar @test @test2')
+    post :create, params: command_params.merge(webinar: true, text: 'webinar <@test|Test1> <@test2|Test2>')
     url = "http://test.host/slack/w/#{command_params[:channel_id]}"
     text = I18n.t('.webinar_response',
                   url: url,
-                  users: 'test, test2',
+                  users: 'Test1, Test2',
                   scope: [:commands])
     expect(response.status).to eq(200)
     expect(JSON.parse(response.body)['text']).to eq(text)

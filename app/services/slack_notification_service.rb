@@ -42,8 +42,9 @@ class SlackNotificationService
   end
 
   def webinar_info
-    return if !@channel.new_command? || @channel.users_mentioned.nil?
-    @channel.users_mentioned.map { |u| post_speaker_invitation_to(u) }
+    return unless @channel.new_command?
+    @channel.users_mentioned
+            .to_a.map { |u| post_speaker_invitation_to(u.split('|').first) }
   end
 
   def post_open_info
