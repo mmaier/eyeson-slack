@@ -28,7 +28,7 @@ class MeetingsController < ApplicationController
     @user = User.find_by(id: params[:user_id])
     return if @user.present?
     redirect_to login_path(
-      redirect_uri: meeting_path(id: params[:id])
+      redirect_uri: request.path
     )
   end
 
@@ -70,7 +70,7 @@ class MeetingsController < ApplicationController
 
   def missing_scope(scope)
     redirect_to login_path(
-      redirect_uri: meeting_path(id: params[:id]),
+      redirect_uri: request.path,
       scope:        scope
     )
   end

@@ -119,17 +119,9 @@ RSpec.describe SlackNotificationService, type: :class do
   it 'should post broadcast info' do
     slack_api = mock('Slack Api')
     url  = Faker::Internet.url
-    text = I18n.t('.broadcast', url: url, scope: [:meetings, :show])
     slack_api.expects(:post_message!).with(
       channel: channel.external_id,
-      text: url,
-      attachments: [
-        {
-            color: '#9e206c',
-            text: text, fallback: text,
-            thumb_url: root_url + '/icon.png'
-        }
-      ]
+      text: url
     ).returns({ 'ts' => '123' })
      SlackApi.expects(:new).returns(slack_api)
      channel.expects(:thread_id=).with('123')
