@@ -5,31 +5,19 @@ class CommandsController < ApplicationController
   before_action :setup_channel!, only: [:create]
 
   def create
-    send 'command_' + params.require(:command)
-  end
-
-  private
-
-  def command_eyeson
     response = if params[:text] == 'help'
                  help_response
                elsif params[:text].try(:start_with?, 'webinar')
                  webinar_response
+               elsif params[:text].try(:start_with?, 'ask')
+                 webinar_question
                else
                  meeting_response
                end
     render json: response
   end
 
-  def command_question
-    access_key = nil
-    # TODO: Which access_key to take? -> last_user_access_key??
-    layer = Eyeson::Layer.new(access_key)
-    image_url = nil
-    # TODO: Generate image url
-    layer.create(url: image_url)
-    head :ok
-  end
+  private
 
   def valid_slack_token!
     return if params.require(:token) == Rails.application
@@ -69,6 +57,15 @@ class CommandsController < ApplicationController
                    users: @channel.users_mentioned.try(:join, ', '),
                    scope: [:commands])
     }
+  end
+
+  def webinar_question
+    access_key = nil
+    # TODO: Which access_key to take? -> last_user_access_key??
+    layer = Eyeson::Layer.new(access_key)
+    image_url = nil
+    # TODO: Generate image url
+    layer.create(url: image_url)
   end
 
   def setup_channel!

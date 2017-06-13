@@ -93,7 +93,7 @@ RSpec.describe CommandsController, type: :controller do
     layer = mock('Layer API')
     layer.expects(:create).with(url: image_url)
     Eyeson::Layer.expects(:new).with(access_token).returns(layer)
-    post :create, params: command_params.merge(command: 'question')
+    post :create, params: command_params.merge(text: 'ask Is this a question?')
     expect(response.status).to eq(200)
   end
 end
