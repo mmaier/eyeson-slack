@@ -76,7 +76,7 @@ class CommandsController < ApplicationController
     )
     @channel.name = params.require(:channel_name)
     @channel.new_command     = true
-    @channel.users_mentioned = params[:text].try(:scan, /<@([A-Za-z0-9|]+)>/)
+    @channel.users_mentioned = params[:text].try(:scan, /<@([A-Za-z0-9|.]+)>/)
                                             .try(:flatten)
     @channel.save!
   end

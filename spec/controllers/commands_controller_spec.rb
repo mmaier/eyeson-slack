@@ -41,9 +41,9 @@ RSpec.describe CommandsController, type: :controller do
     expect(channel.new_command).to eq(true)
     expect(channel.users_mentioned).to eq(nil)
 
-    post :create, params: command_params.merge(text: 'webinar <@test|Test1> <@test2|Test2>')
+    post :create, params: command_params.merge(text: 'webinar <@michael.maier|Michael> <@test2|Test2>')
     channel.reload
-    expect(channel.users_mentioned).to eq(['test|Test1', 'test2|Test2'])
+    expect(channel.users_mentioned).to eq(['michael.maier|Michael', 'test2|Test2'])
   end
 
   it 'should return a meeting link' do
