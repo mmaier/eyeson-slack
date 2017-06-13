@@ -3,7 +3,7 @@ en:
     invalid_slack_token: "Verification not correct"
     invalid_setup: "Your app hasn't been setup properly.\n*<%{url}|Finalize your setup here>.*"
     meeting_response: "Your eyeson room is ready: *<%{url}|Open>*"
-    webinar_response: "Your eyeson room is ready.\nMembers of this channel won't see the webinar unless you start a broadcast from within the eyeson room.\nThe folling people will get a notification with the access link once you have entered: %{users}\n\nAnyways, if you want to add additional people of your Slack team as speakers, just send them this link: `%{url}`\nIf you want to add external people as speakers, send them the guest link from within the eyeson room.\n\n*<%{url}|Prepare for webinar>*"
+    webinar_response: "The webinar gets published as soon as you start a broadcast to YouTube within eyeson room.\n\nThe following people were added as speakers: *%{users}*\nAdd more speakers by sending them the eyeson room guest link.\n\n*<%{url}|Prepare for webinar>*"
     help: "*Meetings:*\nEnter `/eyeson` in the channel you want to open an eyeson room.\nA link to the eyeson room will be posted to all channel members once you have entered.\n\n*Webinars:*\nEnter `/eyeson webinar` in the channel you want to start a webinar.\nA Youtube player will be posted to all channel members once you have started the broadcast within the eyeson room.\n\nFor more help, click here: %{url}"
 
   meetings:
