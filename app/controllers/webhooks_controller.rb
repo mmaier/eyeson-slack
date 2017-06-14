@@ -21,20 +21,16 @@ class WebhooksController < ApplicationController
     slack_api_from(presentation_params)
     return if @slack_api.nil?
     return if @channel.thread_id.blank?
-    Thread.new do
-      upload = upload_from_url(presentation_params[:slide])
-      SlackNotificationService.new(@access_token, @channel)
-                              .presentation(upload)
-    end
+    upload = upload_from_url(presentation_params[:slide])
+    SlackNotificationService.new(@access_token, @channel)
+                            .presentation(upload)
   end
 
   def broadcast_update
     slack_api_from(broadcast_params)
     return if @slack_api.nil?
-    Thread.new do
-      SlackNotificationService.new(@access_token, @channel)
-                              .broadcast(broadcast_params[:url])
-    end
+    SlackNotificationService.new(@access_token, @channel)
+                            .broadcast(broadcast_params[:url])
   end
 
   def slack_api_from(params)

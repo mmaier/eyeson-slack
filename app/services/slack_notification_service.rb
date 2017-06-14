@@ -23,8 +23,8 @@ class SlackNotificationService
                              text:      upload['file']['permalink_public'])
   end
 
-  def broadcast(_url)
-    post_broadcast_info
+  def broadcast(url)
+    post_broadcast_info(url)
     return if @channel.thread_id.present?
     post_slides_info
   end
@@ -52,22 +52,21 @@ class SlackNotificationService
     )
   end
 
-  def post_broadcast_info
+  def post_broadcast_info(url)
     text = I18n.t('.broadcast_info', scope: %i[meetings show])
     message = @slack_api.post_message!(
       channel:     @channel.external_id,
       attachments: [{ color: '#9e206c', thumb_url: root_url + '/icon.png',
                       fallback: text, text: text }]
     )
-    attach_broadcast_url_to(message)
+    attach_broadcast_url_to(url, message)
   end
 
-  def attach_broadcast_url_to(message)
-    text = I18n.t('.broadcast_url', url: url, scope: %i[meetings show])
+  def attach_broadcast_url_to(url, message)
     @slack_api.post_message!(
       channel:     @channel.external_id,
       thread_ts:   message['ts'],
-      text:        text
+      text:        I18n.t('.broadcast_url', url: url, scope: %i[meetings show])
     )
   end
 

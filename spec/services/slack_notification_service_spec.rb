@@ -70,32 +70,51 @@ RSpec.describe SlackNotificationService, type: :class do
     slack.send(:start)
   end
 
-  it 'should post broadcast info' do
+  it 'should trigger broadcast info' do
+    slack.expects(:post_broadcast_info)
+    slack.expects(:post_slides_info)
+    slack.broadcast(Faker::Internet.url)
+  end
+
+  it 'should trigger broadcast info only when thread_id is present' do
+    channel.thread_id = Faker::Crypto.md5
+    slack.expects(:post_broadcast_info)
+    slack.expects(:post_slides_info).never
+    slack.broadcast(Faker::Internet.url)
+  end
+
+  it 'should post broadcast_info and slides_info' do
     slack_api = mock('Slack Api')
     url  = Faker::Internet.url
+    text = I18n.t('.broadcast_info', scope: %i[meetings show])
+    slack_api.expects(:post_message!).with(
+      channel:     channel.external_id,
+      attachments: [{ color: '#9e206c', thumb_url: root_url + '/icon.png',
+                      fallback: text, text: text }]
+    ).returns({ 'ts' => '123' })
+
+    slack_api.expects(:post_message!).with(
+      channel:     channel.external_id,
+      thread_ts:   '123',
+      text:        I18n.t('.broadcast_url', url: url, scope: %i[meetings show])
+    )
+
     slack_api.expects(:post_message!).with(
       channel: channel.external_id,
-      thread_ts: channel.thread_id,
-      text: url
-    ).returns({ 'ts' => '123' })
+      text:    I18n.t('.slides_info', scope: %i[meetings show])
+    ).returns({ 'ts' => '456' })
+
     SlackApi.expects(:new).returns(slack_api)
-    channel.expects(:thread_id=).never
+    channel.expects(:thread_id=).with('456')
+    channel.expects(:save)
     slack.broadcast(url)
   end
 
-  it 'should update thread id after broadcast in webinar_mode' do
-    channel.webinar_mode = true
-    slack_api = mock('Slack Api')
-    url  = Faker::Internet.url
-    slack_api.expects(:post_message!).with(
-      channel: channel.external_id,
-      thread_ts: channel.thread_id,
-      text: url
-    ).returns({ 'ts' => '123' })
-    SlackApi.expects(:new).returns(slack_api)
-    channel.expects(:thread_id=).with('123')
-    channel.expects(:save)
-    slack.broadcast(url)
+  it 'should post broadcast_info without slides_info for existing thread' do
+    channel.thread_id = Faker::Crypto.md5
+    slack.expects(:post_broadcast_info)
+    slack.expects(:post_slides_info).never
+    slack.broadcast(Faker::Internet.url)
   end
 
   it 'should post presentation into thread' do

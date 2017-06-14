@@ -36,7 +36,10 @@ RSpec.describe WebhooksController, type: :controller do
     slide   = Faker::Internet.url
 
     SlackApi.expects(:new).with(user.access_token).returns(true)
-    Thread.expects(:new)
+    WebhooksController.any_instance.expects(:upload_from_url).with(slide).returns({'upload' => true})
+    sn = mock('Slack Notification Service')
+    sn.expects(:presentation).with({'upload' => true})
+    SlackNotificationService.expects(:new).with(user.access_token, channel).returns(sn)
 
     post :create, params: {
       api_key: 'test',
@@ -74,7 +77,9 @@ RSpec.describe WebhooksController, type: :controller do
     url     = Faker::Internet.url
 
     SlackApi.expects(:new).with(user.access_token).returns(true)
-    Thread.expects(:new)
+    sn = mock('Slack Notification Service')
+    sn.expects(:broadcast).with(url)
+    SlackNotificationService.expects(:new).with(user.access_token, channel).returns(sn)
 
     post :create, params: {
       api_key: 'test',
