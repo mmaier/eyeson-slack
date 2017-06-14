@@ -25,8 +25,10 @@ class SlackNotificationService
   def broadcast(url)
     message = @slack_api.post_message!(
       channel:     @channel.external_id,
+      thread_ts:   @channel.thread_id,
       text:        url
     )
+    return unless @channel.webinar_mode?
     @channel.thread_id = message['ts']
     @channel.save
   end

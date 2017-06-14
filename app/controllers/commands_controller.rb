@@ -1,13 +1,13 @@
 # Executes slack command
 class CommandsController < ApplicationController
-  before_action :valid_slack_token!, only: [:create]
-  before_action :team_exists!, only: [:create]
-  before_action :setup_channel!, only: [:create]
+  before_action :valid_slack_token!
+  before_action :team_exists!
+  before_action :setup_channel!
 
   def create
     response = if params[:text] == 'help'
                  help_response
-               elsif params[:text].try(:start_with?, 'webinar')
+               elsif webinar?
                  webinar_response
                elsif params[:text].try(:start_with?, 'ask')
                  webinar_question
@@ -30,6 +30,10 @@ class CommandsController < ApplicationController
   def team_exists!
     @team = Team.find_by(external_id: params.require(:team_id))
     invalid_setup_response if @team.blank?
+  end
+
+  def webinar?
+    params[:text].try(:start_with?, 'webinar') == true
   end
 
   def help_response
@@ -81,6 +85,8 @@ class CommandsController < ApplicationController
     )
     @channel.name = params.require(:channel_name)
     @channel.new_command     = true
+    @channel.thread_id       = nil
+    @channel.webinar_mode    = webinar?
     @channel.users_mentioned = params[:text].try(:scan, /<@([A-Za-z0-9|.]+)>/)
                                             .try(:flatten)
     @channel.save!

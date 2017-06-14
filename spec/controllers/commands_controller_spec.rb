@@ -28,6 +28,30 @@ RSpec.describe CommandsController, type: :controller do
     expect(Team.find_by(external_id: command_params[:team_id])).to be_present
   end
 
+  it 'should setup channel info for meetings' do
+    channel
+    c = Channel.any_instance
+    c.expects(:name=).with(command_params[:channel_name])
+    c.expects(:new_command=).with(true)
+    c.expects(:thread_id=).with(nil)
+    c.expects(:webinar_mode=).with(false)
+    c.expects(:users_mentioned=).with(nil)
+    c.expects(:save!)
+    post :create, params: command_params
+  end
+
+  it 'should setup channel info for webinars' do
+    channel
+    c = Channel.any_instance
+    c.expects(:name=).with(command_params[:channel_name])
+    c.expects(:new_command=).with(true)
+    c.expects(:thread_id=).with(nil)
+    c.expects(:webinar_mode=).with(true)
+    c.expects(:users_mentioned=).with([])
+    c.expects(:save!)
+    post :create, params: command_params.merge(text: 'webinar')
+  end
+
   it 'should save channel to team' do
     post :create, params: command_params
     team = Team.find_by(external_id: command_params[:team_id])

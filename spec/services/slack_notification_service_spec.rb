@@ -121,12 +121,27 @@ RSpec.describe SlackNotificationService, type: :class do
     url  = Faker::Internet.url
     slack_api.expects(:post_message!).with(
       channel: channel.external_id,
+      thread_ts: channel.thread_id,
       text: url
     ).returns({ 'ts' => '123' })
-     SlackApi.expects(:new).returns(slack_api)
-     channel.expects(:thread_id=).with('123')
-     channel.expects(:save)
-     slack.broadcast(url)
+    SlackApi.expects(:new).returns(slack_api)
+    channel.expects(:thread_id=).never
+    slack.broadcast(url)
+  end
+
+  it 'should update thread id after broadcast in webinar_mode' do
+    channel.webinar_mode = true
+    slack_api = mock('Slack Api')
+    url  = Faker::Internet.url
+    slack_api.expects(:post_message!).with(
+      channel: channel.external_id,
+      thread_ts: channel.thread_id,
+      text: url
+    ).returns({ 'ts' => '123' })
+    SlackApi.expects(:new).returns(slack_api)
+    channel.expects(:thread_id=).with('123')
+    channel.expects(:save)
+    slack.broadcast(url)
   end
 
   it 'should post presentation into thread' do
