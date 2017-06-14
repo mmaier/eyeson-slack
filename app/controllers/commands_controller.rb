@@ -1,15 +1,14 @@
 # Executes slack command
 class CommandsController < ApplicationController
   before_action :valid_slack_token!
+  before_action :help?
   before_action :team_exists!
   before_action :setup_channel!
 
   def create
-    response = if params[:text] == 'help'
-                 help_response
-               elsif webinar?
+    response = if webinar?
                  webinar_response
-               elsif params[:text].try(:start_with?, 'ask')
+               elsif question?
                  question_response
                else
                  meeting_response
@@ -27,6 +26,15 @@ class CommandsController < ApplicationController
     }
   end
 
+  def help?
+    return unless params[:text].try(:start_with?, 'help') == true
+    render json: {
+      text: I18n.t('.help',
+                   url: Rails.configuration.services['faq_url'],
+                   scope: [:commands])
+    }
+  end
+
   def team_exists!
     @team = Team.find_by(external_id: params.require(:team_id))
     invalid_setup_response if @team.blank?
@@ -36,12 +44,8 @@ class CommandsController < ApplicationController
     params[:text].try(:start_with?, 'webinar') == true
   end
 
-  def help_response
-    {
-      text: I18n.t('.help',
-                   url: Rails.configuration.services['faq_url'],
-                   scope: [:commands])
-    }
+  def question?
+    params[:text].try(:start_with?, 'ask') == true
   end
 
   def meeting_response
@@ -84,10 +88,12 @@ class CommandsController < ApplicationController
     @channel = @team.channels.find_or_initialize_by(
       external_id: params.require(:channel_id)
     )
-    @channel.name = params.require(:channel_name)
-    @channel.new_command     = true
-    @channel.thread_id       = nil
-    @channel.webinar_mode    = webinar?
+    unless question?
+      @channel.name = params.require(:channel_name)
+      @channel.new_command     = true
+      @channel.thread_id       = nil
+      @channel.webinar_mode    = webinar?
+    end
     @channel.save!
   end
 

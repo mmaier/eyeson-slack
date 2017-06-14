@@ -50,6 +50,23 @@ RSpec.describe CommandsController, type: :controller do
     post :create, params: command_params.merge(text: 'webinar')
   end
 
+  it 'should not setup channel info for question' do
+    channel
+    c = Channel.any_instance
+    c.expects(:name=).never
+    c.expects(:new_command=).never
+    c.expects(:thread_id=).never
+    c.expects(:webinar_mode=).never
+    c.expects(:save!)
+    post :create, params: command_params.merge(text: 'ask')
+  end
+
+  it 'should skip team and channel for help' do
+    Team.expects(:find_by).never
+    Channel.expects(:find_or_initialize_by).never
+    post :create, params: command_params.merge(text: 'help')
+  end
+
   it 'should save channel to team' do
     post :create, params: command_params
     team = Team.find_by(external_id: command_params[:team_id])

@@ -6,7 +6,7 @@ module CoolRenderer
     end
 
     def to_url
-      request 'html_tweet', @question
+      request 'html_tweet', @question.merge(position: 'center')
     end
   end
 end
