@@ -76,7 +76,7 @@ class CommandsController < ApplicationController
   def question_image
     CoolRenderer::QuestionImage.new(
       content:  webinar_question,
-      fullname: params[:user_name]
+      fullname: params[:user_name] + ' asks:'
     ).to_url
   end
 
