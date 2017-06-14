@@ -17,6 +17,14 @@ RSpec.describe SlackNotificationService, type: :class do
     SlackNotificationService.new('token', build(:channel))
   end
 
+  it 'should not send start notification for webinar' do
+    channel.webinar_mode = true
+    slack_api = mock('Slack Api')
+    slack_api.expects(:post_message!).never
+    SlackApi.expects(:new).returns(slack_api)
+    slack.start
+  end
+
   it 'should post open info' do
     slack_api = mock('Slack Api')
     url  = meeting_url(id: channel.external_id)
@@ -32,10 +40,10 @@ RSpec.describe SlackNotificationService, type: :class do
         }
       ]
     ).returns({ 'ts' => '123' })
-     SlackApi.expects(:new).returns(slack_api)
-     channel.expects(:thread_id=).with('123')
-     channel.expects(:save)
-     slack.send(:post_open_info)
+    SlackApi.expects(:new).returns(slack_api)
+    channel.expects(:thread_id=).with('123')
+    channel.expects(:save)
+    slack.send(:post_open_info)
   end
 
   it 'should post open info when new_command is true' do

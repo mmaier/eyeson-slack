@@ -159,8 +159,8 @@ RSpec.describe MeetingsController, type: :controller do
   end
 end
 
-def expects_slack_notification(webinar = false)
+def expects_slack_notification
   sn = mock('Slack Notification Service')
-  sn.expects(:start).with(webinar)
+  sn.expects(:start)
   SlackNotificationService.expects(:new).with(user.access_token, channel).returns(sn)
 end

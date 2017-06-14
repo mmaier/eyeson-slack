@@ -16,8 +16,7 @@ class MeetingsController < ApplicationController
                               name: @channel.name,
                               user: @user)
 
-    SlackNotificationService.new(@user.access_token, @channel)
-                            .start(params[:webinar] == true)
+    SlackNotificationService.new(@user.access_token, @channel).start
 
     update_intercom
     enter_room

@@ -13,8 +13,7 @@ RSpec.describe MeetingsController, type: :routing do
     expect(get: '/slack/w/123').to route_to(
       id: 				'123',
       action:     'show',
-      controller: 'meetings',
-      webinar:    true
+      controller: 'meetings'
     )
   end
 end

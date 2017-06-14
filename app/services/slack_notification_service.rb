@@ -8,6 +8,7 @@ class SlackNotificationService
   end
 
   def start
+    return if @channel.webinar_mode?
     if @channel.new_command?
       post_open_info
     else
