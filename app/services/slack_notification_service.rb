@@ -7,11 +7,11 @@ class SlackNotificationService
     @channel   = channel
   end
 
-  def start(webinar)
-    if webinar
-      webinar_info
+  def start
+    if @channel.new_command?
+      post_open_info
     else
-      meeting_info
+      post_join_info
     end
   end
 
@@ -35,20 +35,6 @@ class SlackNotificationService
 
   private
 
-  def meeting_info
-    if @channel.new_command?
-      post_open_info
-    else
-      post_join_info
-    end
-  end
-
-  def webinar_info
-    return unless @channel.new_command?
-    @channel.users_mentioned
-            .to_a.map { |u| post_speaker_invitation_to(u.split('|').first) }
-  end
-
   def post_open_info
     url  = meeting_url(id: @channel.external_id)
     text = I18n.t('.opened', url: url, scope: %i[meetings show])
@@ -68,18 +54,5 @@ class SlackNotificationService
       thread_ts: @channel.thread_id,
       text:    I18n.t('.joined', scope: %i[meetings show])
     )
-  end
-
-  def post_speaker_invitation_to(user)
-    url  = webinar_url(id: @channel.external_id)
-    text = I18n.t('.speaker_invitation',
-                  url: url, scope: %i[meetings show])
-    @slack_api.post_message!(
-      channel: user, text: url,
-      attachments: [{ color: '#9e206c', thumb_url: root_url + '/icon.png',
-                      fallback: text, text: text }]
-    )
-    @channel.new_command = false
-    @channel.save
   end
 end

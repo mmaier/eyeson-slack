@@ -35,7 +35,6 @@ RSpec.describe CommandsController, type: :controller do
     c.expects(:new_command=).with(true)
     c.expects(:thread_id=).with(nil)
     c.expects(:webinar_mode=).with(false)
-    c.expects(:users_mentioned=).with(nil)
     c.expects(:save!)
     post :create, params: command_params
   end
@@ -47,7 +46,6 @@ RSpec.describe CommandsController, type: :controller do
     c.expects(:new_command=).with(true)
     c.expects(:thread_id=).with(nil)
     c.expects(:webinar_mode=).with(true)
-    c.expects(:users_mentioned=).with([])
     c.expects(:save!)
     post :create, params: command_params.merge(text: 'webinar')
   end
@@ -57,17 +55,6 @@ RSpec.describe CommandsController, type: :controller do
     team = Team.find_by(external_id: command_params[:team_id])
     channel = team.channels.where(external_id: command_params[:channel_id])
     expect(channel).to be_present
-  end
-
-  it 'should save new_command and user_mentioned info' do
-    post :create, params: command_params
-    channel.reload
-    expect(channel.new_command).to eq(true)
-    expect(channel.users_mentioned).to eq(nil)
-
-    post :create, params: command_params.merge(text: 'webinar <@michael.maier|Michael> <@test2|Test2>')
-    channel.reload
-    expect(channel.users_mentioned).to eq(['michael.maier|Michael', 'test2|Test2'])
   end
 
   it 'should return a meeting link' do

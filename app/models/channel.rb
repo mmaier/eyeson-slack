@@ -8,7 +8,6 @@ class Channel
   field :new_command, type: Boolean, default: false
   field :thread_id, type: String
   field :webinar_mode, type: Boolean, default: false
-  field :users_mentioned, type: Array
 
   belongs_to :team
 
