@@ -11,5 +11,5 @@ en:
       opened: "Opened an eyeson room\n<%{url}|Join here>"
       joined: "_joined the eyeson room_ :eyes:"
       broadcast_info: "Eyeson webinar has started.\nClick on 'replies' below to watch the live stream.\n↓↓↓"
-      broadcast_url: "%{url}\n\n:warning: PLEASE DO NOT POST INTO THIS THREAD, otherwise YouTube player will stop playing :warning:"
+      broadcast_url: "%{url}\n\n:warning: PLEASE DO NOT POST INTO THIS THREAD, otherwise YouTube player may stop playing :warning:\nInstead, use `/eyeson ask Your Question?` if you want to post your questions into the webinar room."
       slides_info: "Webinar slides will be attached here."

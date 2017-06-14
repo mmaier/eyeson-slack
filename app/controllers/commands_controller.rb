@@ -90,9 +90,8 @@ class CommandsController < ApplicationController
     )
     unless question?
       @channel.name = params.require(:channel_name)
-      @channel.new_command     = true
-      @channel.thread_id       = nil
-      @channel.webinar_mode    = webinar?
+      @channel.thread_id    = nil
+      @channel.webinar_mode = webinar?
     end
     @channel.save!
   end

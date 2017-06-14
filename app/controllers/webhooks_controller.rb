@@ -20,7 +20,6 @@ class WebhooksController < ApplicationController
   def presentation_update
     slack_api_from(presentation_params)
     return if @slack_api.nil?
-    return if @channel.thread_id.blank?
     upload = upload_from_url(presentation_params[:slide])
     SlackNotificationService.new(@access_token, @channel)
                             .presentation(upload)

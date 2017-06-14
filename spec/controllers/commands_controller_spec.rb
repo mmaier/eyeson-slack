@@ -32,7 +32,6 @@ RSpec.describe CommandsController, type: :controller do
     channel
     c = Channel.any_instance
     c.expects(:name=).with(command_params[:channel_name])
-    c.expects(:new_command=).with(true)
     c.expects(:thread_id=).with(nil)
     c.expects(:webinar_mode=).with(false)
     c.expects(:save!)
@@ -43,7 +42,6 @@ RSpec.describe CommandsController, type: :controller do
     channel
     c = Channel.any_instance
     c.expects(:name=).with(command_params[:channel_name])
-    c.expects(:new_command=).with(true)
     c.expects(:thread_id=).with(nil)
     c.expects(:webinar_mode=).with(true)
     c.expects(:save!)
