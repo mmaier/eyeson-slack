@@ -4,6 +4,8 @@ RSpec.describe Channel, type: :model do
   it { is_expected.to belong_to :team }
 
   it { is_expected.to have_fields(:external_id, :name, :thread_id).of_type(String) }
+  it { is_expected.to have_fields(:access_key).of_type(String) }
+  it { is_expected.to have_fields(:users_mentioned).of_type(Array) }
   it { is_expected.to have_fields(:new_command).of_type(Mongoid::Boolean) }
   it { is_expected.to have_index_for(external_id: 1).with_options(unique: true) }
 

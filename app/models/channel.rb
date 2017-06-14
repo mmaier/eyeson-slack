@@ -3,6 +3,7 @@ class Channel
   include Mongoid::Document
 
   field :external_id, type: String
+  field :access_key, type: String
   field :name, type: String
   field :new_command, type: Boolean, default: false
   field :thread_id, type: String

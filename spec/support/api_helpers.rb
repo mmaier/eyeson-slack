@@ -37,9 +37,10 @@ module ApiHelpers
     @slack_api.expects(:authorized?).returns(true)
   end
 
-  def expects_eyeson_room_with(url = Faker::Internet.url)
+  def expects_eyeson_room_with(url = Faker::Internet.url, access_key = Faker::Crypto.md5)
     url_response = mock('Room URL')
     url_response.expects(:url).returns(url).at_most_once
+    url_response.expects(:access_key).returns(access_key).at_most_once
     Eyeson::Room.expects(:join)
                 .returns(url_response)
   end

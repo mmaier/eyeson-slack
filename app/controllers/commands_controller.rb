@@ -62,12 +62,17 @@ class CommandsController < ApplicationController
   end
 
   def webinar_question
-    access_key = nil
-    # TODO: Which access_key to take? -> last_user_access_key??
-    layer = Eyeson::Layer.new(access_key)
-    image_url = nil
-    # TODO: Generate image url
-    layer.create(url: image_url)
+    return unless @channel.access_key.present?
+    layer = Eyeson::Layer.new(@channel.access_key)
+    layer.create(url: question_image)
+  end
+
+  def question_image
+    CoolRenderer::QuestionImage.new(
+      content: params[:text].gsub('ask ', ''),
+      fullname: params[:user_name],
+      username: params[:channel_name]
+    ).to_url
   end
 
   def setup_channel!

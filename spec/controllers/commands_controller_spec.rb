@@ -88,11 +88,28 @@ RSpec.describe CommandsController, type: :controller do
   end
 
   it 'should handle question command' do
-    access_token = nil
-    image_url = nil
+    access_key = Faker::Crypto.md5
+    channel.access_key = access_key
+    channel.save
+
+    renderer = mock('Cool Renderer')
+    renderer.expects(:to_url)
+    CoolRenderer::QuestionImage.expects(:new).with(
+      content:  'Is this a question?',
+      fullname: user.name,
+      username: channel.name
+    ).returns(renderer)
     layer = mock('Layer API')
-    layer.expects(:create).with(url: image_url)
-    Eyeson::Layer.expects(:new).with(access_token).returns(layer)
+    layer.expects(:create)
+    Eyeson::Layer.expects(:new).with(access_key).returns(layer)
+    post :create, params: command_params.merge(text: 'ask Is this a question?')
+    expect(response.status).to eq(200)
+  end
+
+  it 'should not render question without access_key' do
+    renderer = mock('Cool Renderer')
+    CoolRenderer::QuestionImage.expects(:new).never
+    Eyeson::Layer.expects(:new).never
     post :create, params: command_params.merge(text: 'ask Is this a question?')
     expect(response.status).to eq(200)
   end
