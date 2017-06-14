@@ -52,6 +52,23 @@ RSpec.describe WebhooksController, type: :controller do
     }
   end
 
+  it 'should not execute presentation_update without thread id' do
+    user    = create(:user, team: team)
+    channel = create(:channel, team: team)
+    slide   = Faker::Internet.url
+    SlackApi.expects(:new).with(user.access_token).returns(true)
+    Thread.expects(:new).never
+    post :create, params: {
+      api_key: 'test',
+      type: 'presentation_update',
+      presentation: {
+        user: { id: user.email },
+        room: { id: channel.external_id },
+        slide: slide
+      }
+    }
+  end
+
   it 'should handle broadcast_update' do
     user    = create(:user, team: team)
     channel = create(:channel, team: team)

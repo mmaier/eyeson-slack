@@ -71,6 +71,19 @@ RSpec.describe SlackNotificationService, type: :class do
     slack.send(:start)
   end
 
+  it 'should trigger broadcast and slides info' do
+    slack.expects(:post_broadcast_info)
+    slack.expects(:post_slides_info)
+    slack.broadcast(Faker::Internet.url)
+  end
+
+  it 'should trigger broadcast info only when thread_id is present' do
+    channel.thread_id = Faker::Crypto.md5
+    slack.expects(:post_broadcast_info)
+    slack.expects(:post_slides_info).never
+    slack.broadcast(Faker::Internet.url)
+  end
+
   it 'should post broadcast_info' do
     slack_api = mock('Slack Api')
     url  = Faker::Internet.url
@@ -88,7 +101,14 @@ RSpec.describe SlackNotificationService, type: :class do
     )
 
     SlackApi.expects(:new).returns(slack_api)
-    slack.broadcast(url)
+    slack.send(:post_broadcast_info, url)
+  end
+
+  it 'should post broadcast_info without slides_info for existing thread' do
+    channel.thread_id = Faker::Crypto.md5
+    slack.expects(:post_broadcast_info)
+    slack.expects(:post_slides_info).never
+    slack.broadcast(Faker::Internet.url)
   end
 
   it 'should post presentation into thread' do
@@ -109,7 +129,7 @@ RSpec.describe SlackNotificationService, type: :class do
     slack.presentation(upload)
   end
 
-  it 'should post slides info unless thread_id is present' do
+  it 'should post slides info' do
     upload = {
       'file' => {
         'permalink_public' => Faker::Internet.url
@@ -124,13 +144,15 @@ RSpec.describe SlackNotificationService, type: :class do
     channel.expects(:thread_id=).with('123')
     channel.expects(:save)
 
-    slack_api.expects(:post_message!).with(
-      channel:   channel.external_id,
-      thread_ts: channel.thread_id,
-      text:      upload['file']['permalink_public'])
-
     SlackApi.expects(:new).returns(slack_api)
-    slack.presentation(upload)
+    slack.send(:post_slides_info)
+  end
+
+  it 'should not post presentation without thread_id' do
+    slack_api = mock('Slack Api')
+    slack_api.expects(:post_message!).never
+    SlackApi.expects(:new).returns(slack_api)
+    slack.presentation({})
   end
 
   it 'should not post presentation without upload object' do
