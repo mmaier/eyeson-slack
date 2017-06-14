@@ -10,7 +10,7 @@ class CommandsController < ApplicationController
                elsif webinar?
                  webinar_response
                elsif params[:text].try(:start_with?, 'ask')
-                 webinar_question
+                 question_response
                else
                  meeting_response
                end
@@ -65,17 +65,21 @@ class CommandsController < ApplicationController
     }
   end
 
-  def webinar_question
+  def question_response
     return if @channel.access_key.blank?
     layer = Eyeson::Layer.new(@channel.access_key)
     layer.create(url: question_image)
+    webinar_question
+  end
+
+  def webinar_question
+    params[:text].gsub('ask ', '')
   end
 
   def question_image
     CoolRenderer::QuestionImage.new(
-      content: params[:text].gsub('ask ', ''),
-      fullname: params[:user_name],
-      username: params[:channel_name]
+      content:  webinar_question,
+      fullname: params[:user_name]
     ).to_url
   end
 

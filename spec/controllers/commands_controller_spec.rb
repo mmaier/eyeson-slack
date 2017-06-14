@@ -120,8 +120,7 @@ RSpec.describe CommandsController, type: :controller do
     renderer.expects(:to_url)
     CoolRenderer::QuestionImage.expects(:new).with(
       content:  'Is this a question?',
-      fullname: user.name,
-      username: channel.name
+      fullname: user.name
     ).returns(renderer)
     layer = mock('Layer API')
     layer.expects(:create)
