@@ -23,15 +23,10 @@ class SlackNotificationService
                              text:      upload['file']['permalink_public'])
   end
 
-  def broadcast(url)
-    message = @slack_api.post_message!(
-      channel:     @channel.external_id,
-      thread_ts:   @channel.thread_id,
-      text:        url
-    )
-    return unless @channel.webinar_mode?
-    @channel.thread_id = message['ts']
-    @channel.save
+  def broadcast(_url)
+    post_broadcast_info
+    return if @channel.thread_id.present?
+    post_slides_info
   end
 
   private
@@ -53,7 +48,35 @@ class SlackNotificationService
     @slack_api.post_message!(
       channel:   @channel.external_id,
       thread_ts: @channel.thread_id,
-      text:    I18n.t('.joined', scope: %i[meetings show])
+      text:      I18n.t('.joined', scope: %i[meetings show])
     )
+  end
+
+  def post_broadcast_info
+    text = I18n.t('.broadcast_info', scope: %i[meetings show])
+    message = @slack_api.post_message!(
+      channel:     @channel.external_id,
+      attachments: [{ color: '#9e206c', thumb_url: root_url + '/icon.png',
+                      fallback: text, text: text }]
+    )
+    attach_broadcast_url_to(message)
+  end
+
+  def attach_broadcast_url_to(message)
+    text = I18n.t('.broadcast_url', url: url, scope: %i[meetings show])
+    @slack_api.post_message!(
+      channel:     @channel.external_id,
+      thread_ts:   message['ts'],
+      text:        text
+    )
+  end
+
+  def post_slides_info
+    message = @slack_api.post_message!(
+      channel: @channel.external_id,
+      text:    I18n.t('.slides_info', scope: %i[meetings show])
+    )
+    @channel.thread_id = message['ts']
+    @channel.save
   end
 end

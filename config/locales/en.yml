@@ -10,3 +10,6 @@ en:
     show:
       opened: "Opened an eyeson room\n<%{url}|Join here>"
       joined: "_joined the eyeson room_ :eyes:"
+      broadcast_info: "Eyeson webinar has started.\nClick on 'replies' below to watch the live stream.\n↓↓↓"
+      broadcast_url: ":exclamation: DO NOT REPLY ON THIS THREAD, otherwise YouTube player will stop playing :exclamation:\n%{url}"
+      slides_info: "Webinar slides will be attached here."
