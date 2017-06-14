@@ -3,11 +3,11 @@ en:
     invalid_slack_token: "Verification not correct"
     invalid_setup: "Your app hasn't been setup properly.\n*<%{url}|Finalize your setup here>.*"
     meeting_response: "Your eyeson room is ready: *<%{url}|Open>*\nA link to the eyeson room will be posted to all channel members once you have entered."
-    webinar_response: "A Youtube player will be posted to all channel members once you have started the broadcast within eyeson room.\n\nThe following people were added as speakers: *%{users}*\nAdd more speakers by sending them the eyeson room guest link.\n\n*<%{url}|Prepare for webinar>*"
+    webinar_response: "A Youtube player will be posted to all channel members once you have started the broadcast within eyeson room.\n\nThe following people were added as speakers: *%{users}*\nAdd more speakers by sending them the eyeson room guest link.\n\n*<%{url}|Open eyeson room to prepare for webinar>*"
     help: "*Meetings:*\nEnter `/eyeson` in the channel you want to open an eyeson room.\nA link to the eyeson room will be posted to all channel members once you have entered.\n\n*Webinars:*\nEnter `/eyeson webinar` in the channel you want to start a webinar.\nA Youtube player will be posted to all channel members once you have started the broadcast within eyeson room.\n\nFor more help, click here: %{url}"
 
   meetings:
     show:
       opened: "Opened an eyeson room\n<%{url}|Join here>"
       joined: "_joined the eyeson room_ :eyes:"
-      speaker_invitation: "Opened an eyeson webinar room\n<%{url}|Prepare for webinar>"
+      speaker_invitation: "Opened an eyeson webinar room\n<%{url}|Open eyeson room to prepare for webinar>"
