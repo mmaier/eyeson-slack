@@ -62,7 +62,7 @@ class CommandsController < ApplicationController
   end
 
   def webinar_question
-    return unless @channel.access_key.present?
+    return if @channel.access_key.blank?
     layer = Eyeson::Layer.new(@channel.access_key)
     layer.create(url: question_image)
   end
