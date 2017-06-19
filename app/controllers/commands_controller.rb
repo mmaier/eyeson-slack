@@ -76,7 +76,7 @@ class CommandsController < ApplicationController
   def question_response
     return if @channel.access_key.blank?
     QuestionsDisplayJob.perform_later(
-      @channel.id,
+      @channel.id.to_s,
       params[:user_name],
       webinar_question.strip
     )

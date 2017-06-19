@@ -27,7 +27,7 @@ class QuestionsDisplayJob < ApplicationJob
   end
 
   def requeue(channel, username, question)
-    QuestionsDisplayJob.perform_later(channel.id,
+    QuestionsDisplayJob.perform_later(channel.id.to_s,
                                       username,
                                       question)
   end

@@ -11,33 +11,33 @@ RSpec.describe QuestionsDisplayJob, type: :active_job do
 
   it 'should perform set_layer with channel id, username and question' do
     job.expects(:set_layer).with(channel, 'user', 'Question')
-    job.perform(channel.id, 'user', 'Question')
+    job.perform(channel.id.to_s, 'user', 'Question')
   end
 
   it 'should perform requeue unless last question was shown more than 10 seconds ago' do
     channel.last_question_at = Time.now
     channel.save
     job.expects(:requeue).with(channel, 'user', 'Question')
-    job.perform(channel.id, 'user', 'Question')
+    job.perform(channel.id.to_s, 'user', 'Question')
   end
 
   it 'should perform clear_layer when last question was shown more than 10 seconds ago' do
     channel.last_question_at = 12.seconds.ago
     channel.save
     job.expects(:clear_layer).with(channel)
-    job.perform(channel.id)
+    job.perform(channel.id.to_s)
   end
 
   it 'should not perform clear_layer unless last question was shown more than 10 seconds ago' do
     channel.last_question_at = Time.now
     channel.save
     job.expects(:clear_layer).never
-    job.perform(channel.id)
+    job.perform(channel.id.to_s)
   end
 
   it 'should requeue' do
     QuestionsDisplayJob.expects(:perform_later).with(
-      channel.id,
+      channel.id.to_s,
       'user',
       'Question'
     )
