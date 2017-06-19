@@ -6,6 +6,7 @@ RSpec.describe Channel, type: :model do
   it { is_expected.to have_fields(:external_id, :name, :thread_id).of_type(String) }
   it { is_expected.to have_fields(:access_key).of_type(String) }
   it { is_expected.to have_fields(:initializer_id).of_type(BSON::ObjectId) }
+  it { is_expected.to have_fields(:last_question_at).of_type(DateTime) }
   it { is_expected.to have_fields(:webinar_mode).of_type(Mongoid::Boolean) }
   it { is_expected.to have_index_for(external_id: 1).with_options(unique: true) }
 
