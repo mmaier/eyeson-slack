@@ -119,6 +119,15 @@ RSpec.describe CommandsController, type: :controller do
     expect(JSON.parse(response.body)['text']).to eq(text)
   end
 
+  it 'should provide a help response when text is empty' do
+    post :create, params: command_params.merge(text: '')
+    text = I18n.t('.help',
+                  url: Rails.configuration.services['faq_url'],
+                  scope: [:commands])
+    expect(response.status).to eq(200)
+    expect(JSON.parse(response.body)['text']).to eq(text)
+  end
+
   it 'should provide a help response for unfinished question' do
     post :create, params: command_params.merge(text: 'ask')
     text = I18n.t('.help',
@@ -129,27 +138,20 @@ RSpec.describe CommandsController, type: :controller do
   end
 
   it 'should handle question command' do
-    access_key = Faker::Crypto.md5
-    channel.access_key = access_key
+    channel.access_key = Faker::Crypto.md5
     channel.save
-
-    renderer = mock('Cool Renderer')
-    renderer.expects(:to_url)
-    CoolRenderer::QuestionImage.expects(:new).with(
-      content:  'Is this a question?',
-      fullname: user.name + ' asks:'
-    ).returns(renderer)
-    layer = mock('Layer API')
-    layer.expects(:create)
-    Eyeson::Layer.expects(:new).with(access_key).returns(layer)
+    QuestionsDisplayJob.expects(:perform_later).with(
+      channel.access_key,
+      command_params[:user_name],
+      'Is this a question?'
+    )
     post :create, params: command_params.merge(text: 'ask Is this a question?')
     expect(response.status).to eq(200)
+    expect(JSON.parse(response.body)['text']).to eq('Is this a question?')
   end
 
   it 'should not render question without access_key' do
-    renderer = mock('Cool Renderer')
-    CoolRenderer::QuestionImage.expects(:new).never
-    Eyeson::Layer.expects(:new).never
+    QuestionsDisplayJob.expects(:perform_later).never
     post :create, params: command_params.merge(text: 'ask Is this a question?')
     expect(response.status).to eq(200)
   end
@@ -164,6 +166,7 @@ def command_params
     channel_id:   channel.external_id,
     channel_name: channel.name,
     team_id:      team.external_id,
-    response_url: Faker::Internet.url
+    response_url: Faker::Internet.url,
+    text:         'meeting'
   }
 end

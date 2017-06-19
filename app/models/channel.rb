@@ -8,6 +8,7 @@ class Channel
   field :thread_id, type: String
   field :webinar_mode, type: Boolean, default: false
   field :initializer_id, type: BSON::ObjectId
+  field :last_question_at, type: DateTime
 
   belongs_to :team
 

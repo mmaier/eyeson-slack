@@ -41,5 +41,7 @@ module Slack
                                       .services['eyeson_account_api']
       config.account_api_key   = Rails.application.secrets.accounts_api_key
     end
+
+    config.active_job.queue_adapter = :delayed_job
   end
 end

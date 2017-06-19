@@ -6,12 +6,12 @@ class CommandsController < ApplicationController
   before_action :setup_channel!
 
   def create
-    response = if webinar?
+    response = if meeting?
+                 meeting_response
+               elsif webinar?
                  webinar_response
                elsif question?
                  question_response
-               else
-                 meeting_response
                end
     render json: response
   end
@@ -27,8 +27,9 @@ class CommandsController < ApplicationController
   end
 
   def help?
-    if question? && webinar_question.blank? ||
-       params[:text].try(:start_with?, 'help') == true
+    if params[:text].blank? ||
+       params[:text] == 'help' ||
+       question? && webinar_question.blank?
       render json: {
         text: I18n.t('.help',
                      url: Rails.configuration.services['faq_url'],
@@ -40,6 +41,10 @@ class CommandsController < ApplicationController
   def team_exists!
     @team = Team.find_by(external_id: params.require(:team_id))
     invalid_setup_response if @team.blank?
+  end
+
+  def meeting?
+    params[:text].try(:start_with?, 'meeting') == true
   end
 
   def webinar?
@@ -70,20 +75,16 @@ class CommandsController < ApplicationController
 
   def question_response
     return if @channel.access_key.blank?
-    layer = Eyeson::Layer.new(@channel.access_key)
-    layer.create(url: question_image)
-    webinar_question.strip
+    QuestionsDisplayJob.perform_later(
+      @channel.id,
+      params[:user_name],
+      webinar_question.strip
+    )
+    { text: webinar_question.strip }
   end
 
   def webinar_question
     params[:text].gsub('ask', '')
-  end
-
-  def question_image
-    CoolRenderer::QuestionImage.new(
-      content:  webinar_question.strip,
-      fullname: params[:user_name] + ' asks:'
-    ).to_url
   end
 
   def setup_channel!
