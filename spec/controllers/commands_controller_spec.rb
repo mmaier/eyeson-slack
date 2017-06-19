@@ -127,21 +127,26 @@ RSpec.describe CommandsController, type: :controller do
   end
 
   it 'should handle question command' do
-    channel.access_key = Faker::Crypto.md5
+    external_id = channel.external_id
+    channel.external_id = external_id + '_webinar'
+    channel.access_key  = Faker::Crypto.md5
     channel.save
     QuestionsDisplayJob.expects(:perform_later).with(
       channel.id.to_s,
       command_params[:user_name],
       'Is this a question?'
     )
-    post :create, params: command_params.merge(text: 'ask Is this a question?')
+    post :create, params: command_params.merge(channel_id: external_id, text: 'ask Is this a question?')
     expect(response.status).to eq(200)
     expect(JSON.parse(response.body)['text']).to eq(I18n.t('.question_response', question: 'Is this a question?', scope: [:commands]))
   end
 
   it 'should not render question without access_key' do
+    external_id = channel.external_id
+    channel.external_id = external_id + '_webinar'
+    channel.save
     QuestionsDisplayJob.expects(:perform_later).never
-    post :create, params: command_params.merge(text: 'ask Is this a question?')
+    post :create, params: command_params.merge(channel_id: external_id, text: 'ask Is this a question?')
     expect(response.status).to eq(200)
   end
 end

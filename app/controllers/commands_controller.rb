@@ -90,10 +90,10 @@ class CommandsController < ApplicationController
   end
 
   def setup_channel!
-    @channel = Channel.find_or_initialize_by(
-      team: @team,
-      external_id: params.require(:channel_id) + (webinar? ? '_webinar' : '')
-    )
+    external_id = params.require(:channel_id)
+    external_id << '_webinar' if webinar? || question?
+    @channel = Channel.find_or_initialize_by(team: @team,
+                                             external_id: external_id)
     unless question?
       @channel.name = params.require(:channel_name)
       @channel.thread_id    = nil

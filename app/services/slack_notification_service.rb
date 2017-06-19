@@ -18,7 +18,7 @@ class SlackNotificationService
 
   def presentation(upload)
     return if @channel.thread_id.blank? || upload.nil?
-    @slack_api.post_message!(channel:   @channel.external_id,
+    @slack_api.post_message!(channel:   original_external_id,
                              thread_ts: @channel.thread_id,
                              text:      upload['file']['permalink_public'])
   end
@@ -32,10 +32,10 @@ class SlackNotificationService
   private
 
   def post_open_info
-    url  = meeting_url(id: @channel.external_id)
+    url  = meeting_url(id: original_external_id)
     text = I18n.t('.opened', url: url, scope: %i[meetings show])
     message = @slack_api.post_message!(
-      channel:     @channel.external_id,
+      channel:     original_external_id,
       text:        url,
       attachments: [{ color: '#9e206c', thumb_url: root_url + '/icon.png',
                       fallback: text, text: text }]
@@ -46,7 +46,7 @@ class SlackNotificationService
 
   def post_join_info
     @slack_api.post_message!(
-      channel:   @channel.external_id,
+      channel:   original_external_id,
       thread_ts: @channel.thread_id,
       text:      I18n.t('.joined', scope: %i[meetings show])
     )
@@ -55,7 +55,7 @@ class SlackNotificationService
   def post_broadcast_info(url)
     text = I18n.t('.broadcast_info', scope: %i[meetings show])
     message = @slack_api.post_message!(
-      channel:     @channel.external_id,
+      channel:     original_external_id,
       attachments: [{ color: '#9e206c', thumb_url: root_url + '/icon.png',
                       fallback: text, text: text }]
     )
@@ -64,7 +64,7 @@ class SlackNotificationService
 
   def attach_broadcast_url_to(url, message)
     @slack_api.post_message!(
-      channel:     @channel.external_id,
+      channel:     original_external_id,
       thread_ts:   message['ts'],
       text:        I18n.t('.broadcast_url', url: url, scope: %i[meetings show])
     )
@@ -72,10 +72,14 @@ class SlackNotificationService
 
   def post_slides_info
     message = @slack_api.post_message!(
-      channel: @channel.external_id,
+      channel: original_external_id,
       text:    I18n.t('.slides_info', scope: %i[meetings show])
     )
     @channel.thread_id = message['ts']
     @channel.save
+  end
+
+  def original_external_id
+    @channel.external_id.gsub('_webinar', '')
   end
 end
