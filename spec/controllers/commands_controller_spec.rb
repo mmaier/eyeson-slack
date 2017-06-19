@@ -141,7 +141,7 @@ RSpec.describe CommandsController, type: :controller do
     channel.access_key = Faker::Crypto.md5
     channel.save
     QuestionsDisplayJob.expects(:perform_later).with(
-      channel.access_key,
+      channel.id,
       command_params[:user_name],
       'Is this a question?'
     )

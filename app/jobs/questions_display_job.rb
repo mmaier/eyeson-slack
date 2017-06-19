@@ -8,11 +8,9 @@ class QuestionsDisplayJob < ApplicationJob
     question = args[2]
 
     if channel.last_question_at && channel.last_question_at > 10.seconds.ago
-      QuestionsDisplayJob.perform_later(
-        channel.id,
-        username,
-        question
-      )
+      QuestionsDisplayJob.perform_later(channel.id,
+                                        username,
+                                        question)
     else
       set_layer(channel, username, question)
     end
@@ -20,11 +18,13 @@ class QuestionsDisplayJob < ApplicationJob
 
   private
 
+  def requeue; end
+
   def set_layer(channel, username, question)
-    return unless channel.access_key.present?
+    return if channel.access_key.blank?
     layer = Eyeson::Layer.new(channel.access_key)
     layer.create(url: question_image(username, question))
-    channel.update last_question_at: Time.now
+    channel.update last_question_at: Time.current
   end
 
   def question_image(username, question)
