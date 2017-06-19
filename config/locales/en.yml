@@ -4,6 +4,7 @@ en:
     invalid_setup: "Your app hasn't been setup properly.\n*<%{url}|Finalize your setup here>.*"
     meeting_response: "Your eyeson room is ready: *<%{url}|Open>*\nA link to the eyeson room will be posted to all channel members once you have entered."
     webinar_response: "A Youtube player will be posted to all channel members once you have started the broadcast within eyeson room.\n\nInvite speakers by sending them the eyeson room guest link.\n\n*<%{url}|Open eyeson room to prepare for webinar>*"
+    question_response: "*%{question}*\nYour question was forwarded to eyeson room.\nIt may take a moment until it will show up in the live stream."
     help: "*Meetings:*\n> Enter `/eyeson meeting` in the channel you want to open an eyeson room.\n> A link to the eyeson room will be posted to all channel members once you have entered.\n\n*Webinars:*\n> Enter `/eyeson webinar` in the channel you want to start a webinar.\n> A Youtube player will be posted to all channel members once you have started the broadcast within eyeson room.\n\n*Webinar Questions:*\n> `/eyeson ask Can you explain more details?` will post _Can you explain more details?_ into eyeson room.\n\nFor more help, click here: %{url}"
 
   meetings:

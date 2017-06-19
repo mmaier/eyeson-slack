@@ -147,7 +147,7 @@ RSpec.describe CommandsController, type: :controller do
     )
     post :create, params: command_params.merge(text: 'ask Is this a question?')
     expect(response.status).to eq(200)
-    expect(JSON.parse(response.body)['text']).to eq('Is this a question?')
+    expect(JSON.parse(response.body)['text']).to eq(I18n.t('.question_response', question: 'Is this a question?', scope: [:commands]))
   end
 
   it 'should not render question without access_key' do

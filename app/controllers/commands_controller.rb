@@ -75,12 +75,14 @@ class CommandsController < ApplicationController
 
   def question_response
     return if @channel.access_key.blank?
-    QuestionsDisplayJob.perform_later(
-      @channel.id.to_s,
-      params[:user_name],
-      webinar_question.strip
-    )
-    { text: webinar_question.strip }
+    QuestionsDisplayJob.perform_later(@channel.id.to_s,
+                                      params[:user_name],
+                                      webinar_question.strip)
+    {
+      text: I18n.t('.question_response',
+                   question: webinar_question.strip,
+                   scope: [:commands])
+    }
   end
 
   def webinar_question
