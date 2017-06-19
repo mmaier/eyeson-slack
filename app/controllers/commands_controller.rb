@@ -56,7 +56,7 @@ class CommandsController < ApplicationController
   end
 
   def meeting_response
-    url = meeting_url(id: params.require(:channel_id))
+    url = meeting_url(id: @channel.external_id)
     {
       text: I18n.t('.meeting_response',
                    url: url,
@@ -65,7 +65,7 @@ class CommandsController < ApplicationController
   end
 
   def webinar_response
-    url = webinar_url(id: params.require(:channel_id))
+    url = webinar_url(id: @channel.external_id)
     {
       text: I18n.t('.webinar_response',
                    url:   url,

@@ -90,21 +90,10 @@ RSpec.describe CommandsController, type: :controller do
 
   it 'should return a webinar link' do
     post :create, params: command_params.merge(webinar: true, text: 'webinar')
-    url = "http://test.host/slack/w/#{command_params[:channel_id]}"
+    url = "http://test.host/slack/w/#{command_params[:channel_id]}_webinar"
     text = I18n.t('.webinar_response',
                   url: url,
                   users: nil,
-                  scope: [:commands])
-    expect(response.status).to eq(200)
-    expect(JSON.parse(response.body)['text']).to eq(text)
-  end
-
-  it 'should return a webinar link when speakers are mentioned' do
-    post :create, params: command_params.merge(webinar: true, text: 'webinar <@test|Test1> <@test2|Test2>')
-    url = "http://test.host/slack/w/#{command_params[:channel_id]}"
-    text = I18n.t('.webinar_response',
-                  url: url,
-                  users: 'Test1, Test2',
                   scope: [:commands])
     expect(response.status).to eq(200)
     expect(JSON.parse(response.body)['text']).to eq(text)
