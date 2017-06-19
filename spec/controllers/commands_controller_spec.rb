@@ -30,21 +30,27 @@ RSpec.describe CommandsController, type: :controller do
 
   it 'should setup channel info for meetings' do
     channel
-    c = Channel.any_instance
-    c.expects(:name=).with(command_params[:channel_name])
-    c.expects(:thread_id=).with(nil)
-    c.expects(:webinar_mode=).with(false)
-    c.expects(:save!)
+    Channel.expects(:find_or_initialize_by).with(
+      team: team,
+      external_id: command_params[:channel_id]
+    ).returns(channel)
+    channel.expects(:name=).with(command_params[:channel_name])
+    channel.expects(:thread_id=).with(nil)
+    channel.expects(:webinar_mode=).with(false)
+    channel.expects(:save!)
     post :create, params: command_params
   end
 
   it 'should setup channel info for webinars' do
     channel
-    c = Channel.any_instance
-    c.expects(:name=).with(command_params[:channel_name])
-    c.expects(:thread_id=).with(nil)
-    c.expects(:webinar_mode=).with(true)
-    c.expects(:save!)
+    Channel.expects(:find_or_initialize_by).with(
+      team: team,
+      external_id: command_params[:channel_id] + '_webinar'
+    ).returns(channel)
+    channel.expects(:name=).with(command_params[:channel_name])
+    channel.expects(:thread_id=).with(nil)
+    channel.expects(:webinar_mode=).with(true)
+    channel.expects(:save!)
     post :create, params: command_params.merge(text: 'webinar')
   end
 
@@ -56,7 +62,7 @@ RSpec.describe CommandsController, type: :controller do
     c.expects(:thread_id=).never
     c.expects(:webinar_mode=).never
     c.expects(:save!)
-    post :create, params: command_params.merge(text: 'ask')
+    post :create, params: command_params.merge(text: 'ask Question')
   end
 
   it 'should skip team and channel for help' do
@@ -106,6 +112,15 @@ RSpec.describe CommandsController, type: :controller do
 
   it 'should provide a help response' do
     post :create, params: command_params.merge(text: 'help')
+    text = I18n.t('.help',
+                  url: Rails.configuration.services['faq_url'],
+                  scope: [:commands])
+    expect(response.status).to eq(200)
+    expect(JSON.parse(response.body)['text']).to eq(text)
+  end
+
+  it 'should provide a help response for unfinished question' do
+    post :create, params: command_params.merge(text: 'ask')
     text = I18n.t('.help',
                   url: Rails.configuration.services['faq_url'],
                   scope: [:commands])

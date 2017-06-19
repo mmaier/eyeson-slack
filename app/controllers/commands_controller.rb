@@ -27,12 +27,14 @@ class CommandsController < ApplicationController
   end
 
   def help?
-    return unless params[:text].try(:start_with?, 'help') == true
-    render json: {
-      text: I18n.t('.help',
-                   url: Rails.configuration.services['faq_url'],
-                   scope: [:commands])
-    }
+    if question? && webinar_question.blank? ||
+       params[:text].try(:start_with?, 'help') == true
+      render json: {
+        text: I18n.t('.help',
+                     url: Rails.configuration.services['faq_url'],
+                     scope: [:commands])
+      }
+    end
   end
 
   def team_exists!
@@ -70,23 +72,24 @@ class CommandsController < ApplicationController
     return if @channel.access_key.blank?
     layer = Eyeson::Layer.new(@channel.access_key)
     layer.create(url: question_image)
-    webinar_question
+    webinar_question.strip
   end
 
   def webinar_question
-    params[:text].gsub('ask ', '')
+    params[:text].gsub('ask', '')
   end
 
   def question_image
     CoolRenderer::QuestionImage.new(
-      content:  webinar_question,
+      content:  webinar_question.strip,
       fullname: params[:user_name] + ' asks:'
     ).to_url
   end
 
   def setup_channel!
-    @channel = @team.channels.find_or_initialize_by(
-      external_id: params.require(:channel_id)
+    @channel = Channel.find_or_initialize_by(
+      team: @team,
+      external_id: params.require(:channel_id) + (webinar? ? '_webinar' : '')
     )
     unless question?
       @channel.name = params.require(:channel_name)
