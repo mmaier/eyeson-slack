@@ -157,6 +157,25 @@ RSpec.describe MeetingsController, type: :controller do
 
     get :show, params: { id: channel.external_id, user_id: user.id }
   end
+
+  it 'should set channel initializer if thread_id is blank' do
+    expects_eyeson_room_with
+    expects_slack_notification
+    Eyeson::Intercom.expects(:post)
+    Channel.any_instance.expects(:initializer_id=).with(user.id)
+
+    get :show, params: { id: channel.external_id, user_id: user.id }
+
+    expects_eyeson_room_with
+    expects_slack_notification
+    Eyeson::Intercom.expects(:post)
+    Channel.any_instance.expects(:initializer_id=).never
+
+    channel.thread_id = Faker::Crypto.md5
+    channel.save
+
+    get :show, params: { id: channel.external_id, user_id: user.id }
+  end
 end
 
 def expects_slack_notification

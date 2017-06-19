@@ -7,6 +7,7 @@ class Channel
   field :name, type: String
   field :thread_id, type: String
   field :webinar_mode, type: Boolean, default: false
+  field :initializer_id, type: BSON::ObjectId
 
   belongs_to :team
 

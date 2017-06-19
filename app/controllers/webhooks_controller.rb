@@ -35,16 +35,18 @@ class WebhooksController < ApplicationController
 
   def slack_api_from(params)
     @channel = Channel.find_by(external_id: params[:room_id])
-
     return if @channel.blank?
 
-    @access_token = User.find_by(team: @channel.team,
-                                 email: params[:user_id])
-                        .try(:access_token)
-
+    @access_token = executing_user(params[:user_id]).try(:access_token)
     return if @access_token.blank?
 
     @slack_api = SlackApi.new(@access_token)
+  end
+
+  def executing_user(external_id)
+    User.find_by(team: @channel.team,
+                 email: external_id) ||
+      User.find(@channel.initializer_id)
   end
 
   def upload_from_url(url)

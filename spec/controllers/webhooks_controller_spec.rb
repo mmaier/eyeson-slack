@@ -69,6 +69,25 @@ RSpec.describe WebhooksController, type: :controller do
     }
   end
 
+  it 'should handle guest users' do
+    channel = create(:channel, team: team, thread_id: Faker::Crypto.md5)
+    slide   = Faker::Internet.url
+
+    SlackApi.expects(:new).with(User.find(channel.initializer_id).access_token).returns(true)
+    WebhooksController.any_instance.expects(:upload_from_url)
+    SlackNotificationService.expects(:new).returns(mock('SN', presentation: true))
+
+    post :create, params: {
+      api_key: 'test',
+      type: 'presentation_update',
+      presentation: {
+        user: { id: Faker::Crypto.md5 },
+        room: { id: channel.external_id },
+        slide: slide
+      }
+    }
+  end
+
   it 'should handle broadcast_update' do
     user    = create(:user, team: team)
     channel = create(:channel, team: team)
@@ -99,20 +118,6 @@ RSpec.describe WebhooksController, type: :controller do
       presentation: {
         user: { id: Faker::Internet.email },
         room: { id: Faker::Code.isbn },
-        slide: Faker::Internet.email
-      }
-    }
-  end
-
-  it 'should check team user' do
-    SlackApi.expects(:new).never
-
-    post :create, params: {
-      api_key: 'test',
-      type: 'presentation_update',
-      presentation: {
-        user: { id: create(:user).external_id },
-        room: { id: create(:channel, team: team).external_id },
         slide: Faker::Internet.email
       }
     }
