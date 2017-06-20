@@ -13,6 +13,28 @@ RSpec.describe SlackMessage, type: :class do
 														      text:        'hello',
                                   attachments: [{ test: true }].to_json,
                                   as_user:     true)
-    slack_api.post_message!(channel: channel.external_id, thread_ts: channel.thread_id, text: 'hello', attachments: [{ test: true }])
+    slack_api.post_message!(
+      channel: channel.external_id,
+      thread_ts: channel.thread_id,
+      text: 'hello',
+      attachments: [{ test: true }]
+    )
+  end
+
+  it 'should post a message as bot' do
+    channel = create(:channel)
+    slack_api.expects(:post).with('/chat.postMessage',
+                                  channel:     channel.external_id,
+                                  thread_ts:   channel.thread_id,
+                                  text:        'hello',
+                                  attachments: [{ test: true }].to_json,
+                                  as_user:     false)
+    slack_api.post_message!(
+      channel: channel.external_id,
+      thread_ts: channel.thread_id,
+      text: 'hello',
+      attachments: [{ test: true }],
+      as_user: false
+    )
   end
 end

@@ -45,6 +45,17 @@ RSpec.describe QuestionsDisplayJob, type: :active_job do
     job.send(:requeue, channel, 'user', 'Question')
   end
 
+  it 'should post question to thread' do
+    initializer  = User.find(channel.initializer_id)
+    access_token = initializer.access_token
+
+    sn = mock('SN')
+    sn.expects(:question).with('user', 'q')
+    SlackNotificationService.expects(:new).with(access_token, channel).returns(sn)
+                            
+    job.send(:post_to_thread, channel, 'user', 'q')
+  end
+
   it 'should set_layer' do
     access_key = Faker::Crypto.md5
     channel.access_key = access_key
@@ -54,6 +65,8 @@ RSpec.describe QuestionsDisplayJob, type: :active_job do
     layer.expects(:create)
     Eyeson::Layer.expects(:new).with(access_key).returns(layer)
     channel.expects(:update)
+
+    job.expects(:post_to_thread).with(channel, 'user', 'Question')
 
     job.expects(:perform_later).with(channel.id.to_s)
     QuestionsDisplayJob.expects(:set).with(wait: 10.seconds, priority: 1).returns(job)

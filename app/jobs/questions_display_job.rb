@@ -33,6 +33,7 @@ class QuestionsDisplayJob < ApplicationJob
   end
 
   def set_layer(channel, username, question)
+    post_to_thread(channel, username, question)
     return if channel.access_key.blank?
     channel.update last_question_at: Time.current
     layer = Eyeson::Layer.new(channel.access_key)
@@ -52,5 +53,12 @@ class QuestionsDisplayJob < ApplicationJob
       content:  question,
       fullname: username + ' asks:'
     ).to_url
+  end
+
+  def post_to_thread(channel, username, question)
+    access_token = User.find(channel.initializer_id).try(:access_token)
+    return if access_token.nil?
+    SlackNotificationService.new(access_token, channel)
+                            .question(username, question)
   end
 end

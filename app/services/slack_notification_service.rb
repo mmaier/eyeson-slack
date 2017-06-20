@@ -29,6 +29,17 @@ class SlackNotificationService
     post_slides_info
   end
 
+  def question(username, question)
+    return if @channel.thread_id.blank?
+    text = I18n.t('.asked',
+                  username: username,
+                  question: question,
+                  scope: %i[commands])
+    @slack_api.post_message!(channel:   original_external_id,
+                             thread_ts: @channel.thread_id,
+                             text:      text)
+  end
+
   private
 
   def post_open_info
@@ -71,9 +82,11 @@ class SlackNotificationService
   end
 
   def post_slides_info
+    text    = I18n.t('.slides_info', scope: %i[meetings show])
     message = @slack_api.post_message!(
-      channel: original_external_id,
-      text:    I18n.t('.slides_info', scope: %i[meetings show])
+      channel:     original_external_id,
+      attachments: [{ color: '#9e206c', thumb_url: root_url + '/icon.png',
+                      fallback: text, text: text }]
     )
     @channel.thread_id = message['ts']
     @channel.save
