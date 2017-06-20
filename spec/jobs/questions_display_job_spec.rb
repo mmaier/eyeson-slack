@@ -36,11 +36,12 @@ RSpec.describe QuestionsDisplayJob, type: :active_job do
   end
 
   it 'should requeue' do
-    QuestionsDisplayJob.expects(:perform_later).with(
+    job.expects(:perform_later).with(
       channel.id.to_s,
       'user',
       'Question'
     )
+    QuestionsDisplayJob.expects(:set).with(priority: -2).returns(job)
     job.send(:requeue, channel, 'user', 'Question')
   end
 
@@ -53,6 +54,10 @@ RSpec.describe QuestionsDisplayJob, type: :active_job do
     layer.expects(:create)
     Eyeson::Layer.expects(:new).with(access_key).returns(layer)
     channel.expects(:update)
+
+    job.expects(:perform_later).with(channel.id.to_s)
+    QuestionsDisplayJob.expects(:set).with(wait: 10.seconds, priority: 1).returns(job)
+                       
     job.send(:set_layer, channel, 'user', 'Question')
   end
 

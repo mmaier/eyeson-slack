@@ -1,7 +1,7 @@
 # Uploads presentation slides to slack channel
 class PresentationsUploadJob < ApplicationJob
   require 'open-uri'
-  
+
   queue_as :default
 
   def perform(*args)

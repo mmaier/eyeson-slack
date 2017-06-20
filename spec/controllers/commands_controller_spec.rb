@@ -131,11 +131,13 @@ RSpec.describe CommandsController, type: :controller do
     channel.external_id = external_id + '_webinar'
     channel.access_key  = Faker::Crypto.md5
     channel.save
-    QuestionsDisplayJob.expects(:perform_later).with(
+    job = mock('Job')
+    job.expects(:perform_later).with(
       channel.id.to_s,
       command_params[:user_name],
       'Is this a question?'
     )
+    QuestionsDisplayJob.expects(:set).with(priority: -1).returns(job)
     post :create, params: command_params.merge(channel_id: external_id, text: 'ask Is this a question?')
     expect(response.status).to eq(200)
     expect(JSON.parse(response.body)['text']).to eq(I18n.t('.question_response', question: 'Is this a question?', scope: [:commands]))
