@@ -6,7 +6,7 @@ en:
     webinar_response: "A Youtube player will be posted to all channel members once you have started the broadcast within eyeson room.\n\nInvite speakers by sending them the eyeson room guest link.\n\n*<%{url}|Open eyeson room to prepare for webinar>*"
     question_response: "*%{question}*\nYour question was forwarded to eyeson room.\nIt may take a moment until it will show up in the live stream."
     help: "*Meetings:*\n> Enter `/eyeson meeting` in the channel you want to open an eyeson room.\n> A link to the eyeson room will be posted to all channel members once you have entered.\n\n*Webinars:*\n> Enter `/eyeson webinar` in the channel you want to start a webinar.\n> A Youtube player will be posted to all channel members once you have started the broadcast within eyeson room.\n\n*Webinar Questions:*\n> Use the `/eyeson ask [Your question]` command to post questions.\n> E.g. `/eyeson ask How much is the fish?` will display _How much is the fish?_ in eyeson room.\n\nFor more help, click here: %{url}"
-    asked: "*%{username} asked:* %{question}"
+    asked: "*@%{username} asked:* %{question}"
 
   meetings:
     show:

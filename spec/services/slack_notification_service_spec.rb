@@ -172,15 +172,11 @@ RSpec.describe SlackNotificationService, type: :class do
   it 'should post question to thread' do
     channel.thread_id = Faker::Crypto.md5
     channel.save
-    text = I18n.t('.asked',
-                  username: 'username',
-                  question: 'Question',
-                  scope: %i[commands])
 
     slack_api = mock('Slack Api')
     slack_api.expects(:post_message!).with(channel:   channel.external_id,
                                            thread_ts: channel.thread_id,
-                                           text:      text)
+                                           text:      '*@username asked:* Question')
     SlackApi.expects(:new).returns(slack_api)
 
     slack.question('username', 'Question')
