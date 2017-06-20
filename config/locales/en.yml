@@ -11,6 +11,6 @@ en:
     show:
       opened: "Opened an eyeson room\n<%{url}|Join here>"
       joined: "_joined the eyeson room_ :eyes:"
-      broadcast_info: "Eyeson webinar has started.\nClick on 'View thread' below to watch the live stream.\n↓↓↓"
-      broadcast_url: "%{url}\n\n:warning: PLEASE DO NOT REPLY TO THIS THREAD, otherwise YouTube player may pause live stream :warning:\n\n> *How to ask questions:*\n> Use the `/eyeson ask` command to post a question into the eyeson webinar room.\n> For example: `/eyeson ask Can you explain more details?` will display _Can you explain more details?_ in eyeson room."
+      broadcast_info: "Eyeson webinar has started.\nClick on 'View thread' below to watch the live stream.\n:point_down::point_down::point_down:"
+      broadcast_url: "%{url}\n\n:warning: PLEASE DO NOT REPLY TO THIS THREAD :warning:\n\n> *How to ask questions:*\n> Use the `/eyeson ask` command to post a question into the eyeson webinar room.\n> For example: `/eyeson ask Can you explain more details?` will display _Can you explain more details?_ in eyeson room."
       slides_info: "*Webinar slides* will be attached here"
