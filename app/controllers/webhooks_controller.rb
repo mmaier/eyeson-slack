@@ -1,7 +1,5 @@
 # Webhook handling
 class WebhooksController < ApplicationController
-  require 'open-uri'
-
   before_action :valid_api_key!
 
   def create
@@ -18,42 +16,36 @@ class WebhooksController < ApplicationController
   end
 
   def presentation_update
-    slack_api_from(presentation_params)
-    return if @slack_api.nil?
+    access_token = slack_key_from(presentation_params)
+    return if access_token.nil?
     return if @channel.thread_id.blank?
-    upload = upload_from_url(presentation_params[:slide])
-    SlackNotificationService.new(@access_token, @channel)
-                            .presentation(upload)
+    PresentationsUploadJob.perform_later(
+      access_token,
+      @channel.id.to_s,
+      presentation_params[:slide]
+    )
   end
 
   def broadcast_update
-    slack_api_from(broadcast_params)
-    return if @slack_api.nil?
-    SlackNotificationService.new(@access_token, @channel)
-                            .broadcast(broadcast_params[:url])
+    access_token = slack_key_from(broadcast_params)
+    return if access_token.nil?
+    BroadcastsInfoJob.perform_later(
+      access_token,
+      @channel.id.to_s,
+      broadcast_params[:url]
+    )
   end
 
-  def slack_api_from(params)
+  def slack_key_from(params)
     @channel = Channel.find_by(external_id: params[:room_id])
     return if @channel.blank?
-
-    @access_token = executing_user(params[:user_id]).try(:access_token)
-    return if @access_token.blank?
-
-    @slack_api = SlackApi.new(@access_token)
+    executing_user(params[:user_id]).try(:access_token)
   end
 
   def executing_user(external_id)
     User.find_by(team: @channel.team,
                  email: external_id) ||
       User.find(@channel.initializer_id)
-  end
-
-  def upload_from_url(url)
-    file   = open(url)
-    upload = @slack_api.upload_file!(file: file,
-                                     filename: "#{Time.current}.png")
-    @slack_api.get('/files.sharedPublicURL', file: upload['file']['id'])
   end
 
   def presentation_params

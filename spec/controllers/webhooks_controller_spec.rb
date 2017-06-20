@@ -3,6 +3,8 @@ require 'rails_helper'
 RSpec.describe WebhooksController, type: :controller do  
 
   let(:team) { create(:team) }
+  let(:user) { create(:user, team: team) }
+  let(:channel) { create(:channel, team: team, thread_id: Faker::Crypto.md5) }
 
   it 'should raise error on wrong api key' do
     post :create, params: { api_key: 'xyz' }
@@ -14,32 +16,14 @@ RSpec.describe WebhooksController, type: :controller do
     expect(response.status).to eq(200)
   end
 
-  it 'should upload from url' do
-    url = Faker::Internet.url
-    file = Tempfile.new('upload')
-    controller = WebhooksController.new
-
-    slack_api = mock('Slack API')
-    slack_api.expects(:upload_file!)
-             .with(file: file, filename: "#{Time.current}.png")
-            .returns({'file' => {'id' => 'xyz'}})
-    slack_api.expects(:get).with('/files.sharedPublicURL', file: 'xyz')
-
-    controller.instance_variable_set(:@slack_api, slack_api)
-    controller.expects(:open).with(url).returns(file)
-    controller.send(:upload_from_url, url)
-  end
-
   it 'should handle presentation_update' do
-    user    = create(:user, team: team)
-    channel = create(:channel, team: team, thread_id: Faker::Crypto.md5)
     slide   = Faker::Internet.url
 
-    SlackApi.expects(:new).with(user.access_token).returns(true)
-    WebhooksController.any_instance.expects(:upload_from_url).with(slide).returns({'upload' => true})
-    sn = mock('Slack Notification Service')
-    sn.expects(:presentation).with({'upload' => true})
-    SlackNotificationService.expects(:new).with(user.access_token, channel).returns(sn)
+    PresentationsUploadJob.expects(:perform_later).with(
+      user.access_token,
+      channel.id.to_s,
+      slide
+    )
 
     post :create, params: {
       api_key: 'test',
@@ -48,34 +32,52 @@ RSpec.describe WebhooksController, type: :controller do
         user: { id: user.email },
         room: { id: channel.external_id },
         slide: slide
+      }
+    }
+  end
+
+  it 'should not execute presentation_update without valid access_token' do
+    user.access_token = nil
+    user.save(validate: false)
+
+    PresentationsUploadJob.expects(:perform_later).never
+
+    post :create, params: {
+      api_key: 'test',
+      type: 'presentation_update',
+      presentation: {
+        user: { id: user.email },
+        room: { id: channel.external_id },
+        slide: Faker::Internet.url
       }
     }
   end
 
   it 'should not execute presentation_update without thread id' do
-    user    = create(:user, team: team)
-    channel = create(:channel, team: team)
-    slide   = Faker::Internet.url
-    SlackApi.expects(:new).with(user.access_token).returns(true)
-    Thread.expects(:new).never
+    channel.thread_id = nil
+    channel.save
+
+    PresentationsUploadJob.expects(:perform_later).never
+
     post :create, params: {
       api_key: 'test',
       type: 'presentation_update',
       presentation: {
         user: { id: user.email },
         room: { id: channel.external_id },
-        slide: slide
+        slide: Faker::Internet.url
       }
     }
   end
 
   it 'should handle guest users' do
-    channel = create(:channel, team: team, thread_id: Faker::Crypto.md5)
     slide   = Faker::Internet.url
 
-    SlackApi.expects(:new).with(User.find(channel.initializer_id).access_token).returns(true)
-    WebhooksController.any_instance.expects(:upload_from_url)
-    SlackNotificationService.expects(:new).returns(mock('SN', presentation: true))
+    PresentationsUploadJob.expects(:perform_later).with(
+      User.find(channel.initializer_id).access_token,
+      channel.id.to_s,
+      slide
+    )
 
     post :create, params: {
       api_key: 'test',
@@ -89,14 +91,13 @@ RSpec.describe WebhooksController, type: :controller do
   end
 
   it 'should handle broadcast_update' do
-    user    = create(:user, team: team)
-    channel = create(:channel, team: team)
     url     = Faker::Internet.url
 
-    SlackApi.expects(:new).with(user.access_token).returns(true)
-    sn = mock('Slack Notification Service')
-    sn.expects(:broadcast).with(url)
-    SlackNotificationService.expects(:new).with(user.access_token, channel).returns(sn)
+    BroadcastsInfoJob.expects(:perform_later).with(
+      user.access_token,
+      channel.id.to_s,
+      url
+    )
 
     post :create, params: {
       api_key: 'test',
@@ -105,6 +106,23 @@ RSpec.describe WebhooksController, type: :controller do
         user: { id: user.email },
         room: { id: channel.external_id },
         url:  url
+      }
+    }
+  end
+
+  it 'should not execute broadcast_update without valid access_token' do
+    user.access_token = nil
+    user.save(validate: false)
+    
+    BroadcastsInfoJob.expects(:perform_later).never
+
+    post :create, params: {
+      api_key: 'test',
+      type: 'presentation_update',
+      presentation: {
+        user: { id: user.email },
+        room: { id: channel.external_id },
+        slide: Faker::Internet.url
       }
     }
   end
