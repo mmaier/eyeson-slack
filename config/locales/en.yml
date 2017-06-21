@@ -5,7 +5,7 @@ en:
     meeting_response: "Your eyeson room is ready: *<%{url}|Open>*\nA link to the eyeson room will be posted to all channel members once you have entered."
     webinar_response: "A Youtube player will be posted to all channel members once you have started the broadcast within eyeson room.\n\nInvite speakers by sending them the eyeson room guest link.\n\n*<%{url}|Open eyeson room to prepare for webinar>*"
     question_response: "*%{question}*\nYour question was forwarded to eyeson room.\nIt may take a moment until it will show up in the live stream."
-    help: "*Meetings:*\n> Enter `/eyeson meeting` in the channel you want to open an eyeson room.\n> A link to the eyeson room will be posted to all channel members once you have entered.\n\n*Webinars:*\n> Enter `/eyeson webinar` in the channel you want to start a webinar.\n> A Youtube player will be posted to all channel members once you have started the broadcast within eyeson room.\n\n*Webinar Questions:*\n> Use the `/eyeson ask [Your question]` command to post questions.\n> E.g. `/eyeson ask How much is the fish?` will display _How much is the fish?_ in eyeson room.\n\nFor more help, click here: %{url}"
+    help: "*Meetings:*\n> Enter `/eyeson` in the channel you want to open an eyeson room.\n> A link to the eyeson room will be posted to all channel members once you have entered.\n\n*Webinars:*\n> Enter `/eyeson-webinar` in the channel you want to start a webinar.\n> A Youtube player will be posted to all channel members once you have started the broadcast within eyeson room.\n\n*Webinar Questions:*\n> Use the `/eyeson-ask [Your question]` command to post questions.\n> E.g. `/eyeson-ask How much is the fish?` will display _How much is the fish?_ in eyeson room.\n\nFor more help, click here: %{url}"
     asked: "*@%{username} asked:* %{question}"
 
   meetings:
@@ -13,5 +13,5 @@ en:
       opened: "Opened an eyeson room\n<%{url}|Join here>"
       joined: "_joined the eyeson room_ :eyes:"
       broadcast_info: "eyeson webinar has started.\nClick on 'View thread' below to watch the live stream.\n:point_down::point_down::point_down:"
-      broadcast_url: "%{url}\n\n:warning: PLEASE DO NOT REPLY IN THIS THREAD :warning:\n\n> *How to ask questions:*\n> Use the `/eyeson ask [Your question]` command to post questions.\n> E.g. `/eyeson ask How much is the fish?` will display _How much is the fish?_ in eyeson room."
+      broadcast_url: "%{url}\n\n:warning: PLEASE DO NOT REPLY IN THIS THREAD :warning:\n\n> *How to ask questions:*\n> Use the `/eyeson-ask [Your question]` command to post questions.\n> E.g. `/eyeson-ask How much is the fish?` will display _How much is the fish?_ in eyeson room."
       slides_info: "eyeson webinar timeline\nAll activities will be attached here."

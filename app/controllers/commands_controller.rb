@@ -27,15 +27,12 @@ class CommandsController < ApplicationController
   end
 
   def help?
-    if params[:text].blank? ||
-       params[:text] == 'help' ||
-       question? && webinar_question.blank?
-      render json: {
-        text: I18n.t('.help',
-                     url: Rails.configuration.services['faq_url'],
-                     scope: [:commands])
-      }
-    end
+    return unless params[:text] == 'help'
+    render json: {
+      text: I18n.t('.help',
+                   url: Rails.configuration.services['faq_url'],
+                   scope: [:commands])
+    }
   end
 
   def team_exists!
@@ -44,15 +41,19 @@ class CommandsController < ApplicationController
   end
 
   def meeting?
-    params[:text].try(:start_with?, 'meeting') == true
+    params[:command] == command
   end
 
   def webinar?
-    params[:text].try(:start_with?, 'webinar') == true
+    params[:command] == command + '-webinar'
   end
 
   def question?
-    params[:text].try(:start_with?, 'ask') == true
+    params[:command] == command + '-ask'
+  end
+
+  def command
+    '/eyeson' << ("-#{Rails.env}" unless Rails.env.production?)
   end
 
   def meeting_response
@@ -74,20 +75,16 @@ class CommandsController < ApplicationController
   end
 
   def question_response
-    return if @channel.access_key.blank?
+    text = params[:text]
+    return if @channel.access_key.blank? || text.blank?
     QuestionsDisplayJob.set(priority: -1)
                        .perform_later(@channel.id.to_s,
                                       params[:user_name],
-                                      webinar_question.strip)
+                                      text)
     {
       text: I18n.t('.question_response',
-                   question: webinar_question.strip,
-                   scope: [:commands])
+                   question: text, scope: [:commands])
     }
-  end
-
-  def webinar_question
-    params[:text].gsub('ask', '')
   end
 
   def setup_channel!

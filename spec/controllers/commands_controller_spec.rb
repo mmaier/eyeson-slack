@@ -51,7 +51,7 @@ RSpec.describe CommandsController, type: :controller do
     channel.expects(:thread_id=).with(nil)
     channel.expects(:webinar_mode=).with(true)
     channel.expects(:save!)
-    post :create, params: command_params.merge(text: 'webinar')
+    post :create, params: command_params.merge(command: '/eyeson-test-webinar')
   end
 
   it 'should not setup channel info for question' do
@@ -62,7 +62,7 @@ RSpec.describe CommandsController, type: :controller do
     c.expects(:thread_id=).never
     c.expects(:webinar_mode=).never
     c.expects(:save!)
-    post :create, params: command_params.merge(text: 'ask Question')
+    post :create, params: command_params.merge(command: '/eyeson-test-ask', text: 'Question')
   end
 
   it 'should skip team and channel for help' do
@@ -89,7 +89,7 @@ RSpec.describe CommandsController, type: :controller do
   end
 
   it 'should return a webinar link' do
-    post :create, params: command_params.merge(webinar: true, text: 'webinar')
+    post :create, params: command_params.merge(command: '/eyeson-test-webinar')
     url = "http://test.host/slack/w/#{command_params[:channel_id]}_webinar"
     text = I18n.t('.webinar_response',
                   url: url,
@@ -101,24 +101,6 @@ RSpec.describe CommandsController, type: :controller do
 
   it 'should provide a help response' do
     post :create, params: command_params.merge(text: 'help')
-    text = I18n.t('.help',
-                  url: Rails.configuration.services['faq_url'],
-                  scope: [:commands])
-    expect(response.status).to eq(200)
-    expect(JSON.parse(response.body)['text']).to eq(text)
-  end
-
-  it 'should provide a help response when text is empty' do
-    post :create, params: command_params.merge(text: '')
-    text = I18n.t('.help',
-                  url: Rails.configuration.services['faq_url'],
-                  scope: [:commands])
-    expect(response.status).to eq(200)
-    expect(JSON.parse(response.body)['text']).to eq(text)
-  end
-
-  it 'should provide a help response for unfinished question' do
-    post :create, params: command_params.merge(text: 'ask')
     text = I18n.t('.help',
                   url: Rails.configuration.services['faq_url'],
                   scope: [:commands])
@@ -138,7 +120,7 @@ RSpec.describe CommandsController, type: :controller do
       'Is this a question?'
     )
     QuestionsDisplayJob.expects(:set).with(priority: -1).returns(job)
-    post :create, params: command_params.merge(channel_id: external_id, text: 'ask Is this a question?')
+    post :create, params: command_params.merge(channel_id: external_id, command: '/eyeson-test-ask', text: 'Is this a question?')
     expect(response.status).to eq(200)
     expect(JSON.parse(response.body)['text']).to eq(I18n.t('.question_response', question: 'Is this a question?', scope: [:commands]))
   end
@@ -147,8 +129,18 @@ RSpec.describe CommandsController, type: :controller do
     external_id = channel.external_id
     channel.external_id = external_id + '_webinar'
     channel.save
-    QuestionsDisplayJob.expects(:perform_later).never
-    post :create, params: command_params.merge(channel_id: external_id, text: 'ask Is this a question?')
+    QuestionsDisplayJob.expects(:set).never
+    post :create, params: command_params.merge(channel_id: external_id, command: '/eyeson-test-ask', text: 'Is this a question?')
+    expect(response.status).to eq(200)
+  end
+
+  it 'should not render question without question' do
+    external_id = channel.external_id
+    channel.external_id = external_id + '_webinar'
+    channel.access_key  = Faker::Crypto.md5
+    channel.save
+    QuestionsDisplayJob.expects(:set).never
+    post :create, params: command_params.merge(channel_id: external_id, command: '/eyeson-test-ask')
     expect(response.status).to eq(200)
   end
 end
@@ -156,13 +148,12 @@ end
 def command_params
   {
     token: Rails.application.secrets.slack_token,
-    command:      'eyeson',
+    command:      '/eyeson-test',
     user_id:      user.external_id,
     user_name:    user.name,
     channel_id:   channel.external_id,
     channel_name: channel.name,
     team_id:      team.external_id,
-    response_url: Faker::Internet.url,
-    text:         'meeting'
+    response_url: Faker::Internet.url
   }
 end
