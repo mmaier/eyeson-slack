@@ -52,7 +52,7 @@ RSpec.describe QuestionsDisplayJob, type: :active_job do
     em = mock('EM')
     em.expects(:create).with(
       type:    'chat',
-      content: 'user asks: q'
+      content: 'Question from @user: q'
     )
     Eyeson::Message.expects(:new).with(channel.access_key).returns(em)
 
@@ -113,7 +113,7 @@ RSpec.describe QuestionsDisplayJob, type: :active_job do
     renderer.expects(:to_url)
     CoolRenderer::QuestionImage.expects(:new).with(
       content:  'Question',
-      fullname: 'user asks:'
+      fullname: 'Question from @user:'
     ).returns(renderer)
     job.send(:question_image, 'user', 'Question')
   end

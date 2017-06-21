@@ -174,9 +174,10 @@ RSpec.describe SlackNotificationService, type: :class do
     channel.save
 
     slack_api = mock('Slack Api')
+    text = I18n.t('.asked', username: 'username', question: 'Question', scope: %i[commands])
     slack_api.expects(:post_message!).with(channel:   channel.external_id,
                                            thread_ts: channel.thread_id,
-                                           text:      '*@username asked:* Question')
+                                           text:      text)
     SlackApi.expects(:new).returns(slack_api)
 
     slack.question('username', 'Question')

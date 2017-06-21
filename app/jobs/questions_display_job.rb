@@ -50,7 +50,7 @@ class QuestionsDisplayJob < ApplicationJob
 
   def question_image(username, question)
     CoolRenderer::QuestionImage.new(
-      fullname: username + ' asks:',
+      fullname: 'Question from @' + username + ':',
       content:  question
     ).to_url
   end
@@ -58,7 +58,7 @@ class QuestionsDisplayJob < ApplicationJob
   def post_to_chat(channel, username, question)
     Eyeson::Message.new(channel.access_key).create(
       type:    'chat',
-      content: username + ' asks: ' + question
+      content: 'Question from @' + username + ': ' + question
     )
 
     access_token = User.find(channel.initializer_id).try(:access_token)
