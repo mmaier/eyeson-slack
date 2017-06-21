@@ -66,7 +66,7 @@ RSpec.describe MeetingsController, type: :controller do
     gui = 'http://test.host/gui'
 
     Eyeson::Room.expects(:join).with(id: channel.external_id,
-                                    name: channel.name,
+                                    name: "##{channel.name}",
                                     user: user)
                               .returns(mock('Room URL', url: gui, access_key: 'key'))
 

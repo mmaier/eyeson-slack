@@ -15,7 +15,7 @@ class MeetingsController < ApplicationController
     @channel.initializer_id = @user.id if @channel.thread_id.blank?
 
     @room = Eyeson::Room.join(id: @channel.external_id,
-                              name: @channel.name,
+                              name: "##{@channel.name}",
                               user: @user)
 
     SlackNotificationService.new(@user.access_token, @channel).start
