@@ -45,15 +45,22 @@ RSpec.describe QuestionsDisplayJob, type: :active_job do
     job.send(:requeue, channel, 'user', 'Question')
   end
 
-  it 'should post question to thread' do
+  it 'should post question to eyeson and slack chat' do
     initializer  = User.find(channel.initializer_id)
     access_token = initializer.access_token
+
+    em = mock('EM')
+    em.expects(:create).with(
+      type:    'chat',
+      content: 'user asks: q'
+    )
+    Eyeson::Message.expects(:new).with(channel.access_key).returns(em)
 
     sn = mock('SN')
     sn.expects(:question).with('user', 'q')
     SlackNotificationService.expects(:new).with(access_token, channel).returns(sn)
                             
-    job.send(:post_to_thread, channel, 'user', 'q')
+    job.send(:post_to_chat, channel, 'user', 'q')
   end
 
   it 'should set_layer' do
@@ -66,7 +73,7 @@ RSpec.describe QuestionsDisplayJob, type: :active_job do
     Eyeson::Layer.expects(:new).with(access_key).returns(layer)
     channel.expects(:update)
 
-    job.expects(:post_to_thread).with(channel, 'user', 'Question')
+    job.expects(:post_to_chat).with(channel, 'user', 'Question')
 
     job.expects(:perform_later).with(channel.id.to_s)
     QuestionsDisplayJob.expects(:set).with(wait: 10.seconds, priority: 1).returns(job)
@@ -77,6 +84,7 @@ RSpec.describe QuestionsDisplayJob, type: :active_job do
   it 'should not set_layer without access_key' do
     channel.access_key = nil
     channel.save
+    job.expects(:post_to_chat)
     job.expects(:question_image).never
     Eyeson::Layer.expects(:new).never
     channel.expects(:update).never

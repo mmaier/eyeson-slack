@@ -33,7 +33,7 @@ class QuestionsDisplayJob < ApplicationJob
   end
 
   def set_layer(channel, username, question)
-    post_to_thread(channel, username, question)
+    post_to_chat(channel, username, question)
     return if channel.access_key.blank?
     channel.update last_question_at: Time.current
     layer = Eyeson::Layer.new(channel.access_key)
@@ -50,12 +50,17 @@ class QuestionsDisplayJob < ApplicationJob
 
   def question_image(username, question)
     CoolRenderer::QuestionImage.new(
-      content:  question,
-      fullname: username + ' asks:'
+      fullname: username + ' asks:',
+      content:  question
     ).to_url
   end
 
-  def post_to_thread(channel, username, question)
+  def post_to_chat(channel, username, question)
+    Eyeson::Message.new(channel.access_key).create(
+      type:    'chat',
+      content: username + ' asks: ' + question
+    )
+
     access_token = User.find(channel.initializer_id).try(:access_token)
     return if access_token.nil?
     SlackNotificationService.new(access_token, channel)
