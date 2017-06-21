@@ -142,7 +142,7 @@ RSpec.describe SlackNotificationService, type: :class do
     text = I18n.t('.slides_info', scope: %i[meetings show])
     slack_api.expects(:post_message!).with(
       channel:     channel.external_id,
-      attachments: [{ color: '#9e206c', thumb_url: root_url + '/icon.png',
+      attachments: [{ color: '#9e206c', thumb_url: root_url + '/icon-timeline.png',
                       fallback: text, text: text }]
     ).returns({ 'ts' => '123' })
 

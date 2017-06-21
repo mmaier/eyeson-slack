@@ -85,7 +85,8 @@ class SlackNotificationService
     text    = I18n.t('.slides_info', scope: %i[meetings show])
     message = @slack_api.post_message!(
       channel:     original_external_id,
-      attachments: [{ color: '#9e206c', thumb_url: root_url + '/icon.png',
+      attachments: [{ color: '#9e206c',
+                      thumb_url: root_url + '/icon-timeline.png',
                       fallback: text, text: text }]
     )
     @channel.thread_id = message['ts']
