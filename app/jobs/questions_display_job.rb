@@ -58,7 +58,7 @@ class QuestionsDisplayJob < ApplicationJob
   def post_to_chat(channel, username, question)
     Eyeson::Message.new(channel.access_key).create(
       type:    'chat',
-      content: '/me Question from @' + username + ': ' + question
+      content: '/question Question from @' + username + ': ' + question
     )
 
     access_token = User.find(channel.initializer_id).try(:access_token)
