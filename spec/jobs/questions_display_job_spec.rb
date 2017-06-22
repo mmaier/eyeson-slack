@@ -52,7 +52,7 @@ RSpec.describe QuestionsDisplayJob, type: :active_job do
     em = mock('EM')
     em.expects(:create).with(
       type:    'chat',
-      content: 'Question from @user: q'
+      content: '\me Question from @user: q'
     )
     Eyeson::Message.expects(:new).with(channel.access_key).returns(em)
 
