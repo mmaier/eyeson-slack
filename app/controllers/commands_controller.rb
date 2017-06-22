@@ -75,16 +75,17 @@ class CommandsController < ApplicationController
   end
 
   def question_response
+    unless @channel.persisted?
+      return { text: I18n.t('.question_failed', scope: [:commands]) }
+    end
+
     text = params[:text]
     return if @channel.access_key.blank? || text.blank?
     QuestionsDisplayJob.set(priority: -1)
                        .perform_later(@channel.id.to_s,
                                       params[:user_name],
                                       text)
-    {
-      text: I18n.t('.question_response',
-                   question: text, scope: [:commands])
-    }
+    { text: I18n.t('.question_response', question: text, scope: [:commands]) }
   end
 
   def setup_channel!
@@ -92,11 +93,12 @@ class CommandsController < ApplicationController
     external_id << '_webinar' if webinar? || question?
     @channel = Channel.find_or_initialize_by(team: @team,
                                              external_id: external_id)
-    unless question?
-      @channel.name = params.require(:channel_name)
-      @channel.thread_id    = nil
-      @channel.webinar_mode = webinar?
-    end
+
+    return if question?
+
+    @channel.name         = params.require(:channel_name)
+    @channel.thread_id    = nil
+    @channel.webinar_mode = webinar?
     @channel.save!
   end
 

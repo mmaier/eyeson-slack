@@ -61,7 +61,7 @@ RSpec.describe CommandsController, type: :controller do
     c.expects(:new_command=).never
     c.expects(:thread_id=).never
     c.expects(:webinar_mode=).never
-    c.expects(:save!)
+    c.expects(:save!).never
     post :create, params: command_params.merge(command: '/eyeson-test-ask', text: 'Question')
   end
 
@@ -142,6 +142,13 @@ RSpec.describe CommandsController, type: :controller do
     QuestionsDisplayJob.expects(:set).never
     post :create, params: command_params.merge(channel_id: external_id, command: '/eyeson-test-ask')
     expect(response.status).to eq(200)
+  end
+
+  it 'should return question failed unless webinar exists' do
+    QuestionsDisplayJob.expects(:set).never
+    post :create, params: command_params.merge(channel_id: channel.external_id, command: '/eyeson-test-ask')
+    expect(response.status).to eq(200)
+    expect(JSON.parse(response.body)['text']).to eq(I18n.t('.question_failed', scope: [:commands]))
   end
 end
 
