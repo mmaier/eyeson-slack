@@ -9,8 +9,8 @@ RSpec.describe QuestionsDisplayJob, type: :active_job do
     create(:channel)
   end
 
-  it 'should perform set_layer with channel id, username and question' do
-    job.expects(:set_layer).with(channel, 'user', 'Question')
+  it 'should perform display with channel id, username and question' do
+    job.expects(:display).with(channel, 'user', 'Question')
     job.perform(channel.id.to_s, 'user', 'Question')
   end
 
@@ -21,17 +21,17 @@ RSpec.describe QuestionsDisplayJob, type: :active_job do
     job.perform(channel.id.to_s, 'user', 'Question')
   end
 
-  it 'should perform clear_layer when last question was shown more than 10 seconds ago' do
+  it 'should perform clear when last question was shown more than 10 seconds ago' do
     channel.last_question_at = 12.seconds.ago
     channel.save
-    job.expects(:clear_layer).with(channel)
+    job.expects(:clear).with(channel)
     job.perform(channel.id.to_s)
   end
 
-  it 'should not perform clear_layer unless last question was shown more than 10 seconds ago' do
+  it 'should not perform clear unless last question was shown more than 10 seconds ago' do
     channel.last_question_at = Time.now
     channel.save
-    job.expects(:clear_layer).never
+    job.expects(:clear).never
     job.perform(channel.id.to_s)
   end
 
@@ -63,7 +63,7 @@ RSpec.describe QuestionsDisplayJob, type: :active_job do
     job.send(:post_to_chat, channel, 'user', 'q')
   end
 
-  it 'should set_layer' do
+  it 'should set_layer and post_to_chat' do
     access_key = Faker::Crypto.md5
     channel.access_key = access_key
     channel.save
@@ -78,34 +78,33 @@ RSpec.describe QuestionsDisplayJob, type: :active_job do
     job.expects(:perform_later).with(channel.id.to_s)
     QuestionsDisplayJob.expects(:set).with(wait: 10.seconds, priority: 1).returns(job)
                        
-    job.send(:set_layer, channel, 'user', 'Question')
+    job.send(:display, channel, 'user', 'Question')
   end
 
   it 'should not set_layer without access_key' do
     channel.access_key = nil
     channel.save
-    job.expects(:post_to_chat)
     job.expects(:question_image).never
     Eyeson::Layer.expects(:new).never
     channel.expects(:update).never
     job.send(:set_layer, channel, 'user', 'Question')
   end
 
-  it 'should clear_layer' do
+  it 'should clear' do
     access_key = Faker::Crypto.md5
     channel.access_key = access_key
     channel.save
     Eyeson::Layer.expects(:new).with(access_key).returns(mock('Layer', destroy: true))
     channel.expects(:update)
-    job.send(:clear_layer, channel)
+    job.send(:clear, channel)
   end
 
-  it 'should not clear_layer without access_key' do
+  it 'should not clear without access_key' do
     channel.access_key = nil
     channel.save
     Eyeson::Layer.expects(:new).never
     channel.expects(:update).never
-    job.send(:clear_layer, channel)
+    job.send(:clear, channel)
   end
 
   it 'should create a question image' do

@@ -10,9 +10,9 @@ class QuestionsDisplayJob < ApplicationJob
     if question && question_active?(channel)
       requeue(channel, username, question)
     elsif question
-      set_layer(channel, username, question)
+      display(channel, username, question)
     elsif clearable?(channel)
-      clear_layer(channel)
+      clear(channel)
     end
   end
 
@@ -32,20 +32,24 @@ class QuestionsDisplayJob < ApplicationJob
                                                         question)
   end
 
-  def set_layer(channel, username, question)
+  def display(channel, username, question)
+    set_layer(channel, username, question)
     post_to_chat(channel, username, question)
+  end
+
+  def clear(channel)
+    return if channel.access_key.blank?
+    channel.update last_question_at: nil
+    Eyeson::Layer.new(channel.access_key).destroy
+  end
+
+  def set_layer(channel, username, question)
     return if channel.access_key.blank?
     channel.update last_question_at: Time.current
     layer = Eyeson::Layer.new(channel.access_key)
     layer.create(url: question_image(username, question))
     QuestionsDisplayJob.set(wait: 10.seconds, priority: 1)
                        .perform_later(channel.id.to_s)
-  end
-
-  def clear_layer(channel)
-    return if channel.access_key.blank?
-    channel.update last_question_at: nil
-    Eyeson::Layer.new(channel.access_key).destroy
   end
 
   def question_image(username, question)
