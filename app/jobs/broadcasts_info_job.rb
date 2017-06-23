@@ -1,4 +1,4 @@
-# Uploads Youtube player to slack channel
+# Uploads YouTube player to slack channel
 class BroadcastsInfoJob < ApplicationJob
   queue_as :default
 
