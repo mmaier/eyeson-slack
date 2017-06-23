@@ -68,7 +68,7 @@ RSpec.describe MeetingsController, type: :controller do
     Eyeson::Room.expects(:join).with(id: channel.external_id,
                                     name: "##{channel.name}",
                                     user: user)
-                              .returns(mock('Room URL', url: gui, access_key: 'key'))
+                              .returns(mock('Room URL', url: gui))
 
     expects_slack_notification
 
@@ -79,16 +79,17 @@ RSpec.describe MeetingsController, type: :controller do
     expect(response).to redirect_to(gui)
   end
 
-  it 'should set channel access_key after action' do
-    access_key = Faker::Crypto.md5
+  it 'should clear channel access_key in webinar mode' do
+    channel.webinar_mode = true
+    channel.save
 
-    expects_eyeson_room_with('', access_key)
+    expects_eyeson_room_with
     expects_slack_notification
     Eyeson::Intercom.expects(:post)
 
+    Channel.any_instance.expects(:update).with(access_key: nil)
+
     get :show, params: { id: channel.external_id, user_id: user.id }
-    channel.reload
-    expect(channel.access_key).to eq(access_key)
   end
 
   it 'should handle eyeson api error' do

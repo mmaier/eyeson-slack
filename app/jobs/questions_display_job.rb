@@ -55,7 +55,7 @@ class QuestionsDisplayJob < ApplicationJob
   def question_image(username, question)
     CoolRenderer::QuestionImage.new(
       fullname: "@#{username}:",
-      content:  question
+      content:  question.truncate(280)
     ).to_url
   end
 

@@ -9,7 +9,7 @@ class MeetingsController < ApplicationController
   before_action :channel_exists!
   before_action :user_belongs_to_team!
   before_action :scope_required!
-  after_action  :update_access_key
+  after_action  :clear_access_key
 
   def show
     @channel.initializer_id = @user.id if @channel.thread_id.blank?
@@ -91,7 +91,8 @@ class MeetingsController < ApplicationController
       data: { team: @user.team.name } }
   end
 
-  def update_access_key
-    @channel.update access_key: @room.access_key
+  def clear_access_key
+    return unless @channel.webinar_mode?
+    @channel.update access_key: nil
   end
 end

@@ -37,7 +37,14 @@ class CommandsController < ApplicationController
 
   def team_exists!
     @team = Team.find_by(external_id: params.require(:team_id))
-    invalid_setup_response if @team.blank?
+
+    return if @team.present?
+
+    render json: {
+      text: I18n.t('.invalid_setup',
+                   url: setup_url,
+                   scope: [:commands])
+    }
   end
 
   def meeting?
@@ -79,13 +86,14 @@ class CommandsController < ApplicationController
       return { text: I18n.t('.question_failed', scope: [:commands]) }
     end
 
-    text = params[:text]
-    return if @channel.access_key.blank? || text.blank?
-    QuestionsDisplayJob.set(priority: -1)
-                       .perform_later(@channel.id.to_s,
-                                      params[:user_name],
-                                      text)
-    { text: I18n.t('.question_response', question: text, scope: [:commands]) }
+    return if params[:text].blank?
+
+    create_slack_user if @channel.access_key.blank?
+    create_display_job
+
+    { text: I18n.t('.question_response',
+                   question: params[:text],
+                   scope: [:commands]) }
   end
 
   def setup_channel!
@@ -102,12 +110,16 @@ class CommandsController < ApplicationController
     @channel.save!
   end
 
-  def invalid_setup_response
-    response = {
-      text: I18n.t('.invalid_setup',
-                   url: setup_url,
-                   scope: [:commands])
-    }
-    render json: response
+  def create_display_job
+    QuestionsDisplayJob.set(priority: -1)
+                       .perform_later(@channel.id.to_s,
+                                      params[:user_name],
+                                      params[:text])
+  end
+
+  def create_slack_user
+    slack_user = Eyeson::Room.join(id: @channel.external_id,
+                                   user: { name: 'Slack Question' })
+    @channel.update access_key: slack_user.access_key
   end
 end
