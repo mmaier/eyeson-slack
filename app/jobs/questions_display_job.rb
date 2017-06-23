@@ -33,6 +33,7 @@ class QuestionsDisplayJob < ApplicationJob
   end
 
   def display(channel, username, question)
+    create_slack_user(channel) if channel.access_key.blank?
     set_layer(channel, username, question)
     post_to_chat(channel, username, question)
   end
@@ -57,6 +58,12 @@ class QuestionsDisplayJob < ApplicationJob
       fullname: "@#{username}:",
       content:  question.truncate(280)
     ).to_url
+  end
+
+  def create_slack_user(channel)
+    slack_user = Eyeson::Room.join(id: channel.external_id,
+                                   user: { name: 'Slack Question' })
+    channel.update access_key: slack_user.access_key
   end
 
   def post_to_chat(channel, username, question)

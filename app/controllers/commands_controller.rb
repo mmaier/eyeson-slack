@@ -88,7 +88,6 @@ class CommandsController < ApplicationController
 
     return if params[:text].blank?
 
-    create_slack_user if @channel.access_key.blank?
     create_display_job
 
     { text: I18n.t('.question_response',
@@ -115,11 +114,5 @@ class CommandsController < ApplicationController
                        .perform_later(@channel.id.to_s,
                                       params[:user_name],
                                       params[:text])
-  end
-
-  def create_slack_user
-    slack_user = Eyeson::Room.join(id: @channel.external_id,
-                                   user: { name: 'Slack Question' })
-    @channel.update access_key: slack_user.access_key
   end
 end

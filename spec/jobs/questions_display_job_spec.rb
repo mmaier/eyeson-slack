@@ -116,4 +116,21 @@ RSpec.describe QuestionsDisplayJob, type: :active_job do
     ).returns(renderer)
     job.send(:question_image, 'user', 'Question')
   end
+
+  it 'should create slack user unless access_key present' do
+    job.expects(:create_slack_user)
+    job.expects(:set_layer)
+    job.expects(:post_to_chat)
+    job.send(:display, channel, 'user', 'Question')
+  end
+
+  it 'should create a slack user and store as access_key' do
+    room = mock('Room')
+    room.expects(:access_key).returns('key')
+    Eyeson::Room.expects(:join).with(id: channel.external_id,
+                                     user: { name: 'Slack Question' })
+                .returns(room)
+    channel.expects(:update).with(access_key: 'key')  
+    job.send(:create_slack_user, channel)
+  end
 end

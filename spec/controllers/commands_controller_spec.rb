@@ -125,30 +125,6 @@ RSpec.describe CommandsController, type: :controller do
     expect(JSON.parse(response.body)['text']).to eq(I18n.t('.question_response', question: 'Is this a question?', scope: [:commands]))
   end
 
-  it 'should create a slack user and store as access_key' do
-    controller = CommandsController.new
-    controller.instance_variable_set(:@channel, channel)
-    room = mock('Room')
-    room.expects(:access_key).returns('key')
-    Eyeson::Room.expects(:join).with(id: channel.external_id,
-                                     user: { name: 'Slack Question' })
-                .returns(room)
-    channel.expects(:update).with(access_key: 'key')  
-    controller.send(:create_slack_user)
-  end
-
-  it 'should create slack_user unless access_key is present' do
-    external_id = channel.external_id
-    channel.external_id = external_id + '_webinar'
-    channel.save
-
-    CommandsController.any_instance.expects(:create_slack_user)
-    CommandsController.any_instance.expects(:create_display_job)
-    
-    post :create, params: command_params.merge(channel_id: external_id, command: '/eyeson-test-ask', text: 'Is this a question?')
-    expect(response.status).to eq(200)
-  end
-
   it 'should not render question without question' do
     external_id = channel.external_id
     channel.external_id = external_id + '_webinar'
