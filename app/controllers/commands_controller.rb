@@ -60,7 +60,9 @@ class CommandsController < ApplicationController
   end
 
   def command
-    '/eyeson' << ("-#{Rails.env}" unless Rails.env.production?)
+    pattern = '/eyeson'
+    return pattern if Rails.env.production?
+    pattern << "-#{Rails.env}"
   end
 
   def meeting_response
