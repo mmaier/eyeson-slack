@@ -68,7 +68,7 @@ RSpec.describe MeetingsController, type: :controller do
     Eyeson::Room.expects(:join).with(id: channel.external_id,
                                     name: "##{channel.name}",
                                     user: user)
-                              .returns(mock('Room URL', url: gui))
+                              .returns(mock('Room URL', url: gui, access_key: 'key'))
 
     expects_slack_notification
 
@@ -88,6 +88,16 @@ RSpec.describe MeetingsController, type: :controller do
     Eyeson::Intercom.expects(:post)
 
     Channel.any_instance.expects(:update).with(access_key: nil)
+
+    get :show, params: { id: channel.external_id, user_id: user.id }
+  end
+
+  it 'should update channel access_key in meeting mode' do
+    expects_eyeson_room_with(Faker::Internet.url, 'key')
+    expects_slack_notification
+    Eyeson::Intercom.expects(:post)
+
+    Channel.any_instance.expects(:update).with(access_key: 'key')
 
     get :show, params: { id: channel.external_id, user_id: user.id }
   end
