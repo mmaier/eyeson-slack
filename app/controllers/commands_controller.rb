@@ -48,11 +48,9 @@ class CommandsController < ApplicationController
 
     return if @team.present?
 
-    render json: {
-      text: I18n.t('.invalid_setup',
-                   url: setup_url,
-                   scope: [:commands])
-    }
+    render json: { text: I18n.t('.invalid_setup',
+                                url: setup_url,
+                                scope: [:commands]) }
   end
 
   def meeting?
@@ -99,6 +97,7 @@ class CommandsController < ApplicationController
 
   def handle_event(event)
     return unless event[:type] == 'message'
+    return if event[:bot_id].present?
     @channel = Channel.find_by(external_id: event[:channel])
     return unless @channel.thread_id == event[:thread_ts]
     create_display_job_for(event)

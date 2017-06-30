@@ -55,7 +55,7 @@ class QuestionsDisplayJob < ApplicationJob
 
   def question_image(username, question)
     CoolRenderer::QuestionImage.new(
-      fullname: "@#{username}:",
+      fullname: "#{username}:",
       content:  question.truncate(280)
     ).to_url
   end
@@ -69,7 +69,7 @@ class QuestionsDisplayJob < ApplicationJob
   def post_to_chat(channel, username, question)
     Eyeson::Message.new(channel.access_key).create(
       type:    'chat',
-      content: '/ask @' + username + ': ' + question
+      content: '/ask ' + username + ': ' + question
     )
   end
 end
