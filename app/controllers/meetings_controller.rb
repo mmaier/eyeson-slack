@@ -12,8 +12,6 @@ class MeetingsController < ApplicationController
   after_action  :clear_access_key
 
   def show
-    @channel.initializer_id = @user.id if @channel.thread_id.blank?
-
     @room = Eyeson::Room.join(id: @channel.external_id,
                               name: "##{@channel.name}",
                               user: @user)

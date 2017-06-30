@@ -71,10 +71,5 @@ class QuestionsDisplayJob < ApplicationJob
       type:    'chat',
       content: '/ask @' + username + ': ' + question
     )
-
-    access_token = User.find(channel.initializer_id).try(:access_token)
-    return if access_token.nil?
-    SlackNotificationService.new(access_token, channel)
-                            .question(username, question)
   end
 end

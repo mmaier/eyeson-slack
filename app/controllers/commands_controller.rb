@@ -1,6 +1,7 @@
 # Executes slack command
 class CommandsController < ApplicationController
   before_action :valid_slack_token!
+  before_action :event?
   before_action :help?
   before_action :team_exists!
   before_action :setup_channel!
@@ -10,8 +11,6 @@ class CommandsController < ApplicationController
                  meeting_response
                elsif webinar?
                  webinar_response
-               elsif question?
-                 question_response
                end
     render json: response
   end
@@ -24,6 +23,15 @@ class CommandsController < ApplicationController
     render json: {
       text: I18n.t('.invalid_slack_token', scope: [:commands])
     }
+  end
+
+  def event?
+    if params[:challenge].present?
+      render json: { challenge: params[:challenge] }
+    elsif params[:type] == 'event_callback'
+      handle_event(params.require(:event))
+      head :ok
+    end
   end
 
   def help?
@@ -55,10 +63,6 @@ class CommandsController < ApplicationController
     params[:command] == command + '-webinar'
   end
 
-  def question?
-    params[:command] == command + '-ask'
-  end
-
   def command
     pattern = '/eyeson'
     return pattern if Rails.env.production?
@@ -83,38 +87,29 @@ class CommandsController < ApplicationController
     }
   end
 
-  def question_response
-    unless @channel.persisted?
-      return { text: I18n.t('.question_failed', scope: [:commands]) }
-    end
-
-    return if params[:text].blank?
-
-    create_display_job
-
-    { text: I18n.t('.question_response',
-                   question: params[:text],
-                   scope: [:commands]) }
-  end
-
   def setup_channel!
     external_id = params.require(:channel_id)
-    external_id << '_webinar' if webinar? || question?
+    external_id << '_webinar' if webinar?
     @channel = Channel.find_or_initialize_by(team: @team,
                                              external_id: external_id)
 
-    return if question?
-
-    @channel.name         = params.require(:channel_name)
-    @channel.thread_id    = nil
-    @channel.webinar_mode = webinar?
+    @channel.name           = params.require(:channel_name)
+    @channel.initializer_id = User.find_by(team: @team,
+                                           external_id: params[:user_id]).id
+    @channel.thread_id      = nil
+    @channel.webinar_mode   = webinar?
     @channel.save!
   end
 
-  def create_display_job
-    QuestionsDisplayJob.set(priority: -1)
-                       .perform_later(@channel.id.to_s,
-                                      params[:user_name],
-                                      params[:text])
+  def handle_event(event)
+    return unless event['type'] == 'message.channels'
+    Rails.logger.info "EVENT RECEIVED: #{event.inspect}"
   end
+
+  # def create_display_job
+  #   QuestionsDisplayJob.set(priority: -1)
+  #                      .perform_later(@channel.id.to_s,
+  #                                     params[:user_name],
+  #                                     params[:text])
+  # end
 end

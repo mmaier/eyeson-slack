@@ -71,12 +71,6 @@ RSpec.describe SlackNotificationService, type: :class do
     slack.send(:start)
   end
 
-  it 'should trigger broadcast and slides info' do
-    slack.expects(:post_broadcast_info)
-    slack.expects(:post_slides_info)
-    slack.broadcast(Faker::Internet.url)
-  end
-
   it 'should trigger broadcast info only when thread_id is present' do
     channel.thread_id = Faker::Crypto.md5
     slack.expects(:post_broadcast_info)
@@ -131,28 +125,6 @@ RSpec.describe SlackNotificationService, type: :class do
     slack.presentation(upload)
   end
 
-  it 'should post slides info' do
-    upload = {
-      'file' => {
-        'permalink_public' => Faker::Internet.url
-      }
-    }
-
-    slack_api = mock('Slack Api')
-    text = I18n.t('.slides_info', scope: %i[meetings show])
-    slack_api.expects(:post_message!).with(
-      channel:     channel.external_id,
-      attachments: [{ color: '#9e206c', thumb_url: root_url + '/icon-timeline.png',
-                      fallback: text, text: text }]
-    ).returns({ 'ts' => '123' })
-
-    channel.expects(:thread_id=).with('123')
-    channel.expects(:save)
-
-    SlackApi.expects(:new).returns(slack_api)
-    slack.send(:post_slides_info)
-  end
-
   it 'should not post presentation without thread_id' do
     slack_api = mock('Slack Api')
     slack_api.expects(:post_message!).never
@@ -167,27 +139,5 @@ RSpec.describe SlackNotificationService, type: :class do
     slack_api.expects(:post_message!).never
     SlackApi.expects(:new).returns(slack_api)
     slack.presentation(nil)
-  end
-
-  it 'should post question to thread' do
-    channel.thread_id = Faker::Crypto.md5
-    channel.save
-
-    slack_api = mock('Slack Api')
-    text = I18n.t('.asked', username: 'username', question: 'Question', scope: %i[commands])
-    slack_api.expects(:post_message!).with(channel:   channel.external_id,
-                                           thread_ts: channel.thread_id,
-                                           text:      text)
-    SlackApi.expects(:new).returns(slack_api)
-
-    slack.question('username', 'Question')
-  end
-
-  it 'should not post question without thread_id' do
-    slack_api = mock('Slack Api')
-    slack_api.expects(:post_message!).never
-    SlackApi.expects(:new).returns(slack_api)
-
-    slack.question('username', 'Question')
   end
 end

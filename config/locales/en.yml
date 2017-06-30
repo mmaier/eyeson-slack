@@ -4,15 +4,11 @@ en:
     invalid_setup: "Your app hasn't been setup properly.\n*<%{url}|Finalize your setup here>.*"
     meeting_response: "Your eyeson room is ready: *<%{url}|Open>*\nA link to the eyeson room will be posted to all channel members once you have entered."
     webinar_response: "A YouTube player will be posted to all channel members once you have started the live stream within eyeson room.\n\nInvite speakers by sending them the eyeson room guest link.\n\n*<%{url}|Open eyeson room to prepare for webinar>*"
-    question_response: "*%{question}*\nYour question was forwarded to eyeson room.\nIt may take a moment until it will show up in the live stream."
-    question_failed: "Questions can only be asked during webinars. There is no webinar running in the current channel."
-    help: "*Meetings:*\n> Enter `/eyeson` to open an eyeson room in the current channel.\n> A link to eyeson room will be posted to all members once you've entered.\n\n*Webinars:*\n> Enter `/eyeson-webinar` to start a webinar in the current channel.\n> A YouTube player will be posted to all members once you've started the live stream in eyeson room.\n\n*Webinar Questions:*\n> Enter `/eyeson-ask [Your question]` to post a question.\n> E.g. `/eyeson-ask How much is the fish?` will display _How much is the fish?_ in eyeson room.\n\nFor more help, click here: %{url}"
-    asked: "*Question from <@%{username}|%{username}>:*\n%{question}"
+    help: "*Meetings:*\n> Enter `/eyeson` to open an eyeson room in the current channel.\n> A link to eyeson room will be posted to all members once you've entered.\n\n*Webinars:*\n> Enter `/eyeson-webinar` to start a webinar in the current channel.\n> A YouTube player will be posted to all members once you've started the live stream in eyeson room.\n\nFor more help, click here: %{url}"
 
   meetings:
     show:
       opened: "opened an eyeson room\n<%{url}|Join here>"
       joined: "_joined the eyeson room_ :eyes:"
       broadcast_info: "eyeson webinar has started.\nClick on 'View thread' below to watch the live stream.\n:point_down::point_down::point_down:"
-      broadcast_url: "%{url}\n\n:warning: PLEASE DO NOT REPLY IN THIS THREAD :warning:\n\n> *How to ask questions:*\n> Use the `/eyeson-ask [Your question]` command to post questions.\n> E.g. `/eyeson-ask How much is the fish?` will display _How much is the fish?_ in eyeson room."
-      slides_info: "eyeson webinar timeline\nAll activities will be attached here."
+      broadcast_url: "%{url}\n\n:information_source: If video stops playing, open the video on an external page."

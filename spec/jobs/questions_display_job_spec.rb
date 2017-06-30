@@ -45,7 +45,7 @@ RSpec.describe QuestionsDisplayJob, type: :active_job do
     job.send(:requeue, channel, 'user', 'Question')
   end
 
-  it 'should post question to eyeson and slack chat' do
+  it 'should post question to eyeson' do
     initializer  = User.find(channel.initializer_id)
     access_token = initializer.access_token
 
@@ -55,10 +55,6 @@ RSpec.describe QuestionsDisplayJob, type: :active_job do
       content: '/ask @user: q'
     )
     Eyeson::Message.expects(:new).with(channel.access_key).returns(em)
-
-    sn = mock('SN')
-    sn.expects(:question).with('user', 'q')
-    SlackNotificationService.expects(:new).with(access_token, channel).returns(sn)
                             
     job.send(:post_to_chat, channel, 'user', 'q')
   end

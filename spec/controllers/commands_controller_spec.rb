@@ -35,6 +35,7 @@ RSpec.describe CommandsController, type: :controller do
       external_id: command_params[:channel_id]
     ).returns(channel)
     channel.expects(:name=).with(command_params[:channel_name])
+    channel.expects(:initializer_id=).with(user.id)
     channel.expects(:thread_id=).with(nil)
     channel.expects(:webinar_mode=).with(false)
     channel.expects(:save!)
@@ -48,27 +49,29 @@ RSpec.describe CommandsController, type: :controller do
       external_id: command_params[:channel_id] + '_webinar'
     ).returns(channel)
     channel.expects(:name=).with(command_params[:channel_name])
+    channel.expects(:initializer_id=).with(user.id)
     channel.expects(:thread_id=).with(nil)
     channel.expects(:webinar_mode=).with(true)
     channel.expects(:save!)
     post :create, params: command_params.merge(command: '/eyeson-test-webinar')
   end
 
-  it 'should not setup channel info for question' do
-    channel
-    c = Channel.any_instance
-    c.expects(:name=).never
-    c.expects(:new_command=).never
-    c.expects(:thread_id=).never
-    c.expects(:webinar_mode=).never
-    c.expects(:save!).never
-    post :create, params: command_params.merge(command: '/eyeson-test-ask', text: 'Question')
-  end
-
   it 'should skip team and channel for help' do
     Team.expects(:find_by).never
     Channel.expects(:find_or_initialize_by).never
     post :create, params: command_params.merge(text: 'help')
+  end
+
+  it 'should skip team and channel for event verification' do
+    Team.expects(:find_by).never
+    Channel.expects(:find_or_initialize_by).never
+    post :create, params: command_params.merge(challenge: 'xyz')
+  end
+
+  it 'should skip team and channel for event' do
+    Team.expects(:find_by).never
+    Channel.expects(:find_or_initialize_by).never
+    post :create, params: command_params.merge(type: 'event_callback', event: { type: 'test' })
   end
 
   it 'should save channel to team' do
@@ -108,39 +111,22 @@ RSpec.describe CommandsController, type: :controller do
     expect(JSON.parse(response.body)['text']).to eq(text)
   end
 
-  it 'should handle question command' do
-    external_id = channel.external_id
-    channel.external_id = external_id + '_webinar'
-    channel.access_key  = Faker::Crypto.md5
-    channel.save
-    job = mock('Job')
-    job.expects(:perform_later).with(
-      channel.id.to_s,
-      command_params[:user_name],
-      'Is this a question?'
-    )
-    QuestionsDisplayJob.expects(:set).with(priority: -1).returns(job)
-    post :create, params: command_params.merge(channel_id: external_id, command: '/eyeson-test-ask', text: 'Is this a question?')
-    expect(response.status).to eq(200)
-    expect(JSON.parse(response.body)['text']).to eq(I18n.t('.question_response', question: 'Is this a question?', scope: [:commands]))
-  end
-
-  it 'should not render question without question' do
-    external_id = channel.external_id
-    channel.external_id = external_id + '_webinar'
-    channel.access_key  = Faker::Crypto.md5
-    channel.save
-    QuestionsDisplayJob.expects(:set).never
-    post :create, params: command_params.merge(channel_id: external_id, command: '/eyeson-test-ask')
-    expect(response.status).to eq(200)
-  end
-
-  it 'should return question failed unless webinar exists' do
-    QuestionsDisplayJob.expects(:set).never
-    post :create, params: command_params.merge(channel_id: channel.external_id, command: '/eyeson-test-ask')
-    expect(response.status).to eq(200)
-    expect(JSON.parse(response.body)['text']).to eq(I18n.t('.question_failed', scope: [:commands]))
-  end
+  # it 'should handle question event' do
+  #   external_id = channel.external_id
+  #   channel.external_id = external_id + '_webinar'
+  #   channel.access_key  = Faker::Crypto.md5
+  #   channel.save
+  #   job = mock('Job')
+  #   job.expects(:perform_later).with(
+  #     channel.id.to_s,
+  #     command_params[:user_name],
+  #     'Is this a question?'
+  #   )
+  #   QuestionsDisplayJob.expects(:set).with(priority: -1).returns(job)
+  #   post :create, params: command_params.merge(channel_id: external_id, command: '/eyeson-test-ask', text: 'Is this a question?')
+  #   expect(response.status).to eq(200)
+  #   expect(JSON.parse(response.body)['text']).to eq(I18n.t('.question_response', question: 'Is this a question?', scope: [:commands]))
+  # end
 end
 
 def command_params
