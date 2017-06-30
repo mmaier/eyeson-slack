@@ -12,7 +12,7 @@ RSpec.describe TeamsController, type: :controller do
   it 'should ask for command permissions during setup' do
     expects_authorize_with(
       redirect_uri: setup_complete_url,
-      scope: %w(identify commands chat:write:user files:write:user),
+      scope: %w(identify commands channels:history users:read),
       team: 'xyz'
     )
     get :setup, params: { team_id: 'xyz' }

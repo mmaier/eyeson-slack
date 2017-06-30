@@ -71,20 +71,16 @@ class CommandsController < ApplicationController
 
   def meeting_response
     url = meeting_url(id: @channel.external_id)
-    {
-      text: I18n.t('.meeting_response',
+    { text: I18n.t('.meeting_response',
                    url: url,
-                   scope: [:commands])
-    }
+                   scope: [:commands]) }
   end
 
   def webinar_response
     url = webinar_url(id: @channel.external_id)
-    {
-      text: I18n.t('.webinar_response',
+    { text: I18n.t('.webinar_response',
                    url:   url,
-                   scope: [:commands])
-    }
+                   scope: [:commands]) }
   end
 
   def setup_channel!
@@ -111,7 +107,15 @@ class CommandsController < ApplicationController
   def create_display_job_for(event)
     QuestionsDisplayJob.set(priority: -1)
                        .perform_later(@channel.id.to_s,
-                                      event[:user],
+                                      user_by(event[:user]),
                                       event[:text])
+  end
+
+  def user_by(external_id)
+    u = User.find_by(external_id: external_id).try(:name)
+    return u if u.present?
+    slack_api = SlackApi.new(@channel.executing_user(external_id)
+                        .try(:access_token))
+    slack_api.get('/users.info', user: external_id)['user']['name']
   end
 end

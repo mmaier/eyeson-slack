@@ -28,7 +28,7 @@ class WebhooksController < ApplicationController
 
   def broadcast_update
     access_token = slack_key_from(broadcast_params)
-    return if access_token.nil?
+    return if access_token.nil? || !@channel.webinar_mode?
     BroadcastsInfoJob.perform_later(
       access_token,
       @channel.id.to_s,
@@ -39,13 +39,7 @@ class WebhooksController < ApplicationController
   def slack_key_from(params)
     @channel = Channel.find_by(external_id: params[:room_id])
     return if @channel.blank?
-    executing_user(params[:user_id]).try(:access_token)
-  end
-
-  def executing_user(external_id)
-    User.find_by(team: @channel.team,
-                 email: external_id) ||
-      User.find(@channel.initializer_id)
+    @channel.executing_user(params[:user_id]).try(:access_token)
   end
 
   def presentation_params

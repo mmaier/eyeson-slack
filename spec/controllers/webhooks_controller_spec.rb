@@ -92,6 +92,8 @@ RSpec.describe WebhooksController, type: :controller do
 
   it 'should handle broadcast_update' do
     url     = Faker::Internet.url
+    channel.webinar_mode = true
+    channel.save
 
     BroadcastsInfoJob.expects(:perform_later).with(
       user.access_token,
@@ -118,11 +120,25 @@ RSpec.describe WebhooksController, type: :controller do
 
     post :create, params: {
       api_key: 'test',
-      type: 'presentation_update',
-      presentation: {
+      type: 'broadcast_update',
+      broadcast: {
         user: { id: user.email },
         room: { id: channel.external_id },
-        slide: Faker::Internet.url
+        url: Faker::Internet.url
+      }
+    }
+  end
+
+  it 'should not execute broadcast_update in non webinar_mode' do    
+    BroadcastsInfoJob.expects(:perform_later).never
+
+    post :create, params: {
+      api_key: 'test',
+      type: 'broadcast_update',
+      broadcast: {
+        user: { id: user.email },
+        room: { id: channel.external_id },
+        url: Faker::Internet.url
       }
     }
   end

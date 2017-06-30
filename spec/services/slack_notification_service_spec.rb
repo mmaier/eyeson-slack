@@ -84,7 +84,7 @@ RSpec.describe SlackNotificationService, type: :class do
     channel.save
     slack_api = mock('Slack Api')
     url  = Faker::Internet.url
-    text = I18n.t('.broadcast_info', scope: %i[meetings show])
+    text = I18n.t('.broadcast_info', url: url, scope: %i[meetings show])
     slack_api.expects(:post_message!).with(
       channel:     external_id,
       attachments: [{ color: '#9e206c', thumb_url: root_url + '/icon.png',
