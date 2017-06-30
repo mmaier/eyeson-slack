@@ -10,5 +10,5 @@ en:
     show:
       opened: "opened an eyeson room\n<%{url}|Join here>"
       joined: "_joined the eyeson room_ :eyes:"
-      broadcast_info: "eyeson webinar has started.\nClick on 'View thread' below to watch the live stream.\n:point_down::point_down::point_down:"
-      broadcast_url: "%{url}\n\n:information_source: If video stops playing, open the video on an external page."
+      broadcast_info: "eyeson webinar has started.\n<%{url}|Open live stream in new window>\nor watch the live stream in Slack by clicking on 'View thread' below.\n:point_down::point_down::point_down:"
+      broadcast_url: "%{url}\n\n:information_source: If video stops playing, <%{url}|open live stream in new window>."

@@ -102,14 +102,16 @@ class CommandsController < ApplicationController
   end
 
   def handle_event(event)
-    return unless event['type'] == 'message.channels'
-    Rails.logger.info "EVENT RECEIVED: #{event.inspect}"
+    return unless event[:type] == 'message'
+    @channel = Channel.find_by(external_id: event[:channel])
+    return unless @channel.thread_id == event[:thread_ts]
+    create_display_job_for(event)
   end
 
-  # def create_display_job
-  #   QuestionsDisplayJob.set(priority: -1)
-  #                      .perform_later(@channel.id.to_s,
-  #                                     params[:user_name],
-  #                                     params[:text])
-  # end
+  def create_display_job_for(event)
+    QuestionsDisplayJob.set(priority: -1)
+                       .perform_later(@channel.id.to_s,
+                                      event[:user],
+                                      event[:text])
+  end
 end

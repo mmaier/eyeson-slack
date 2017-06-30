@@ -51,7 +51,7 @@ class SlackNotificationService
   end
 
   def post_broadcast_info(url)
-    text = I18n.t('.broadcast_info', scope: %i[meetings show])
+    text = I18n.t('.broadcast_info', url: url, scope: %i[meetings show])
     message = @slack_api.post_message!(
       channel:     original_external_id,
       attachments: [{ color: '#9e206c', thumb_url: root_url + '/icon.png',

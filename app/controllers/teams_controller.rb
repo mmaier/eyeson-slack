@@ -10,7 +10,7 @@ class TeamsController < ApplicationController
   def setup
     redirect_to @slack_api.authorize!(
       redirect_uri: setup_complete_url,
-      scope:        %w[identify commands] + SlackApi::DEFAULT_SCOPE,
+      scope:        %w[identify commands channels:history],
       team:         params[:team_id]
     )
   end
