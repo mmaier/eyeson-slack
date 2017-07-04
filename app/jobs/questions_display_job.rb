@@ -19,11 +19,13 @@ class QuestionsDisplayJob < ApplicationJob
   private
 
   def question_active?(channel)
-    channel.last_question_at && channel.last_question_at >= 10.seconds.ago
+    channel.last_question_displayed_at &&
+      channel.last_question_displayed_at >= 10.seconds.ago
   end
 
   def clearable?(channel)
-    channel.last_question_at && channel.last_question_at < 10.seconds.ago
+    channel.last_question_displayed_at &&
+      channel.last_question_displayed_at < 10.seconds.ago
   end
 
   def requeue(channel, username, question)
@@ -40,13 +42,13 @@ class QuestionsDisplayJob < ApplicationJob
 
   def clear(channel)
     return if channel.access_key.blank?
-    channel.update last_question_at: nil
+    channel.update last_question_displayed_at: nil
     Eyeson::Layer.new(channel.access_key).destroy
   end
 
   def set_layer(channel, username, question)
     return if channel.access_key.blank?
-    channel.update last_question_at: Time.current
+    channel.update last_question_displayed_at: Time.current
     layer = Eyeson::Layer.new(channel.access_key)
     layer.create(url: question_image(username, question))
     QuestionsDisplayJob.set(wait: 10.seconds, priority: 1)

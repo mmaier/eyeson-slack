@@ -1,7 +1,6 @@
 # Executes slack command
 class CommandsController < ApplicationController
   before_action :valid_slack_token!
-  before_action :event?
   before_action :help?
   before_action :team_exists!
   before_action :setup_channel!
@@ -23,15 +22,6 @@ class CommandsController < ApplicationController
     render json: {
       text: I18n.t('.invalid_slack_token', scope: [:commands])
     }
-  end
-
-  def event?
-    if params[:challenge].present?
-      render json: { challenge: params[:challenge] }
-    elsif params[:type] == 'event_callback'
-      handle_event(params.require(:event))
-      head :ok
-    end
   end
 
   def help?
@@ -93,28 +83,5 @@ class CommandsController < ApplicationController
     @channel.thread_id      = nil
     @channel.webinar_mode   = webinar?
     @channel.save!
-  end
-
-  def handle_event(event)
-    return unless event[:type] == 'message'
-    return if event[:bot_id].present?
-    @channel = Channel.find_by(external_id: "#{event[:channel]}_webinar")
-    return unless @channel.thread_id == event[:thread_ts]
-    create_display_job_for(event)
-  end
-
-  def create_display_job_for(event)
-    QuestionsDisplayJob.set(priority: -1)
-                       .perform_later(@channel.id.to_s,
-                                      user_by(event[:user]),
-                                      event[:text])
-  end
-
-  def user_by(external_id)
-    u = User.find_by(external_id: external_id).try(:name)
-    return u if u.present?
-    slack_api = SlackApi.new(@channel.executing_user(external_id)
-                        .try(:access_token))
-    slack_api.get('/users.info', user: external_id)['user']['name']
   end
 end

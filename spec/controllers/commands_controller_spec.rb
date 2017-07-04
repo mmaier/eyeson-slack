@@ -62,18 +62,6 @@ RSpec.describe CommandsController, type: :controller do
     post :create, params: command_params.merge(text: 'help')
   end
 
-  it 'should skip team and channel for event verification' do
-    Team.expects(:find_by).never
-    Channel.expects(:find_or_initialize_by).never
-    post :create, params: command_params.merge(challenge: 'xyz')
-  end
-
-  it 'should skip team and channel for event' do
-    Team.expects(:find_by).never
-    Channel.expects(:find_or_initialize_by).never
-    post :create, params: command_params.merge(type: 'event_callback', event: { type: 'test' })
-  end
-
   it 'should save channel to team' do
     post :create, params: command_params
     team = Team.find_by(external_id: command_params[:team_id])
@@ -110,23 +98,6 @@ RSpec.describe CommandsController, type: :controller do
     expect(response.status).to eq(200)
     expect(JSON.parse(response.body)['text']).to eq(text)
   end
-
-  # it 'should handle question event' do
-  #   external_id = channel.external_id
-  #   channel.external_id = external_id + '_webinar'
-  #   channel.access_key  = Faker::Crypto.md5
-  #   channel.save
-  #   job = mock('Job')
-  #   job.expects(:perform_later).with(
-  #     channel.id.to_s,
-  #     command_params[:user_name],
-  #     'Is this a question?'
-  #   )
-  #   QuestionsDisplayJob.expects(:set).with(priority: -1).returns(job)
-  #   post :create, params: command_params.merge(channel_id: external_id, command: '/eyeson-test-ask', text: 'Is this a question?')
-  #   expect(response.status).to eq(200)
-  #   expect(JSON.parse(response.body)['text']).to eq(I18n.t('.question_response', question: 'Is this a question?', scope: [:commands]))
-  # end
 end
 
 def command_params

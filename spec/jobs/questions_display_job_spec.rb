@@ -15,21 +15,21 @@ RSpec.describe QuestionsDisplayJob, type: :active_job do
   end
 
   it 'should perform requeue unless last question was shown more than 10 seconds ago' do
-    channel.last_question_at = Time.now
+    channel.last_question_displayed_at = Time.now
     channel.save
     job.expects(:requeue).with(channel, 'user', 'Question')
     job.perform(channel.id.to_s, 'user', 'Question')
   end
 
   it 'should perform clear when last question was shown more than 10 seconds ago' do
-    channel.last_question_at = 12.seconds.ago
+    channel.last_question_displayed_at = 12.seconds.ago
     channel.save
     job.expects(:clear).with(channel)
     job.perform(channel.id.to_s)
   end
 
   it 'should not perform clear unless last question was shown more than 10 seconds ago' do
-    channel.last_question_at = Time.now
+    channel.last_question_displayed_at = Time.now
     channel.save
     job.expects(:clear).never
     job.perform(channel.id.to_s)
