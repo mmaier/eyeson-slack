@@ -98,7 +98,7 @@ class CommandsController < ApplicationController
   def handle_event(event)
     return unless event[:type] == 'message'
     return if event[:bot_id].present?
-    @channel = Channel.find_by(external_id: event[:channel])
+    @channel = Channel.find_by(external_id: "#{event[:channel]}_webinar")
     return unless @channel.thread_id == event[:thread_ts]
     create_display_job_for(event)
   end
