@@ -50,8 +50,10 @@ class QuestionsCrawlerJob < ApplicationJob
   end
 
   def wait_for(last_question_displayed_at)
-    return 0.seconds unless last_question_displayed_at
-    (Time.current - last_question_displayed_at).to_i
+    time_since_last_question = (
+      Time.current.to_i - last_question_displayed_at.to_i
+    )
+    [QuestionsDisplayJob::INTERVAL - time_since_last_question, 0].max
   end
 
   def show_message?(m)
