@@ -102,29 +102,6 @@ RSpec.describe MeetingsController, type: :controller do
     get :show, params: { id: channel.external_id, user_id: user.id }
   end
 
-  it 'should crawl questions in webinar mode' do
-    channel.webinar_mode = true
-    channel.save
-
-    expects_eyeson_room_with
-    expects_slack_notification
-    Eyeson::Intercom.expects(:post)
-
-    QuestionsCrawlerJob.expects(:perform_later).with(channel.id.to_s)
-
-    get :show, params: { id: channel.external_id, user_id: user.id }
-  end
-
-  it 'should not crawl questions in meeting mode' do
-    expects_eyeson_room_with
-    expects_slack_notification
-    Eyeson::Intercom.expects(:post)
-
-    QuestionsCrawlerJob.expects(:perform_later).never
-
-    get :show, params: { id: channel.external_id, user_id: user.id }
-  end
-
   it 'should handle eyeson api error' do
     error = 'some error'
 

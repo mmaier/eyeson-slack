@@ -10,7 +10,6 @@ class MeetingsController < ApplicationController
   before_action :user_belongs_to_team!
   before_action :scope_required!
   after_action  :update_access_key
-  after_action  :crawl_webinar_questions
 
   def show
     @room = Eyeson::Room.join(id: @channel.external_id,
@@ -93,10 +92,5 @@ class MeetingsController < ApplicationController
   def update_access_key
     key = (@channel.webinar_mode? ? nil : @room.access_key)
     @channel.update access_key: key
-  end
-
-  def crawl_webinar_questions
-    return unless @channel.webinar_mode?
-    QuestionsCrawlerJob.perform_later(@channel.id.to_s)
   end
 end

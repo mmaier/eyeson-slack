@@ -7,7 +7,12 @@ class BroadcastsInfoJob < ApplicationJob
     channel       = Channel.find(args[1])
     broadcast_url = args[2]
 
+    # rubocop:disable Rails/SkipsModelValidations
+    channel.touch
+
     SlackNotificationService.new(access_token, channel)
                             .broadcast(broadcast_url)
+
+    QuestionsCrawlerJob.perform_later(channel.id.to_s)
   end
 end
