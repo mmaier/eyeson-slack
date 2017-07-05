@@ -89,16 +89,20 @@ RSpec.describe QuestionsCrawlerJob, type: :active_job do
       user.name,
       text
     )
-    QuestionsDisplayJob.expects(:set).with(wait: 0.seconds, priority: -1).returns(display_job)
+    QuestionsDisplayJob.expects(:set).with(wait: 5.seconds, priority: -1).returns(display_job)
 
-    job.send(:create_display_job_for, channel, user.external_id, text, 0.seconds)
+    job.send(:create_display_job_for, channel, user.external_id, text, 5.seconds)
+  end
+
+  it 'should return a waiting time when a display job is already active' do
+    channel.update last_question_displayed_at: 5.seconds.ago
+    expect(job.send(:wait_for, channel.last_question_displayed_at)).to eq(5.seconds)
   end
 
   it 'should not create a display job when text is blank' do
     user = create(:user)
-    text = ''
     QuestionsDisplayJob.expects(:set).never
-    job.send(:create_display_job_for, channel, user.external_id, text, false)
+    job.send(:create_display_job_for, channel, user.external_id, '', 0.seconds)
   end
 
   it 'should crawl slack user information' do

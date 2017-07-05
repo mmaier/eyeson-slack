@@ -3,12 +3,12 @@ en:
     invalid_slack_token: "Verification not correct"
     invalid_setup: "Your app hasn't been setup properly.\n*<%{url}|Finalize your setup here>.*"
     meeting_response: "Your eyeson room is ready: *<%{url}|Open>*\nA link to the eyeson room will be posted to all channel members once you have entered."
-    webinar_response: "A YouTube player will be posted to all channel members once you have started the live stream within eyeson room.\n\nInvite speakers by sending them the eyeson room guest link.\n\n*<%{url}|Open eyeson room to prepare for webinar>*"
+    webinar_response: "*Audience:* A YouTube player will be posted to all channel members once you have started the live stream within eyeson room.\n\n*Speakers:*\nMembers of your Slack team can join in advance by visiting `%{url}`.\nInvite external speakers on demand by sending them the eyeson room guest link, which becomes available once the webinar has started.\n\n*<%{url}|Open eyeson room to prepare for webinar>*"
     help: "*Meetings:*\n> Enter `/eyeson` to open an eyeson room in the current channel.\n> A link to eyeson room will be posted to all members once you've entered.\n\n*Webinars:*\n> Enter `/eyeson-webinar` to start a webinar in the current channel.\n> A YouTube player will be posted to all members once you've started the live stream in eyeson room.\n\nFor more help, click here: %{url}"
 
   meetings:
     show:
       opened: "opened an eyeson room\n<%{url}|Join here>"
       joined: "_joined the eyeson room_ :eyes:"
-      broadcast_info: "eyeson webinar has started.\n<%{url}|Open live stream in new window>\nor watch the live stream in Slack by clicking on 'View thread' below.\n:point_down::point_down::point_down:"
+      broadcast_info: "started an eyeson webinar.\n<%{url}|Open live stream in new window>\nor watch the live stream in Slack by clicking on 'View thread' below.\n:point_down::point_down::point_down:"
       broadcast_url: ":information_source: If video stops playing, <%{url}|open live stream in new window>."

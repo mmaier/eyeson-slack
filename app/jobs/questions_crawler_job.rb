@@ -35,7 +35,7 @@ class QuestionsCrawlerJob < ApplicationJob
 
   def extract_messages(channel, messages)
     last_message_ts = nil
-    wait = 0.seconds
+    wait = wait_for(channel.last_question_displayed_at)
 
     messages.each do |m|
       next unless show_message?(m)
@@ -46,6 +46,11 @@ class QuestionsCrawlerJob < ApplicationJob
     end
 
     last_message_ts
+  end
+
+  def wait_for(last_question_displayed_at)
+    return 0.seconds unless last_question_displayed_at
+    (Time.current - last_question_displayed_at).to_i
   end
 
   def show_message?(m)
