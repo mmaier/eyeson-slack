@@ -43,7 +43,6 @@ RSpec.describe QuestionsDisplayJob, type: :active_job do
       'Question'
     )
     QuestionsDisplayJob.expects(:set).with(
-      wait: channel.last_question_displayed_at + QuestionsDisplayJob::INTERVAL,
       priority: -2
     ).returns(job)
     job.send(:requeue, channel, 'user', 'Question')
