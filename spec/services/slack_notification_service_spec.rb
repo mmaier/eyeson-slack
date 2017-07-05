@@ -41,9 +41,8 @@ RSpec.describe SlackNotificationService, type: :class do
       ]
     ).returns({ 'ts' => '123' })
     SlackApi.expects(:new).returns(slack_api)
-    channel.expects(:thread_id=).with('123')
-    channel.expects(:save)
     slack.send(:post_open_info)
+    expect(channel.thread_id).to eq('123')
   end
 
   it 'should post open info unless thread_id is present' do
@@ -95,10 +94,12 @@ RSpec.describe SlackNotificationService, type: :class do
       channel:     external_id,
       thread_ts:   '123',
       text:        I18n.t('.broadcast_url', url: url, scope: %i[meetings show])
-    )
+    ).returns({ 'ts' => '456' })
 
     SlackApi.expects(:new).returns(slack_api)
     slack.send(:post_broadcast_info, url)
+    expect(channel.thread_id).to eq('123')
+    expect(channel.last_question_queued).to eq('456'.to_f)
   end
 
   it 'should post broadcast_info without slides_info for existing thread' do

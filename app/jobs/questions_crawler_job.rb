@@ -35,6 +35,7 @@ class QuestionsCrawlerJob < ApplicationJob
       next unless m['type'] == 'message'
       last_message_ts = m['ts'].to_f
       next if last_message_ts <= channel.last_question_queued.to_f
+      Rails.logger.info "NEW MESSAGE IN QUEUE: #{m.inspect}"
       create_display_job_for(channel, m['user'], m['text'])
     end
 
@@ -42,6 +43,7 @@ class QuestionsCrawlerJob < ApplicationJob
   end
 
   def create_display_job_for(channel, user_id, text)
+    return if text.blank?
     QuestionsDisplayJob.set(priority: -1)
                        .perform_later(channel.id.to_s,
                                       user_by(channel, user_id),

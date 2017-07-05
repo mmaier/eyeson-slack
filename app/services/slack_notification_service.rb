@@ -38,8 +38,7 @@ class SlackNotificationService
       attachments: [{ color: '#9e206c', thumb_url: root_url + '/icon.png',
                       fallback: text, text: text }]
     )
-    @channel.thread_id = message['ts']
-    @channel.save
+    @channel.update thread_id: message['ts']
   end
 
   def post_join_info
@@ -57,19 +56,18 @@ class SlackNotificationService
       attachments: [{ color: '#9e206c', thumb_url: root_url + '/icon.png',
                       fallback: text, text: text }]
     )
-
-    @channel.thread_id = message['ts']
-    @channel.save
+    @channel.update thread_id: message['ts']
 
     attach_broadcast_url_to(url, message)
   end
 
   def attach_broadcast_url_to(url, message)
-    @slack_api.post_message!(
+    message = @slack_api.post_message!(
       channel:     original_external_id,
       thread_ts:   message['ts'],
       text:        I18n.t('.broadcast_url', url: url, scope: %i[meetings show])
     )
+    @channel.update last_question_queued: message['ts']
   end
 
   def original_external_id

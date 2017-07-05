@@ -88,6 +88,13 @@ RSpec.describe QuestionsCrawlerJob, type: :active_job do
     job.send(:create_display_job_for, channel, user.external_id, text)
   end
 
+  it 'should not create a display job when text is blank' do
+    user = create(:user)
+    text = ''
+    QuestionsDisplayJob.expects(:set).never
+    job.send(:create_display_job_for, channel, user.external_id, text)
+  end
+
   it 'should crawl slack user information' do
     user_id = Faker::Crypto.md5
     slack = mock('Slack')
