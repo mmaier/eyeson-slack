@@ -12,10 +12,14 @@ class QuestionsCrawlerJob < ApplicationJob
 
     get_messages(channel, slack_api)
 
-    QuestionsCrawlerJob.perform_later(args[0])
+    requeue(args[0])
   end
 
   private
+
+  def requeue(channel_id)
+    QuestionsCrawlerJob.set(wait: 5.seconds).perform_later(channel_id)
+  end
 
   def get_messages(channel, slack_api)
     messages = slack_api.get('/channels.replies',
@@ -32,10 +36,9 @@ class QuestionsCrawlerJob < ApplicationJob
     last_message_ts = nil
 
     messages.each do |m|
-      next unless m['type'] == 'message'
+      next if m['type'] != 'message' || m['bot_id'].present?
       last_message_ts = m['ts'].to_f
       next if last_message_ts <= channel.last_question_queued.to_f
-      Rails.logger.info "NEW MESSAGE IN QUEUE: #{m.inspect}"
       create_display_job_for(channel, m['user'], m['text'])
     end
 

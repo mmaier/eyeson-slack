@@ -13,21 +13,23 @@ RSpec.describe BroadcastsInfoJob, type: :active_job do
     SlackNotificationService.expects(:new).with(access_token, channel)
                             .returns(sn)
 
-    QuestionsCrawlerJob.expects(:perform_later)
+    QuestionsCrawlerJob.expects(:set).returns(mock('Crawler', perform_later: true))
 
     job.perform(access_token, channel.id.to_s, url)
   end
 
   it 'should crawl questions' do
     SlackNotificationService.expects(:new).returns(mock('Slack Notification', broadcast: true))
-    QuestionsCrawlerJob.expects(:perform_later).with(channel.id.to_s)
+    qj = mock('Questions Crawler')
+    qj.expects(:perform_later).with(channel.id.to_s)
+    QuestionsCrawlerJob.expects(:set).with(wait: 5.seconds).returns(qj)
 
     job.perform(Faker::Crypto.md5, channel.id.to_s, Faker::Internet.url)
   end
 
   it 'should update channel updated_at' do
     SlackNotificationService.expects(:new).returns(mock('Slack Notification', broadcast: true))
-    QuestionsCrawlerJob.expects(:perform_later)
+    QuestionsCrawlerJob.expects(:set).returns(mock('Crawler', perform_later: true))
 
     Channel.any_instance.expects(:touch)
 
