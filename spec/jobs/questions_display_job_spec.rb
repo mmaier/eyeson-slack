@@ -43,7 +43,7 @@ RSpec.describe QuestionsDisplayJob, type: :active_job do
       'Question'
     )
     QuestionsDisplayJob.expects(:set).with(
-      wait: channel.last_question_displayed_at + 9.seconds,
+      wait: channel.last_question_displayed_at + QuestionsDisplayJob::INTERVAL,
       priority: -2
     ).returns(job)
     job.send(:requeue, channel, 'user', 'Question')
@@ -82,7 +82,7 @@ RSpec.describe QuestionsDisplayJob, type: :active_job do
     job.expects(:post_to_chat).with(channel, 'user', 'Question')
 
     job.expects(:perform_later).with(channel.id.to_s)
-    QuestionsDisplayJob.expects(:set).with(wait: 10.seconds, priority: 1).returns(job)
+    QuestionsDisplayJob.expects(:set).with(wait: QuestionsDisplayJob::INTERVAL, priority: 1).returns(job)
                        
     job.send(:display, channel, 'user', 'Question')
   end

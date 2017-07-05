@@ -13,6 +13,7 @@ class BroadcastsInfoJob < ApplicationJob
     SlackNotificationService.new(access_token, channel)
                             .broadcast(broadcast_url)
 
-    QuestionsCrawlerJob.set(wait: 8.seconds).perform_later(channel.id.to_s)
+    QuestionsCrawlerJob.set(wait: QuestionsDisplayJob::INTERVAL)
+                       .perform_later(channel.id.to_s)
   end
 end

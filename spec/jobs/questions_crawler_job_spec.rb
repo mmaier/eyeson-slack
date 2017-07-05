@@ -19,7 +19,7 @@ RSpec.describe QuestionsCrawlerJob, type: :active_job do
 
   it 'should requeue' do
     job.expects(:perform_later).with('123')
-    QuestionsCrawlerJob.expects(:set).with(wait: 8.seconds).returns(job)
+    QuestionsCrawlerJob.expects(:set).with(wait: QuestionsDisplayJob::INTERVAL).returns(job)
     job.send(:requeue, '123')
   end
 
@@ -51,10 +51,10 @@ RSpec.describe QuestionsCrawlerJob, type: :active_job do
 
   it 'should queue messages' do
     messages = []
-    10.times do
+    10.times do |i|
       m = message
       messages << m
-      job.expects(:create_display_job_for).with(channel, m['user'], m['text'])
+      job.expects(:create_display_job_for).with(channel, m['user'], m['text'], i != 0)
     end
 
     expect(job.send(:extract_messages, channel, messages)).to eq(messages.last['ts'])
@@ -64,12 +64,12 @@ RSpec.describe QuestionsCrawlerJob, type: :active_job do
     messages = []
     10.times do |i|
       m = message
-      m['ts'] = 8.seconds.from_now.to_i if i == 9
+      m['ts'] = QuestionsDisplayJob::INTERVAL.from_now.to_i if i == 9
       messages << m
     end
 
     channel.update last_question_queued: messages[8]['ts']
-    job.expects(:create_display_job_for).with(channel, messages.last['user'], messages.last['text'])
+    job.expects(:create_display_job_for).with(channel, messages.last['user'], messages.last['text'], false)
     job.send(:extract_messages, channel, messages)
   end
 
@@ -89,16 +89,16 @@ RSpec.describe QuestionsCrawlerJob, type: :active_job do
       user.name,
       text
     )
-    QuestionsDisplayJob.expects(:set).with(priority: -1).returns(display_job)
+    QuestionsDisplayJob.expects(:set).with(wait: nil, priority: -1).returns(display_job)
 
-    job.send(:create_display_job_for, channel, user.external_id, text)
+    job.send(:create_display_job_for, channel, user.external_id, text, false)
   end
 
   it 'should not create a display job when text is blank' do
     user = create(:user)
     text = ''
     QuestionsDisplayJob.expects(:set).never
-    job.send(:create_display_job_for, channel, user.external_id, text)
+    job.send(:create_display_job_for, channel, user.external_id, text, false)
   end
 
   it 'should crawl slack user information' do

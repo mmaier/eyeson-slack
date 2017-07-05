@@ -18,7 +18,7 @@ class QuestionsCrawlerJob < ApplicationJob
   private
 
   def requeue(channel_id)
-    QuestionsCrawlerJob.set(wait: 8.seconds)
+    QuestionsCrawlerJob.set(wait: QuestionsDisplayJob::INTERVAL)
                        .perform_later(channel_id)
   end
 
@@ -35,23 +35,27 @@ class QuestionsCrawlerJob < ApplicationJob
 
   def extract_messages(channel, messages)
     last_message_ts = nil
+    wait = false
 
     messages.each do |m|
       next if m['type'] != 'message' || m['bot_id'].present?
       last_message_ts = m['ts'].to_f
       next if last_message_ts <= channel.last_question_queued.to_f
-      create_display_job_for(channel, m['user'], m['text'])
+      create_display_job_for(channel, m['user'], m['text'], wait)
+      wait = true
     end
 
     last_message_ts
   end
 
-  def create_display_job_for(channel, user_id, text)
+  def create_display_job_for(channel, user_id, text, wait)
     return if text.blank?
-    QuestionsDisplayJob.set(priority: -1)
-                       .perform_later(channel.id.to_s,
-                                      user_by(channel, user_id),
-                                      text)
+    QuestionsDisplayJob.set(
+      wait: (wait ? QuestionsDisplayJob::INTERVAL : nil),
+      priority: -1
+    ).perform_later(channel.id.to_s,
+                    user_by(channel, user_id),
+                    text)
   end
 
   def user_by(channel, external_id)

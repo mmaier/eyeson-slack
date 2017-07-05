@@ -2,6 +2,8 @@
 class QuestionsDisplayJob < ApplicationJob
   queue_as :default
 
+  INTERVAL = 10.seconds.freeze
+
   def perform(*args)
     channel  = Channel.find(args[0])
     username = args[1]
@@ -20,18 +22,18 @@ class QuestionsDisplayJob < ApplicationJob
 
   def question_active?(channel)
     channel.last_question_displayed_at &&
-      channel.last_question_displayed_at >= 10.seconds.ago
+      channel.last_question_displayed_at >= QuestionsDisplayJob::INTERVAL.ago
   end
 
   def clearable?(channel)
     channel.last_question_displayed_at &&
-      channel.last_question_displayed_at < 10.seconds.ago
+      channel.last_question_displayed_at < QuestionsDisplayJob::INTERVAL.ago
   end
 
   def requeue(channel, username, question)
     QuestionsDisplayJob.set(
       priority: -2,
-      wait: channel.last_question_displayed_at + 9.seconds
+      wait: channel.last_question_displayed_at + QuestionsDisplayJob::INTERVAL
     ).perform_later(channel.id.to_s,
                     username,
                     question)
@@ -54,7 +56,7 @@ class QuestionsDisplayJob < ApplicationJob
     channel.update last_question_displayed_at: Time.current
     layer = Eyeson::Layer.new(channel.access_key)
     layer.create(url: question_image(username, question))
-    QuestionsDisplayJob.set(wait: 10.seconds, priority: 1)
+    QuestionsDisplayJob.set(wait: QuestionsDisplayJob::INTERVAL, priority: 1)
                        .perform_later(channel.id.to_s)
   end
 
