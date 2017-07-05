@@ -22,7 +22,7 @@ RSpec.describe BroadcastsInfoJob, type: :active_job do
     SlackNotificationService.expects(:new).returns(mock('Slack Notification', broadcast: true))
     qj = mock('Questions Crawler')
     qj.expects(:perform_later).with(channel.id.to_s)
-    QuestionsCrawlerJob.expects(:set).with(wait: 5.seconds).returns(qj)
+    QuestionsCrawlerJob.expects(:set).with(wait: 10.seconds).returns(qj)
 
     job.perform(Faker::Crypto.md5, channel.id.to_s, Faker::Internet.url)
   end

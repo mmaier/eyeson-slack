@@ -19,7 +19,7 @@ RSpec.describe QuestionsCrawlerJob, type: :active_job do
 
   it 'should requeue' do
     job.expects(:perform_later).with('123')
-    QuestionsCrawlerJob.expects(:set).with(wait: 5.seconds).returns(job)
+    QuestionsCrawlerJob.expects(:set).with(wait: 10.seconds).returns(job)
     job.send(:requeue, '123')
   end
 

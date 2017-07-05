@@ -36,12 +36,16 @@ RSpec.describe QuestionsDisplayJob, type: :active_job do
   end
 
   it 'should requeue' do
+    channel.last_question_displayed_at = Time.current
     job.expects(:perform_later).with(
       channel.id.to_s,
       'user',
       'Question'
     )
-    QuestionsDisplayJob.expects(:set).with(priority: -2).returns(job)
+    QuestionsDisplayJob.expects(:set).with(
+      wait: channel.last_question_displayed_at + 10.seconds,
+      priority: -2
+    ).returns(job)
     job.send(:requeue, channel, 'user', 'Question')
   end
 

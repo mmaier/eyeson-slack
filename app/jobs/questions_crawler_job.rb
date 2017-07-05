@@ -18,7 +18,8 @@ class QuestionsCrawlerJob < ApplicationJob
   private
 
   def requeue(channel_id)
-    QuestionsCrawlerJob.set(wait: 5.seconds).perform_later(channel_id)
+    QuestionsCrawlerJob.set(wait: 10.seconds)
+                       .perform_later(channel_id)
   end
 
   def get_messages(channel, slack_api)
