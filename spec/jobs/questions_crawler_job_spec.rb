@@ -18,15 +18,15 @@ RSpec.describe QuestionsCrawlerJob, type: :active_job do
   end
 
   it 'should requeue' do
-    job.expects(:perform_later).with('123')
+    job.expects(:perform_later).with(channel.id.to_s)
     QuestionsCrawlerJob.expects(:set).with(wait: QuestionsDisplayJob::INTERVAL).returns(job)
-    job.send(:requeue, '123')
+    job.send(:requeue, channel)
   end
 
   it 'should not requeue when last update was 2 hours ago' do
     channel.update last_question_queued_at: 3.hours.ago
-    job.expects(:requeue).never
-    job.perform(channel.id.to_s)
+    QuestionsCrawlerJob.expects(:set).never
+    job.send(:requeue, channel)
   end
 
   it 'should get messages from slack api' do

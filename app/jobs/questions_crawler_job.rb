@@ -5,22 +5,21 @@ class QuestionsCrawlerJob < ApplicationJob
   def perform(*args)
     channel = Channel.find(args[0])
 
-    return if channel.last_question_queued_at &&
-              channel.last_question_queued_at < 2.hours.ago
-
     initializer = User.find(channel.initializer_id)
     slack_api   = SlackApi.new(initializer.access_token)
 
     get_messages(channel, slack_api)
 
-    requeue(args[0])
+    requeue(channel)
   end
 
   private
 
-  def requeue(channel_id)
+  def requeue(channel)
+    return if channel.last_question_queued_at &&
+              channel.last_question_queued_at < 2.hours.ago
     QuestionsCrawlerJob.set(wait: QuestionsDisplayJob::INTERVAL)
-                       .perform_later(channel_id)
+                       .perform_later(channel.id.to_s)
   end
 
   def get_messages(channel, slack_api)
