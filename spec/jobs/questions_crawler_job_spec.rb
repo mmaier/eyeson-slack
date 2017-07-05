@@ -54,7 +54,7 @@ RSpec.describe QuestionsCrawlerJob, type: :active_job do
     10.times do |i|
       m = message
       messages << m
-      job.expects(:create_display_job_for).with(channel, m['user'], m['text'], i != 0)
+      job.expects(:create_display_job_for).with(channel, m['user'], m['text'], i * 10.seconds)
     end
 
     expect(job.send(:extract_messages, channel, messages)).to eq(messages.last['ts'])
@@ -69,7 +69,7 @@ RSpec.describe QuestionsCrawlerJob, type: :active_job do
     end
 
     channel.update last_question_queued: messages[8]['ts']
-    job.expects(:create_display_job_for).with(channel, messages.last['user'], messages.last['text'], false)
+    job.expects(:create_display_job_for).with(channel, messages.last['user'], messages.last['text'], 0.seconds)
     job.send(:extract_messages, channel, messages)
   end
 
@@ -89,9 +89,9 @@ RSpec.describe QuestionsCrawlerJob, type: :active_job do
       user.name,
       text
     )
-    QuestionsDisplayJob.expects(:set).with(wait: nil, priority: -1).returns(display_job)
+    QuestionsDisplayJob.expects(:set).with(wait: 0.seconds, priority: -1).returns(display_job)
 
-    job.send(:create_display_job_for, channel, user.external_id, text, false)
+    job.send(:create_display_job_for, channel, user.external_id, text, 0.seconds)
   end
 
   it 'should not create a display job when text is blank' do

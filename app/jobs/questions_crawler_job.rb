@@ -35,23 +35,27 @@ class QuestionsCrawlerJob < ApplicationJob
 
   def extract_messages(channel, messages)
     last_message_ts = nil
-    wait = false
+    wait = 0.seconds
 
     messages.each do |m|
-      next if m['type'] != 'message' || m['bot_id'].present?
+      next unless show_message?(m)
       last_message_ts = m['ts'].to_f
       next if last_message_ts <= channel.last_question_queued.to_f
       create_display_job_for(channel, m['user'], m['text'], wait)
-      wait = true
+      wait += QuestionsDisplayJob::INTERVAL
     end
 
     last_message_ts
   end
 
+  def show_message?(m)
+    m['type'] == 'message' && m['bot_id'].blank?
+  end
+
   def create_display_job_for(channel, user_id, text, wait)
     return if text.blank?
     QuestionsDisplayJob.set(
-      wait: (wait ? QuestionsDisplayJob::INTERVAL : nil),
+      wait: wait,
       priority: -1
     ).perform_later(channel.id.to_s,
                     user_by(channel, user_id),
