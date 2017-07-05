@@ -24,9 +24,10 @@ RSpec.describe QuestionsCrawlerJob, type: :active_job do
   end
 
   it 'should get messages from slack api' do
+    channel.update external_id: "123_webinar"
     slack_api = mock('Slack API')
     slack_api.expects(:get).with('/channels.replies',
-                                 channel: channel.external_id,
+                                 channel: "123",
                                  thread_ts: channel.thread_id).returns({ 'messages' => [] })
     job.expects(:extract_messages).with(channel, [])
     channel.expects(:update).never

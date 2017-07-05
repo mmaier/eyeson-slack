@@ -19,7 +19,7 @@ class QuestionsCrawlerJob < ApplicationJob
 
   def get_messages(channel, slack_api)
     messages = slack_api.get('/channels.replies',
-                             channel: channel.external_id,
+                             channel: channel.external_id.gsub('_webinar', ''),
                              thread_ts: channel.thread_id)
 
     last_message_ts = extract_messages(channel, messages['messages'])
