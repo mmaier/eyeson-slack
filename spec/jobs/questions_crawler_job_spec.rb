@@ -19,7 +19,7 @@ RSpec.describe QuestionsCrawlerJob, type: :active_job do
 
   it 'should requeue' do
     job.expects(:perform_later).with('123')
-    QuestionsCrawlerJob.expects(:set).with(wait: 10.seconds).returns(job)
+    QuestionsCrawlerJob.expects(:set).with(wait: 8.seconds).returns(job)
     job.send(:requeue, '123')
   end
 
@@ -64,7 +64,7 @@ RSpec.describe QuestionsCrawlerJob, type: :active_job do
     messages = []
     10.times do |i|
       m = message
-      m['ts'] = 10.seconds.from_now.to_i if i == 9
+      m['ts'] = 8.seconds.from_now.to_i if i == 9
       messages << m
     end
 

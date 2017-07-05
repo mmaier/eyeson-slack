@@ -18,7 +18,7 @@ class QuestionsCrawlerJob < ApplicationJob
   private
 
   def requeue(channel_id)
-    QuestionsCrawlerJob.set(wait: 10.seconds)
+    QuestionsCrawlerJob.set(wait: 8.seconds)
                        .perform_later(channel_id)
   end
 

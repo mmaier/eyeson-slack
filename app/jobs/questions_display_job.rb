@@ -31,7 +31,7 @@ class QuestionsDisplayJob < ApplicationJob
   def requeue(channel, username, question)
     QuestionsDisplayJob.set(
       priority: -2,
-      wait: channel.last_question_displayed_at + 10.seconds
+      wait: channel.last_question_displayed_at + 9.seconds
     ).perform_later(channel.id.to_s,
                     username,
                     question)
