@@ -128,7 +128,7 @@ RSpec.describe QuestionsDisplayJob, type: :active_job do
     room = mock('Room')
     room.expects(:access_key).returns('key')
     Eyeson::Room.expects(:join).with(id: channel.external_id,
-                                     user: { name: 'Slack Question' })
+                                     user: { name: 'Slack Channel' })
                 .returns(room)
     channel.expects(:update).with(access_key: 'key')  
     job.send(:create_slack_user, channel)

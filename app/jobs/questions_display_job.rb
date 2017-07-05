@@ -69,7 +69,7 @@ class QuestionsDisplayJob < ApplicationJob
 
   def create_slack_user(channel)
     slack_user = Eyeson::Room.join(id: channel.external_id,
-                                   user: { name: 'Slack Question' })
+                                   user: { name: 'Slack Channel' })
     channel.update access_key: slack_user.access_key
   end
 
