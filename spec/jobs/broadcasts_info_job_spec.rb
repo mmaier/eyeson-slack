@@ -27,11 +27,10 @@ RSpec.describe BroadcastsInfoJob, type: :active_job do
     job.perform(Faker::Crypto.md5, channel.id.to_s, Faker::Internet.url)
   end
 
-  it 'should update channel updated_at' do
+  it 'should not create a crawler job when last queued was > 2.hours ago' do
+    channel.update last_question_queued_at: Time.current
     SlackNotificationService.expects(:new).returns(mock('Slack Notification', broadcast: true))
-    QuestionsCrawlerJob.expects(:set).returns(mock('Crawler', perform_later: true))
-
-    Channel.any_instance.expects(:touch)
+    QuestionsCrawlerJob.expects(:set).never
 
     job.perform(Faker::Crypto.md5, channel.id.to_s, Faker::Internet.url)
   end

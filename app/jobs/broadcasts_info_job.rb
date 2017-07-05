@@ -7,11 +7,17 @@ class BroadcastsInfoJob < ApplicationJob
     channel       = Channel.find(args[1])
     broadcast_url = args[2]
 
-    # rubocop:disable Rails/SkipsModelValidations
-    channel.touch
-
     SlackNotificationService.new(access_token, channel)
                             .broadcast(broadcast_url)
+
+    crawl_webinar_questions(channel)
+  end
+
+  private
+
+  def crawl_webinar_questions(channel)
+    return if channel.last_question_queued_at &&
+              channel.last_question_queued_at > 2.hours.ago
 
     QuestionsCrawlerJob.set(wait: QuestionsDisplayJob::INTERVAL)
                        .perform_later(channel.id.to_s)

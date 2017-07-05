@@ -78,7 +78,5 @@ class QuestionsDisplayJob < ApplicationJob
       type:    'chat',
       content: '/ask ' + username + ': ' + question
     )
-    # rubocop:disable Rails/SkipsModelValidations
-    channel.touch
   end
 end

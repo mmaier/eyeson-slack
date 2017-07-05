@@ -5,7 +5,8 @@ class QuestionsCrawlerJob < ApplicationJob
   def perform(*args)
     channel = Channel.find(args[0])
 
-    return if channel.updated_at < 2.hours.ago
+    return if channel.last_question_queued_at &&
+              channel.last_question_queued_at < 2.hours.ago
 
     initializer = User.find(channel.initializer_id)
     slack_api   = SlackApi.new(initializer.access_token)
@@ -30,7 +31,8 @@ class QuestionsCrawlerJob < ApplicationJob
     last_message_ts = extract_messages(channel, messages['messages'])
 
     return if last_message_ts.nil?
-    channel.update last_question_queued: last_message_ts
+    channel.update(last_question_queued: last_message_ts,
+                   last_question_queued_at: Time.current)
   end
 
   def extract_messages(channel, messages)

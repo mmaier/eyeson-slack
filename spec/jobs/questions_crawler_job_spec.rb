@@ -24,7 +24,7 @@ RSpec.describe QuestionsCrawlerJob, type: :active_job do
   end
 
   it 'should not requeue when last update was 2 hours ago' do
-    channel.update updated_at: 3.hours.ago
+    channel.update last_question_queued_at: 3.hours.ago
     job.expects(:requeue).never
     job.perform(channel.id.to_s)
   end
@@ -43,9 +43,10 @@ RSpec.describe QuestionsCrawlerJob, type: :active_job do
   it 'should update channel queued messages' do
     slack_api = mock('Slack API')
     ts = Time.current.to_i
+    Time.expects(:current).returns('123')
     slack_api.expects(:get).returns({ 'messages' => [] })
     job.expects(:extract_messages).returns(ts)
-    channel.expects(:update).with(last_question_queued: ts)
+    channel.expects(:update).with(last_question_queued: ts, last_question_queued_at: '123')
     job.send(:get_messages, channel, slack_api)
   end
 

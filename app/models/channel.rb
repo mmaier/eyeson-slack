@@ -1,7 +1,6 @@
 # Represents a room in eyeson
 class Channel
   include Mongoid::Document
-  include Mongoid::Timestamps
 
   field :external_id, type: String
   field :access_key, type: String
@@ -10,6 +9,7 @@ class Channel
   field :webinar_mode, type: Boolean, default: false
   field :initializer_id, type: BSON::ObjectId
   field :last_question_queued, type: Float
+  field :last_question_queued_at, type: DateTime
   field :last_question_displayed_at, type: DateTime
 
   belongs_to :team

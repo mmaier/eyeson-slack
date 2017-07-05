@@ -63,12 +63,6 @@ RSpec.describe QuestionsDisplayJob, type: :active_job do
     job.send(:post_to_chat, channel, 'user', 'q')
   end
 
-  it 'should update channel updated_at when posting to chat' do
-    Eyeson::Message.expects(:new).returns(mock('EM', create: true))
-    Channel.any_instance.expects(:touch)                        
-    job.send(:post_to_chat, channel, 'user', 'q')
-  end
-
   it 'should set_layer and post_to_chat' do
     access_key = Faker::Crypto.md5
     channel.access_key = access_key
