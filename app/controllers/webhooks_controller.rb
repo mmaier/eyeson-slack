@@ -15,6 +15,13 @@ class WebhooksController < ApplicationController
     head :unauthorized
   end
 
+  def room_update
+    return unless params[:room][:shutdown] == 'true'
+    @channel = Channel.find_by(external_id: params[:room].require(:id))
+    return unless @channel.webinar_mode?
+    @channel.update access_key: nil, last_question_queued_at: 2.hours.ago
+  end
+
   def presentation_update
     access_token = slack_key_from(presentation_params)
     return if access_token.nil?

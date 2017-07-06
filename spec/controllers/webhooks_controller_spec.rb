@@ -16,6 +16,46 @@ RSpec.describe WebhooksController, type: :controller do
     expect(response.status).to eq(200)
   end
 
+  it 'should handle room_update' do
+    time = Time.current
+    channel.update webinar_mode: true, access_key: Faker::Crypto.md5, last_question_queued_at: time
+    post :create, params: {
+      api_key: 'test',
+      type: 'room_update',
+      room: {
+        id: channel.external_id,
+        shutdown: 'true'
+      }
+    }
+    channel.reload
+    expect(channel.access_key).to be_nil
+    expect(channel.last_question_queued_at).not_to eq(time)
+  end
+
+  it 'should only handle room_update for shutdown instances' do
+    Channel.expects(:find_by).never
+    post :create, params: {
+      api_key: 'test',
+      type: 'room_update',
+      room: {
+        id: channel.external_id,
+        shutdown: nil
+      }
+    }
+  end
+
+  it 'should not handle room_update for non webinars' do
+    Channel.any_instance.expects(:update).never
+    post :create, params: {
+      api_key: 'test',
+      type: 'room_update',
+      room: {
+        id: channel.external_id,
+        shutdown: 'true'
+      }
+    }
+  end
+
   it 'should handle presentation_update' do
     slide   = Faker::Internet.url
 

@@ -9,7 +9,6 @@ class MeetingsController < ApplicationController
   before_action :channel_exists!
   before_action :user_belongs_to_team!
   before_action :scope_required!
-  after_action  :update_access_key
 
   def show
     @room = Eyeson::Room.join(id: @channel.external_id,
@@ -92,10 +91,5 @@ class MeetingsController < ApplicationController
   def intercom_event
     { type: 'videomeeting_slack',
       data: { team: @user.team.name } }
-  end
-
-  def update_access_key
-    key = (@channel.webinar_mode? ? nil : @room.access_key)
-    @channel.update access_key: key
   end
 end
