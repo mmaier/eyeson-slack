@@ -27,14 +27,14 @@ class QuestionsCrawlerJob < ApplicationJob
                              channel: channel.external_id.gsub('_webinar', ''),
                              thread_ts: channel.thread_id)
 
-    last_message_ts = extract_messages(channel, messages['messages'])
+    last_message_ts = extract_messages(channel, slack_api, messages['messages'])
 
     return if last_message_ts.nil?
     channel.update(last_question_queued: last_message_ts,
                    last_question_queued_at: Time.current)
   end
 
-  def extract_messages(channel, messages)
+  def extract_messages(channel, slack_api, messages)
     last_message_ts = nil
     wait = wait_for(channel.last_question_displayed_at)
 
@@ -42,7 +42,7 @@ class QuestionsCrawlerJob < ApplicationJob
       next unless show_message?(m)
       last_message_ts = m['ts'].to_f
       next if last_message_ts <= channel.last_question_queued.to_f
-      create_display_job_for(channel, m['user'], m['text'], wait)
+      create_display_job_for(channel, slack_api, m['user'], m['text'], wait)
       wait += QuestionsDisplayJob::INTERVAL
     end
 
@@ -60,20 +60,19 @@ class QuestionsCrawlerJob < ApplicationJob
     m['type'] == 'message' && m['bot_id'].blank?
   end
 
-  def create_display_job_for(channel, user_id, text, wait)
+  def create_display_job_for(channel, slack_api, user_id, text, wait)
     return if text.blank?
     QuestionsDisplayJob.set(
       wait: wait,
       priority: -1
     ).perform_later(channel.id.to_s,
-                    user_by(channel, user_id),
+                    user_by(channel, slack_api, user_id),
                     text)
   end
 
-  def user_by(channel, external_id)
+  def user_by(_channel, slack_api, external_id)
     u = User.find_by(external_id: external_id).try(:name)
     return u if u.present?
-    slack_api = SlackApi.new(channel.executing_user(external_id).access_token)
     slack_api.get('/users.info', user: external_id)['user']['name']
   end
 end

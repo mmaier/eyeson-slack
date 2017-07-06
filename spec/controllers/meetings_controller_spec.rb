@@ -2,13 +2,9 @@ require 'rails_helper'
 
 RSpec.describe MeetingsController, type: :controller do  
 
-  let(:channel) do
-    create(:channel)
-  end
-
-  let(:user) do
-    create(:user, team: channel.team)
-  end
+  let(:channel) { create(:channel) }
+  let(:user) { create(:user, team: channel.team) }
+  let(:webinar_user) { create(:user, team: channel.team, scope: SlackApi::WEBINAR_SCOPE) }
 
   it { should rescue_from(Eyeson::Room::ValidationFailed).with(:room_error) }
   it { should rescue_from(SlackApi::RequestFailed).with(:enter_room) }
@@ -84,12 +80,12 @@ RSpec.describe MeetingsController, type: :controller do
     channel.save
 
     expects_eyeson_room_with
-    expects_slack_notification
+    expects_slack_notification(from: webinar_user)
     Eyeson::Intercom.expects(:post)
 
     Channel.any_instance.expects(:update).with(access_key: nil)
 
-    get :show, params: { id: channel.external_id, user_id: user.id }
+    get :show, params: { id: channel.external_id, user_id: webinar_user.id }
   end
 
   it 'should update channel access_key in meeting mode' do
@@ -120,6 +116,16 @@ RSpec.describe MeetingsController, type: :controller do
     redirect = login_path(
       redirect_uri: meeting_path(id: channel.external_id),
       scope: 'chat:write:user,files:write:user'
+    )
+    expect(response).to redirect_to(redirect)
+  end
+
+  it 'should handle user missing scope error for webinar' do
+    channel.update webinar_mode: true
+    get :show, params: { id: channel.external_id, user_id: user.id }
+    redirect = login_path(
+      redirect_uri: meeting_path(id: channel.external_id),
+      scope: 'channels:history,users:read'
     )
     expect(response).to redirect_to(redirect)
   end
@@ -170,8 +176,8 @@ RSpec.describe MeetingsController, type: :controller do
   end
 end
 
-def expects_slack_notification
+def expects_slack_notification(from: user)
   sn = mock('Slack Notification Service')
   sn.expects(:start)
-  SlackNotificationService.expects(:new).with(user.access_token, channel).returns(sn)
+  SlackNotificationService.expects(:new).with(from.access_token, channel).returns(sn)
 end

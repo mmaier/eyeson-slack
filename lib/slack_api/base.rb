@@ -11,6 +11,7 @@ class SlackApi
   include SlackMessage
 
   DEFAULT_SCOPE = %w[chat:write:user files:write:user].freeze
+  WEBINAR_SCOPE = DEFAULT_SCOPE + %w[channels:history users:read].freeze
 
   attr_reader :access_token, :scope
 

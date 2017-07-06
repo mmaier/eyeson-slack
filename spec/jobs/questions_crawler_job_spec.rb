@@ -35,7 +35,7 @@ RSpec.describe QuestionsCrawlerJob, type: :active_job do
     slack_api.expects(:get).with('/channels.replies',
                                  channel: "123",
                                  thread_ts: channel.thread_id).returns({ 'messages' => [] })
-    job.expects(:extract_messages).with(channel, [])
+    job.expects(:extract_messages).with(channel, slack_api, [])
     channel.expects(:update).never
     job.send(:get_messages, channel, slack_api)
   end
@@ -52,13 +52,14 @@ RSpec.describe QuestionsCrawlerJob, type: :active_job do
 
   it 'should queue messages' do
     messages = []
+    slack = mock('Slack')
     10.times do |i|
       m = message
       messages << m
-      job.expects(:create_display_job_for).with(channel, m['user'], m['text'], i * 10.seconds)
+      job.expects(:create_display_job_for).with(channel, slack, m['user'], m['text'], i * 10.seconds)
     end
 
-    expect(job.send(:extract_messages, channel, messages)).to eq(messages.last['ts'])
+    expect(job.send(:extract_messages, channel, slack, messages)).to eq(messages.last['ts'])
   end
 
   it 'should queue only new messages' do
@@ -68,16 +69,16 @@ RSpec.describe QuestionsCrawlerJob, type: :active_job do
       m['ts'] = QuestionsDisplayJob::INTERVAL.from_now.to_i if i == 9
       messages << m
     end
-
+    slack =  mock('Slack')
     channel.update last_question_queued: messages[8]['ts']
-    job.expects(:create_display_job_for).with(channel, messages.last['user'], messages.last['text'], 0.seconds)
-    job.send(:extract_messages, channel, messages)
+    job.expects(:create_display_job_for).with(channel, slack, messages.last['user'], messages.last['text'], 0.seconds)
+    job.send(:extract_messages, channel, slack, messages)
   end
 
   it 'should queue only messages of type message' do
     messages = [message, { 'type' => 'anything' }]
     job.expects(:create_display_job_for).once
-    job.send(:extract_messages, channel, messages)
+    job.send(:extract_messages, channel, mock('Slack'), messages)
   end
 
   it 'should create a display job' do
@@ -92,7 +93,7 @@ RSpec.describe QuestionsCrawlerJob, type: :active_job do
     )
     QuestionsDisplayJob.expects(:set).with(wait: 5.seconds, priority: -1).returns(display_job)
 
-    job.send(:create_display_job_for, channel, user.external_id, text, 5.seconds)
+    job.send(:create_display_job_for, channel, mock('Slack'), user.external_id, text, 5.seconds)
   end
 
   it 'should return a waiting time when a display job is already active' do
@@ -103,15 +104,14 @@ RSpec.describe QuestionsCrawlerJob, type: :active_job do
   it 'should not create a display job when text is blank' do
     user = create(:user)
     QuestionsDisplayJob.expects(:set).never
-    job.send(:create_display_job_for, channel, user.external_id, '', 0.seconds)
+    job.send(:create_display_job_for, channel, mock('Slack'), user.external_id, '', 0.seconds)
   end
 
   it 'should crawl slack user information' do
     user_id = Faker::Crypto.md5
     slack = mock('Slack')
     slack.expects(:get).with('/users.info', user: user_id).returns({ 'user' => { 'name' => 'Username' } })
-    SlackApi.expects(:new).with(User.find(channel.initializer_id).access_token).returns(slack)
-    expect(job.send(:user_by, channel, user_id)).to eq('Username')
+    expect(job.send(:user_by, channel, slack, user_id)).to eq('Username')
   end
 
   def message

@@ -57,7 +57,12 @@ class MeetingsController < ApplicationController
   end
 
   def scope_required!
-    @user.scope_required!(SlackApi::DEFAULT_SCOPE)
+    scope = if @channel.webinar_mode?
+              SlackApi::WEBINAR_SCOPE
+            else
+              SlackApi::DEFAULT_SCOPE
+            end
+    @user.scope_required!(scope)
   end
 
   def room_error(e)
