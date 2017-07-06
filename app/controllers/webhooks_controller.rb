@@ -16,23 +16,35 @@ class WebhooksController < ApplicationController
   end
 
   def presentation_update
-    access_token = slack_key_from(presentation_params)
-    return if access_token.nil?
+    @access_token = slack_key_from(presentation_params)
+    return if @access_token.nil?
     return if @channel.thread_id.blank?
     PresentationsUploadJob.perform_later(
-      access_token,
+      @access_token,
       @channel.id.to_s,
       presentation_params[:slide]
     )
   end
 
   def broadcast_update
+    return unless broadcast_params[:platform] == 'youtube'
+
     broadcast_end && return if broadcast_params[:player_url].blank?
 
-    access_token = slack_key_from(broadcast_params)
-    return if access_token.nil? || !@channel.webinar_mode?
+    @access_token = slack_key_from(broadcast_params)
+    return if @access_token.nil? || !@channel.webinar_mode?
+
+    broadcast_start
+  end
+
+  def broadcast_start
+    slack_user = Eyeson::Room.join(id: @channel.external_id,
+                                   user: { name: 'Slack Channel' })
+    @channel.update(access_key: slack_user.access_key,
+                    last_question_queued_at: QuestionsDisplayJob::INTERVAL.ago)
+
     BroadcastsInfoJob.perform_later(
-      access_token,
+      @access_token,
       @channel.id.to_s,
       broadcast_params[:player_url]
     )
@@ -40,7 +52,7 @@ class WebhooksController < ApplicationController
 
   def broadcast_end
     channel = Channel.find_by(external_id: broadcast_params[:room_id])
-    channel.update access_key: nil, last_question_queued_at: 2.hours.ago
+    channel.update access_key: nil, last_question_queued_at: nil
   end
 
   def slack_key_from(params)
@@ -61,6 +73,7 @@ class WebhooksController < ApplicationController
   def broadcast_params
     broadcast = params.require(:broadcast)
     {
+      platform:   broadcast.require(:platform),
       player_url: broadcast[:player_url],
       room_id:    broadcast.require(:room).require(:id),
       user_id:    broadcast.require(:user).require(:id)

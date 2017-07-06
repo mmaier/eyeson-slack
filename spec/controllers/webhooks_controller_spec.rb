@@ -92,8 +92,13 @@ RSpec.describe WebhooksController, type: :controller do
 
   it 'should handle broadcast_update' do
     url     = Faker::Internet.url
-    channel.webinar_mode = true
-    channel.save
+    channel.update webinar_mode: true, last_question_queued_at: nil
+
+    room = mock('Room')
+    room.expects(:access_key).returns('key')
+    Eyeson::Room.expects(:join).with(id: channel.external_id,
+                                     user: { name: 'Slack Channel' })
+                .returns(room)
 
     BroadcastsInfoJob.expects(:perform_later).with(
       user.access_token,
@@ -107,9 +112,14 @@ RSpec.describe WebhooksController, type: :controller do
       broadcast: {
         user: { id: user.email },
         room: { id: channel.external_id },
-        player_url: url
+        player_url: url,
+        platform: 'youtube'
       }
     }
+
+    channel.reload
+    expect(channel.access_key).to eq('key')
+    expect(channel.last_question_queued_at).to be_present
   end
 
   it 'should not execute broadcast_update without valid access_token' do
@@ -124,7 +134,8 @@ RSpec.describe WebhooksController, type: :controller do
       broadcast: {
         user: { id: user.email },
         room: { id: channel.external_id },
-        player_url: Faker::Internet.url
+        player_url: Faker::Internet.url,
+        platform: 'youtube'
       }
     }
   end
@@ -138,26 +149,42 @@ RSpec.describe WebhooksController, type: :controller do
       broadcast: {
         user: { id: user.email },
         room: { id: channel.external_id },
-        player_url: Faker::Internet.url
+        player_url: Faker::Internet.url,
+        platform: 'youtube'
       }
     }
   end
 
-  it 'should handle broadcast_end' do
-    time = Time.current
-    channel.update access_key: Faker::Crypto.md5, last_question_queued_at: time
+  it 'should not execute broadcast_update for other platforms than youtube' do    
+    BroadcastsInfoJob.expects(:perform_later).never
+
     post :create, params: {
       api_key: 'test',
       type: 'broadcast_update',
       broadcast: {
         user: { id: user.email },
         room: { id: channel.external_id },
-        player_url: nil
+        player_url: Faker::Internet.url,
+        platform: 'facebook'
+      }
+    }
+  end
+
+  it 'should handle broadcast_end' do
+    channel.update access_key: Faker::Crypto.md5, last_question_queued_at: Time.current
+    post :create, params: {
+      api_key: 'test',
+      type: 'broadcast_update',
+      broadcast: {
+        user: { id: user.email },
+        room: { id: channel.external_id },
+        player_url: nil,
+        platform: 'youtube'
       }
     }
     channel.reload
     expect(channel.access_key).to be_nil
-    expect(channel.last_question_queued_at).not_to eq(time)
+    expect(channel.last_question_queued_at).to be_nil
   end
 
   it 'should check for valid channel' do
