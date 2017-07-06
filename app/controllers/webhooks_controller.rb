@@ -15,13 +15,6 @@ class WebhooksController < ApplicationController
     head :unauthorized
   end
 
-  def room_update
-    return unless params[:room][:shutdown].to_s == 'true'
-    @channel = Channel.find_by(external_id: params[:room].require(:id))
-    return unless @channel.webinar_mode?
-    @channel.update access_key: nil, last_question_queued_at: 2.hours.ago
-  end
-
   def presentation_update
     access_token = slack_key_from(presentation_params)
     return if access_token.nil?
@@ -34,6 +27,8 @@ class WebhooksController < ApplicationController
   end
 
   def broadcast_update
+    broadcast_end && return if broadcast_params[:player_url].blank?
+
     access_token = slack_key_from(broadcast_params)
     return if access_token.nil? || !@channel.webinar_mode?
     BroadcastsInfoJob.perform_later(
@@ -41,6 +36,11 @@ class WebhooksController < ApplicationController
       @channel.id.to_s,
       broadcast_params[:player_url]
     )
+  end
+
+  def broadcast_end
+    channel = Channel.find_by(external_id: broadcast_params[:room_id])
+    channel.update access_key: nil, last_question_queued_at: 2.hours.ago
   end
 
   def slack_key_from(params)
@@ -61,7 +61,7 @@ class WebhooksController < ApplicationController
   def broadcast_params
     broadcast = params.require(:broadcast)
     {
-      player_url: broadcast.require(:player_url),
+      player_url: broadcast[:player_url],
       room_id:    broadcast.require(:room).require(:id),
       user_id:    broadcast.require(:user).require(:id)
     }
