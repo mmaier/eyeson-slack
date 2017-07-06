@@ -24,7 +24,7 @@ RSpec.describe WebhooksController, type: :controller do
       type: 'room_update',
       room: {
         id: channel.external_id,
-        shutdown: 'true'
+        shutdown: true
       }
     }
     channel.reload
@@ -51,7 +51,7 @@ RSpec.describe WebhooksController, type: :controller do
       type: 'room_update',
       room: {
         id: channel.external_id,
-        shutdown: 'true'
+        shutdown: true
       }
     }
   end
@@ -147,7 +147,7 @@ RSpec.describe WebhooksController, type: :controller do
       broadcast: {
         user: { id: user.email },
         room: { id: channel.external_id },
-        url:  url
+        player_url: url
       }
     }
   end
@@ -164,7 +164,7 @@ RSpec.describe WebhooksController, type: :controller do
       broadcast: {
         user: { id: user.email },
         room: { id: channel.external_id },
-        url: Faker::Internet.url
+        player_url: Faker::Internet.url
       }
     }
   end
@@ -178,7 +178,7 @@ RSpec.describe WebhooksController, type: :controller do
       broadcast: {
         user: { id: user.email },
         room: { id: channel.external_id },
-        url: Faker::Internet.url
+        player_url: Faker::Internet.url
       }
     }
   end

@@ -16,7 +16,7 @@ class WebhooksController < ApplicationController
   end
 
   def room_update
-    return unless params[:room][:shutdown] == 'true'
+    return unless params[:room][:shutdown].to_s == 'true'
     @channel = Channel.find_by(external_id: params[:room].require(:id))
     return unless @channel.webinar_mode?
     @channel.update access_key: nil, last_question_queued_at: 2.hours.ago
@@ -39,7 +39,7 @@ class WebhooksController < ApplicationController
     BroadcastsInfoJob.perform_later(
       access_token,
       @channel.id.to_s,
-      broadcast_params[:url]
+      broadcast_params[:player_url]
     )
   end
 
@@ -61,9 +61,9 @@ class WebhooksController < ApplicationController
   def broadcast_params
     broadcast = params.require(:broadcast)
     {
-      url:   broadcast.require(:url),
-      room_id: broadcast.require(:room).require(:id),
-      user_id: broadcast.require(:user).require(:id)
+      player_url: broadcast.require(:player_url),
+      room_id:    broadcast.require(:room).require(:id),
+      user_id:    broadcast.require(:user).require(:id)
     }
   end
 end
