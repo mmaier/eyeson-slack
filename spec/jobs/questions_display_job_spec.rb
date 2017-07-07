@@ -14,39 +14,18 @@ RSpec.describe QuestionsDisplayJob, type: :active_job do
     job.perform(channel.id.to_s, 'user', 'Question')
   end
 
-  it 'should perform requeue unless last question was shown more than 10 seconds ago' do
-    channel.last_question_displayed_at = Time.now
-    channel.save
-    job.expects(:requeue).with(channel, 'user', 'Question')
-    job.perform(channel.id.to_s, 'user', 'Question')
-  end
-
   it 'should perform clear when last question was shown more than 10 seconds ago' do
-    channel.last_question_displayed_at = 12.seconds.ago
+    channel.next_question_displayed_at = 12.seconds.ago
     channel.save
     job.expects(:clear).with(channel)
     job.perform(channel.id.to_s)
   end
 
   it 'should not perform clear unless last question was shown more than 10 seconds ago' do
-    channel.last_question_displayed_at = Time.now
+    channel.next_question_displayed_at = Time.now
     channel.save
     job.expects(:clear).never
     job.perform(channel.id.to_s)
-  end
-
-  it 'should requeue' do
-    channel.last_question_displayed_at = Time.current
-    job.expects(:perform_later).with(
-      channel.id.to_s,
-      'user',
-      'Question'
-    )
-    QuestionsDisplayJob.expects(:set).with(
-      wait: channel.last_question_displayed_at + QuestionsDisplayJob::INTERVAL,
-      priority: -2
-    ).returns(job)
-    job.send(:requeue, channel, 'user', 'Question')
   end
 
   it 'should post question to eyeson' do
@@ -71,7 +50,6 @@ RSpec.describe QuestionsDisplayJob, type: :active_job do
     layer = mock('Layer API')
     layer.expects(:create)
     Eyeson::Layer.expects(:new).with(access_key).returns(layer)
-    channel.expects(:update)
 
     job.expects(:post_to_chat).with(channel, 'user', 'Question')
 
@@ -95,7 +73,6 @@ RSpec.describe QuestionsDisplayJob, type: :active_job do
     channel.access_key = access_key
     channel.save
     Eyeson::Layer.expects(:new).with(access_key).returns(mock('Layer', destroy: true))
-    channel.expects(:update)
     job.send(:clear, channel)
   end
 
@@ -103,7 +80,6 @@ RSpec.describe QuestionsDisplayJob, type: :active_job do
     channel.access_key = nil
     channel.save
     Eyeson::Layer.expects(:new).never
-    channel.expects(:update).never
     job.send(:clear, channel)
   end
 

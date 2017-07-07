@@ -25,45 +25,54 @@ class QuestionsCrawlerJob < ApplicationJob
                              channel: channel.external_id.gsub('_webinar', ''),
                              thread_ts: channel.thread_id)
 
-    last_message_ts = extract_messages(channel, slack_api, messages['messages'])
-
-    return if last_message_ts.nil?
-    channel.update last_question_queued: last_message_ts
+    extract_messages(channel,
+                     slack_api,
+                     messages['messages'],
+                     channel.next_question_displayed_at)
   end
 
-  def extract_messages(channel, slack_api, messages)
-    last_message_ts = nil
-    wait = wait_for(channel.last_question_displayed_at)
-
+  # rubocop:disable Metrics/ParameterLists
+  def extract_messages(channel, slack_api, messages,
+                       next_message, last_message = nil, wait = nil)
     messages.each do |m|
-      next unless show_message?(m)
-      last_message_ts = m['ts'].to_f
-      next if last_message_ts <= channel.last_question_queued.to_f
-      create_display_job_for(channel, slack_api, m['user'], m['text'], wait)
-      wait += QuestionsDisplayJob::INTERVAL
+      last_message = message_queued?(channel, m)
+      next if last_message.nil?
+      wait = wait_for(next_message)
+      create_display_job_for(channel, slack_api, m, wait.seconds)
+      next_message = wait.seconds.from_now
     end
 
-    last_message_ts
+    return if wait.nil?
+    channel.update(last_question_queued:       last_message,
+                   next_question_displayed_at: next_message)
   end
 
-  def wait_for(last_question_displayed_at)
-    time_since_last_question = (
-      Time.current.to_i - last_question_displayed_at.to_i
+  def wait_for(next_message)
+    time_to_next_question = (
+      next_message.to_i - Time.current.to_i
     )
-    [QuestionsDisplayJob::INTERVAL - time_since_last_question, 0].max
+    [time_to_next_question + QuestionsDisplayJob::INTERVAL, 0].max
   end
 
-  def show_message?(m)
-    m['type'] == 'message' && m['bot_id'].blank?
+  def show_message?(message)
+    message['type'] == 'message' && message['bot_id'].blank?
   end
 
-  def create_display_job_for(channel, slack_api, user_id, text, wait)
+  def message_queued?(channel, message)
+    ts = message['ts'].to_f
+    return unless show_message?(message)
+    return if ts <= channel.last_question_queued.to_f
+    ts
+  end
+
+  def create_display_job_for(channel, slack_api, message, wait)
+    text = message['text']
     return if text.blank?
     QuestionsDisplayJob.set(
       wait: wait,
       priority: -1
     ).perform_later(channel.id.to_s,
-                    user_by(channel, slack_api, user_id),
+                    user_by(channel, slack_api, message['user']),
                     text)
   end
 

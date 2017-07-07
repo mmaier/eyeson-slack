@@ -10,7 +10,7 @@ class Channel
   field :initializer_id, type: BSON::ObjectId
   field :broadcasting, type: Boolean, default: false
   field :last_question_queued, type: Float
-  field :last_question_displayed_at, type: DateTime
+  field :next_question_displayed_at, type: DateTime
 
   belongs_to :team
 
