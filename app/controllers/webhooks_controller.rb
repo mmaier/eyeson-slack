@@ -40,8 +40,8 @@ class WebhooksController < ApplicationController
   def broadcast_start
     slack_user = Eyeson::Room.join(id: @channel.external_id,
                                    user: { name: 'Slack Channel' })
-    @channel.update(access_key: slack_user.access_key,
-                    last_question_queued_at: QuestionsDisplayJob::INTERVAL.ago)
+    @channel.update(access_key:   slack_user.access_key,
+                    broadcasting: true)
 
     BroadcastsInfoJob.perform_later(
       @access_token,
@@ -52,7 +52,7 @@ class WebhooksController < ApplicationController
 
   def broadcast_end
     channel = Channel.find_by(external_id: broadcast_params[:room_id])
-    channel.update access_key: nil, last_question_queued_at: nil
+    channel.update access_key: nil, broadcasting: false
   end
 
   def slack_key_from(params)

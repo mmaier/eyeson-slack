@@ -10,14 +10,12 @@ class QuestionsCrawlerJob < ApplicationJob
 
     get_messages(channel, slack_api)
 
-    requeue(channel)
+    requeue(channel) if channel.broadcasting?
   end
 
   private
 
   def requeue(channel)
-    return if channel.last_question_queued_at &&
-              channel.last_question_queued_at < 2.hours.ago
     QuestionsCrawlerJob.set(wait: QuestionsDisplayJob::INTERVAL)
                        .perform_later(channel.id.to_s)
   end
@@ -30,8 +28,7 @@ class QuestionsCrawlerJob < ApplicationJob
     last_message_ts = extract_messages(channel, slack_api, messages['messages'])
 
     return if last_message_ts.nil?
-    channel.update(last_question_queued: last_message_ts,
-                   last_question_queued_at: Time.current)
+    channel.update last_question_queued: last_message_ts
   end
 
   def extract_messages(channel, slack_api, messages)

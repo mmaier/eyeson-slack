@@ -10,16 +10,6 @@ class BroadcastsInfoJob < ApplicationJob
     SlackNotificationService.new(access_token, channel)
                             .broadcast(broadcast_url)
 
-    crawl_webinar_questions(channel)
-  end
-
-  private
-
-  def crawl_webinar_questions(channel)
-    return if channel.last_question_queued_at &&
-              channel.last_question_queued_at > 2.hours.ago
-
-    QuestionsCrawlerJob.set(wait: QuestionsDisplayJob::INTERVAL)
-                       .perform_later(channel.id.to_s)
+    QuestionsCrawlerJob.perform_later(channel.id.to_s)
   end
 end

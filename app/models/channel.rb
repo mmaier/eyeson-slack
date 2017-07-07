@@ -8,8 +8,8 @@ class Channel
   field :thread_id, type: String
   field :webinar_mode, type: Boolean, default: false
   field :initializer_id, type: BSON::ObjectId
+  field :broadcasting, type: Boolean, default: false
   field :last_question_queued, type: Float
-  field :last_question_queued_at, type: DateTime
   field :last_question_displayed_at, type: DateTime
 
   belongs_to :team

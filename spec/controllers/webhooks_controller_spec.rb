@@ -92,7 +92,7 @@ RSpec.describe WebhooksController, type: :controller do
 
   it 'should handle broadcast_update' do
     url     = Faker::Internet.url
-    channel.update webinar_mode: true, last_question_queued_at: nil
+    channel.update webinar_mode: true
 
     room = mock('Room')
     room.expects(:access_key).returns('key')
@@ -119,7 +119,7 @@ RSpec.describe WebhooksController, type: :controller do
 
     channel.reload
     expect(channel.access_key).to eq('key')
-    expect(channel.last_question_queued_at).to be_present
+    expect(channel.broadcasting).to eq(true)
   end
 
   it 'should not execute broadcast_update without valid access_token' do
@@ -171,7 +171,7 @@ RSpec.describe WebhooksController, type: :controller do
   end
 
   it 'should handle broadcast_end' do
-    channel.update access_key: Faker::Crypto.md5, last_question_queued_at: Time.current
+    channel.update access_key: Faker::Crypto.md5, broadcasting: true
     post :create, params: {
       api_key: 'test',
       type: 'broadcast_update',
@@ -184,7 +184,7 @@ RSpec.describe WebhooksController, type: :controller do
     }
     channel.reload
     expect(channel.access_key).to be_nil
-    expect(channel.last_question_queued_at).to be_nil
+    expect(channel.broadcasting).to eq(false)
   end
 
   it 'should check for valid channel' do
