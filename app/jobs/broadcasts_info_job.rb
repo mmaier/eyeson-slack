@@ -7,9 +7,13 @@ class BroadcastsInfoJob < ApplicationJob
     channel       = Channel.find(args[1])
     broadcast_url = args[2]
 
-    SlackNotificationService.new(access_token, channel)
-                            .broadcast(broadcast_url)
+    if broadcast_url.nil?
+      SlackNotificationService.new(access_token, channel).broadcast_end
+    else
+      SlackNotificationService.new(access_token, channel)
+                              .broadcast_start(broadcast_url)
 
-    QuestionsCrawlerJob.perform_later(channel.id.to_s)
+      QuestionsCrawlerJob.perform_later(channel.id.to_s)
+    end
   end
 end

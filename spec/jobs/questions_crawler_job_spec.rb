@@ -26,6 +26,13 @@ RSpec.describe QuestionsCrawlerJob, type: :active_job do
     job.perform(channel.id.to_s)
   end
 
+  it 'shoudl requeue' do
+    cj = mock('Crawler Job')
+    cj.expects(:perform_later).with(channel.id.to_s)
+    QuestionsCrawlerJob.expects(:set).with(wait: 10.seconds).returns(cj)
+    job.send(:requeue, channel)
+  end
+
   it 'should get messages from slack api' do
     channel.update external_id: "123_webinar"
     slack_api = mock('Slack API')

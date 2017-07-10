@@ -29,12 +29,14 @@ class WebhooksController < ApplicationController
   def broadcast_update
     return unless broadcast_params[:platform] == 'youtube'
 
-    broadcast_end && return if broadcast_params[:player_url].blank?
-
     @access_token = slack_key_from(broadcast_params)
     return if @access_token.nil? || !@channel.webinar_mode?
 
-    broadcast_start
+    if broadcast_params[:player_url].blank?
+      broadcast_end
+    else
+      broadcast_start
+    end
   end
 
   def broadcast_start
@@ -51,8 +53,11 @@ class WebhooksController < ApplicationController
   end
 
   def broadcast_end
-    channel = Channel.find_by(external_id: broadcast_params[:room_id])
-    channel.update access_key: nil, broadcasting: false
+    @channel.update access_key: nil, broadcasting: false
+    BroadcastsInfoJob.perform_later(
+      @access_token,
+      @channel.id.to_s
+    )
   end
 
   def slack_key_from(params)

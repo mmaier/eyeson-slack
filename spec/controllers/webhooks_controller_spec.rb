@@ -171,7 +171,13 @@ RSpec.describe WebhooksController, type: :controller do
   end
 
   it 'should handle broadcast_end' do
-    channel.update access_key: Faker::Crypto.md5, broadcasting: true
+    channel.update access_key: Faker::Crypto.md5, broadcasting: true, webinar_mode: true
+
+    BroadcastsInfoJob.expects(:perform_later).with(
+      user.access_token,
+      channel.id.to_s
+    )
+
     post :create, params: {
       api_key: 'test',
       type: 'broadcast_update',

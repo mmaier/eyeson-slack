@@ -50,6 +50,12 @@ RSpec.describe SlackNotificationService, type: :class do
     slack.send(:start)
   end
 
+  it 'should post join info if thread_id is present' do
+    channel.thread_id = Faker::Crypto.md5
+    slack.expects(:post_join_info)
+    slack.send(:start)
+  end
+
   it 'should post join info into thread' do
     thread_id = Faker::Crypto.md5
     channel.thread_id = thread_id
@@ -62,19 +68,6 @@ RSpec.describe SlackNotificationService, type: :class do
     )
     SlackApi.expects(:new).returns(slack_api)
     slack.send(:post_join_info)
-  end
-
-  it 'should post join info if thread_id is present' do
-    channel.thread_id = Faker::Crypto.md5
-    slack.expects(:post_join_info)
-    slack.send(:start)
-  end
-
-  it 'should trigger broadcast info only when thread_id is present' do
-    channel.thread_id = Faker::Crypto.md5
-    slack.expects(:post_broadcast_info)
-    slack.expects(:post_slides_info).never
-    slack.broadcast(Faker::Internet.url)
   end
 
   it 'should post broadcast_info' do
@@ -97,16 +90,26 @@ RSpec.describe SlackNotificationService, type: :class do
     ).returns({ 'ts' => '456' })
 
     SlackApi.expects(:new).returns(slack_api)
-    slack.send(:post_broadcast_info, url)
+    slack.broadcast_start(url)
     expect(channel.thread_id).to eq('123')
     expect(channel.last_question_queued).to eq('456'.to_f)
   end
 
-  it 'should post broadcast_info without slides_info for existing thread' do
-    channel.thread_id = Faker::Crypto.md5
-    slack.expects(:post_broadcast_info)
-    slack.expects(:post_slides_info).never
-    slack.broadcast(Faker::Internet.url)
+  it 'should post broadcast_end' do
+    external_id = channel.external_id
+    channel.external_id = external_id + '_webinar'
+    channel.thread_id = '123'
+    channel.save
+
+    slack_api = mock('Slack Api')
+    slack_api.expects(:post_message!).with(
+      channel:     external_id,
+      thread_ts:   '123',
+      text:        I18n.t('.broadcast_end', scope: %i[meetings show])
+    )
+
+    SlackApi.expects(:new).returns(slack_api)
+    slack.broadcast_end
   end
 
   it 'should post presentation into thread' do
