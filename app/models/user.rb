@@ -34,7 +34,7 @@ class User
 
   def mapped
     {
-      id:     external_id,
+      id:     email,
       email:  email,
       name:   name,
       avatar: avatar

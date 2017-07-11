@@ -86,8 +86,8 @@ class WebhooksController < ApplicationController
   end
 
   def executing_user(external_id)
-    User.find_by(team:        @channel.team,
-                 external_id: external_id) ||
+    User.find_by(team:  @channel.team,
+                 email: external_id) ||
       User.find(@channel.initializer_id)
   end
 end

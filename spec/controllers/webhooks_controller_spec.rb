@@ -29,7 +29,7 @@ RSpec.describe WebhooksController, type: :controller do
       api_key: 'test',
       type: 'presentation_update',
       presentation: {
-        user: { id: user.external_id },
+        user: { id: user.email },
         room: { id: channel.external_id },
         slide: slide
       }
@@ -46,7 +46,7 @@ RSpec.describe WebhooksController, type: :controller do
       api_key: 'test',
       type: 'presentation_update',
       presentation: {
-        user: { id: user.external_id },
+        user: { id: user.email },
         room: { id: channel.external_id },
         slide: Faker::Internet.url
       }
@@ -63,7 +63,7 @@ RSpec.describe WebhooksController, type: :controller do
       api_key: 'test',
       type: 'presentation_update',
       presentation: {
-        user: { id: user.external_id },
+        user: { id: user.email },
         room: { id: channel.external_id },
         slide: Faker::Internet.url
       }
@@ -110,7 +110,7 @@ RSpec.describe WebhooksController, type: :controller do
       api_key: 'test',
       type: 'broadcast_update',
       broadcast: {
-        user: { id: user.external_id },
+        user: { id: user.email },
         room: { id: channel.external_id },
         player_url: url,
         platform: 'youtube'
@@ -132,7 +132,7 @@ RSpec.describe WebhooksController, type: :controller do
       api_key: 'test',
       type: 'broadcast_update',
       broadcast: {
-        user: { id: user.external_id },
+        user: { id: user.email },
         room: { id: channel.external_id },
         player_url: Faker::Internet.url,
         platform: 'youtube'
@@ -147,7 +147,7 @@ RSpec.describe WebhooksController, type: :controller do
       api_key: 'test',
       type: 'broadcast_update',
       broadcast: {
-        user: { id: user.external_id },
+        user: { id: user.email },
         room: { id: channel.external_id },
         player_url: Faker::Internet.url,
         platform: 'youtube'
@@ -162,7 +162,7 @@ RSpec.describe WebhooksController, type: :controller do
       api_key: 'test',
       type: 'broadcast_update',
       broadcast: {
-        user: { id: user.external_id },
+        user: { id: user.email },
         room: { id: channel.external_id },
         player_url: Faker::Internet.url,
         platform: 'facebook'
@@ -182,7 +182,7 @@ RSpec.describe WebhooksController, type: :controller do
       api_key: 'test',
       type: 'broadcast_update',
       broadcast: {
-        user: { id: user.external_id },
+        user: { id: user.email },
         room: { id: channel.external_id },
         player_url: nil,
         platform: 'youtube'

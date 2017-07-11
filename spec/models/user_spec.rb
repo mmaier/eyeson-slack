@@ -35,7 +35,7 @@ RSpec.describe User, type: :model do
 
   it 'should return a mapped user for api interaction' do
     expect(user.mapped).to eq({
-      id:     user.external_id,
+      id:     user.email,
       email:  user.email,
       name:   user.name,
       avatar: user.avatar
