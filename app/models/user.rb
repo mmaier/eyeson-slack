@@ -31,4 +31,13 @@ class User
     end
     raise SlackApi::MissingScope, missing.join(',') if missing.any?
   end
+
+  def mapped
+    {
+      id:     external_id,
+      email:  email,
+      name:   name,
+      avatar: avatar
+    }
+  end
 end

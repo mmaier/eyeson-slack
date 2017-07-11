@@ -63,7 +63,7 @@ class WebhooksController < ApplicationController
   def slack_key_from(params)
     @channel = Channel.find_by(external_id: params[:room_id])
     return if @channel.blank?
-    @channel.executing_user(params[:user_id]).try(:access_token)
+    executing_user(params[:user_id]).try(:access_token)
   end
 
   def presentation_params
@@ -83,5 +83,11 @@ class WebhooksController < ApplicationController
       room_id:    broadcast.require(:room).require(:id),
       user_id:    broadcast.require(:user).require(:id)
     }
+  end
+
+  def executing_user(external_id)
+    User.find_by(team:        @channel.team,
+                 external_id: external_id) ||
+      User.find(@channel.initializer_id)
   end
 end

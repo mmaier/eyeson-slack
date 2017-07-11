@@ -13,7 +13,7 @@ class MeetingsController < ApplicationController
   def show
     @room = Eyeson::Room.join(id: @channel.external_id,
                               name: "##{@channel.name}",
-                              user: @user)
+                              user: @user.mapped)
 
     SlackNotificationService.new(@user.access_token, @channel).start
 
@@ -33,7 +33,7 @@ class MeetingsController < ApplicationController
 
   def user_confirmed!
     return if @user.confirmed?
-    account = Eyeson::Account.find_or_initialize_by(user: @user)
+    account = Eyeson::Account.find_or_initialize_by(user: @user.mapped)
     if account.new_record?
       url = account.confirmation_url
       url += (url.include?('?') ? '&' : '?')

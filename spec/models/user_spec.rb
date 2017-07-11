@@ -24,12 +24,21 @@ RSpec.describe User, type: :model do
   it { is_expected.to validate_presence_of(:email) }
   it { is_expected.to validate_presence_of(:confirmed) }
 
-  it 'provides a scope check' do
+  it 'should provide a scope check' do
     expect(user.scope_required!([user.scope.first])).to be_nil
   end
 
-  it 'raises SlackApi::MissingScope unless required scope is present' do
+  it 'should raise SlackApi::MissingScope unless required scope is present' do
     expect { user.scope_required!(['required_scope']) }
       .to raise_error(SlackApi::MissingScope)
+  end
+
+  it 'should return a mapped user for api interaction' do
+    expect(user.mapped).to eq({
+      id:     user.external_id,
+      email:  user.email,
+      name:   user.name,
+      avatar: user.avatar
+    })
   end
 end

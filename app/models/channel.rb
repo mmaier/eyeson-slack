@@ -20,10 +20,4 @@ class Channel
   validates :webinar_mode, presence: true
 
   index({ external_id: 1 }, unique: true)
-
-  def executing_user(external_user_id)
-    User.find_by(team:  team,
-                 email: external_user_id) ||
-      User.find(initializer_id)
-  end
 end

@@ -63,7 +63,7 @@ RSpec.describe MeetingsController, type: :controller do
 
     Eyeson::Room.expects(:join).with(id: channel.external_id,
                                     name: "##{channel.name}",
-                                    user: user)
+                                    user: user.mapped)
                               .returns(mock('Room URL', url: gui))
 
     expects_slack_notification
