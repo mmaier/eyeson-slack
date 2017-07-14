@@ -20,8 +20,6 @@ RSpec.describe MeetingsController, type: :controller do
   end
 
   it 'should redirect to account onboarding unless user confirmed' do
-    user.confirmed = false
-    user.save
     account = mock('Eyeson account', new_record?: true, confirmation_url: 'https://confirm')
     Eyeson::Account.expects(:find_or_initialize_by).returns(account)
     Eyeson::Room.expects(:join).never
@@ -29,26 +27,15 @@ RSpec.describe MeetingsController, type: :controller do
     expect(response).to redirect_to('https://confirm?callback_url='+meeting_url(user_id: user.id))
   end
 
-  it 'should set confirmed status on user' do
-    user.confirmed = false
-    user.save
-    account = mock('Eyeson account', new_record?: false)
-    Eyeson::Account.expects(:find_or_initialize_by).returns(account)
-    expects_eyeson_room_with
-    expects_slack_notification
-    Eyeson::Intercom.expects(:post)
-    get :show, params: { id: channel.external_id, user_id: user.id }
-    user.reload
-    expect(user.confirmed).to eq(true)
-  end
-
   it 'should redirect_to slack unless channel known' do
+    confirmed
     user = create(:user)
     get :show, params: { id: Faker::Code.isbn, user_id: user.id }
     expect(response).to redirect_to(user.team.url)
   end
 
   it 'should redirect to correct slack team unless user belongs to team' do
+    confirmed
     team1 = create(:team)
     team2 = create(:team)
     expect(team1).not_to eq(team2)
@@ -59,6 +46,7 @@ RSpec.describe MeetingsController, type: :controller do
   end
 
   it 'should add user to room and redirect to room url' do
+    confirmed
     gui = 'http://test.host/gui'
 
     Eyeson::Room.expects(:join).with(id: channel.external_id,
@@ -68,14 +56,13 @@ RSpec.describe MeetingsController, type: :controller do
 
     expects_slack_notification
 
-    Eyeson::Intercom.expects(:post)
-
     get :show, params: { id: channel.external_id, user_id: user.id }
     expect(response.status).to eq(302)
     expect(response).to redirect_to(gui)
   end
 
   it 'should handle eyeson api error' do
+    confirmed
     error = 'some error'
 
     Eyeson::Room.expects(:join)
@@ -87,6 +74,7 @@ RSpec.describe MeetingsController, type: :controller do
   end
 
   it 'should handle user missing scope error' do
+    confirmed
     user = create(:user, team: channel.team, scope: ['some_scope'])
 
     get :show, params: { id: channel.external_id, user_id: user.id }
@@ -98,6 +86,7 @@ RSpec.describe MeetingsController, type: :controller do
   end
 
   it 'should handle user missing scope error for webinar' do
+    confirmed
     channel.update webinar_mode: true
     get :show, params: { id: channel.external_id, user_id: user.id }
     redirect = login_path(
@@ -107,7 +96,8 @@ RSpec.describe MeetingsController, type: :controller do
     expect(response).to redirect_to(redirect)
   end
 
-  it 'should handle slack missing scope error' do    
+  it 'should handle slack missing scope error' do  
+    confirmed  
     expects_eyeson_room_with
 
     SlackApi.expects(:new).raises(SlackApi::MissingScope, 'missing_scope')
@@ -121,6 +111,7 @@ RSpec.describe MeetingsController, type: :controller do
   end
 
   it 'should handle slack request error' do
+    confirmed
     gui = 'http://test.host/gui'
 
     expects_eyeson_room_with(gui)
@@ -130,26 +121,9 @@ RSpec.describe MeetingsController, type: :controller do
     expect(response).to redirect_to(gui)
   end
 
-  it 'should update intercom with ip address' do
-    @request.headers['REMOTE_ADDR'] = '127.0.0.1'
-    @request.headers['HTTP_X_FORWARDED_FOR'] = '123.123.123.123, 127.0.0.1'
-
-    expects_eyeson_room_with
-    expects_slack_notification
-
-    Eyeson::Intercom.expects(:post).with(email: user.email,
-                          ref: 'Slack',
-                          fields: {
-                            last_seen_ip: '123.123.123.123',
-                          },
-                          event: { 
-                            type: 'videomeeting_slack',
-                            data: {
-                              team: user.team.name
-                            }
-                          })
-
-    get :show, params: { id: channel.external_id, user_id: user.id }
+  def confirmed
+    account = mock('Eyeson account', new_record?: false)
+    Eyeson::Account.expects(:find_or_initialize_by).returns(account)
   end
 end
 

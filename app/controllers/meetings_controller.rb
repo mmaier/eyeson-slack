@@ -17,7 +17,6 @@ class MeetingsController < ApplicationController
 
     SlackNotificationService.new(@user.access_token, @channel).start
 
-    update_intercom
     enter_room
   end
 
@@ -32,16 +31,11 @@ class MeetingsController < ApplicationController
   end
 
   def user_confirmed!
-    return if @user.confirmed?
-    account = Eyeson::Account.find_or_initialize_by(user: @user.mapped)
-    if account.new_record?
-      url = account.confirmation_url
-      url += (url.include?('?') ? '&' : '?')
-      redirect_to url + 'callback_url=' + request.original_url
-    else
-      @user.confirmed = true
-      @user.save
-    end
+    account = Eyeson::Account.find_or_initialize_by(user: @user.mapped, remote_ip: request.remote_ip)
+    return unless account.new_record?
+    url = account.confirmation_url
+    url += (url.include?('?') ? '&' : '?')
+    redirect_to url + 'callback_url=' + request.original_url
   end
 
   def channel_exists!
@@ -77,19 +71,5 @@ class MeetingsController < ApplicationController
       redirect_uri: request.path,
       scope:        scope
     )
-  end
-
-  def update_intercom
-    Eyeson::Intercom.post(email: @user.email,
-                          ref: 'Slack',
-                          fields: {
-                            last_seen_ip: request.remote_ip
-                          },
-                          event: intercom_event)
-  end
-
-  def intercom_event
-    { type: 'videomeeting_slack',
-      data: { team: @user.team.name } }
   end
 end

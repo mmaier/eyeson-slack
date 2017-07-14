@@ -13,7 +13,7 @@ gem 'syslog-logger'
 gem 'unicorn'
 gem 'delayed_job_mongoid'
 
-gem 'eyeson', git: 'https://gitlab.infra.dev-visocon.com/eyeson/eyeson-ruby.git'
+gem 'eyeson', git: 'https://gitlab.infra.dev-visocon.com/eyeson/eyeson-ruby.git', :branch => "unstable"
 
 group :development, :test do
   # Use ruby community standard and best practices
