@@ -33,7 +33,7 @@ class MeetingsController < ApplicationController
   def user_confirmed!
     account = Eyeson::Account.find_or_initialize_by(
       user: @user.mapped,
-      remote_ip: request.remote_i
+      remote_ip: request.remote_ip
     )
     return unless account.new_record?
     url = account.confirmation_url
