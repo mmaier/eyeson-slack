@@ -54,7 +54,7 @@ class WebhooksController < ApplicationController
   end
 
   def broadcast_end
-    @channel.update access_key: nil, broadcasting: false
+    @channel.update broadcasting: false
     BroadcastsInfoJob.perform_later(
       @access_token,
       @channel.id.to_s

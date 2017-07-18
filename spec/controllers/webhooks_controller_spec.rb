@@ -172,7 +172,8 @@ RSpec.describe WebhooksController, type: :controller do
   end
 
   it 'should handle broadcast_end' do
-    channel.update access_key: Faker::Crypto.md5, broadcasting: true, webinar_mode: true
+    key = Faker::Crypto.md5
+    channel.update access_key: key, broadcasting: true, webinar_mode: true
 
     BroadcastsInfoJob.expects(:perform_later).with(
       user.access_token,
@@ -190,7 +191,7 @@ RSpec.describe WebhooksController, type: :controller do
       }
     }
     channel.reload
-    expect(channel.access_key).to be_nil
+    expect(channel.access_key).to eq(key)
     expect(channel.broadcasting).to eq(false)
   end
 
