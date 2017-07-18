@@ -97,7 +97,8 @@ RSpec.describe WebhooksController, type: :controller do
     room = mock('Room')
     room.expects(:access_key).returns('key')
     Eyeson::Room.expects(:join).with(id: channel.external_id,
-                                     user: { name: 'Slack Channel' })
+                                     user: { id: 'slackbot@eyeson.team',
+                                             name: 'Slack Channel' })
                 .returns(room)
 
     BroadcastsInfoJob.expects(:perform_later).with(

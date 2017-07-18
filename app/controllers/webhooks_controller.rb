@@ -41,7 +41,8 @@ class WebhooksController < ApplicationController
 
   def broadcast_start
     slack_user = Eyeson::Room.join(id: @channel.external_id,
-                                   user: { name: 'Slack Channel' })
+                                   user: { id: 'slackbot@eyeson.team',
+                                           name: 'Slack Channel' })
     @channel.update(access_key:   slack_user.access_key,
                     broadcasting: true)
 
