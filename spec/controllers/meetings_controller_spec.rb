@@ -19,7 +19,7 @@ RSpec.describe MeetingsController, type: :controller do
     expect(response).to redirect_to(redirect)
   end
 
-  it 'should redirect to account onboarding unless user confirmed' do
+  it 'should check for account onboarding' do
     account = mock('Eyeson account', new_record?: true, confirmation_url: 'https://confirm')
     Eyeson::Account.expects(:find_or_initialize_by).returns(account)
     Eyeson::Room.expects(:join).never

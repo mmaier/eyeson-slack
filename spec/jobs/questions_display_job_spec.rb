@@ -46,9 +46,11 @@ RSpec.describe QuestionsDisplayJob, type: :active_job do
     access_key = Faker::Crypto.md5
     channel.access_key = access_key
     channel.save
-    job.expects(:question_image).with('user', 'Question')
     layer = mock('Layer API')
-    layer.expects(:create)
+    layer.expects(:create).with(insert: {
+      title:   'user:',
+      content: 'Question'
+    })
     Eyeson::Layer.expects(:new).with(access_key).returns(layer)
 
     job.expects(:post_to_chat).with(channel, 'user', 'Question')
@@ -62,7 +64,6 @@ RSpec.describe QuestionsDisplayJob, type: :active_job do
   it 'should not set_layer without access_key' do
     channel.access_key = nil
     channel.save
-    job.expects(:question_image).never
     Eyeson::Layer.expects(:new).never
     channel.expects(:update).never
     job.send(:set_layer, channel, 'user', 'Question')
@@ -81,15 +82,5 @@ RSpec.describe QuestionsDisplayJob, type: :active_job do
     channel.save
     Eyeson::Layer.expects(:new).never
     job.send(:clear, channel)
-  end
-
-  it 'should create a question image' do
-    renderer = mock('Cool Renderer')
-    renderer.expects(:to_url)
-    CoolRenderer::QuestionImage.expects(:new).with(
-      content:  'Question',
-      fullname: 'user:'
-    ).returns(renderer)
-    job.send(:question_image, 'user', 'Question')
   end
 end

@@ -35,16 +35,12 @@ class QuestionsDisplayJob < ApplicationJob
   def set_layer(channel, username, question)
     return if channel.access_key.blank?
     layer = Eyeson::Layer.new(channel.access_key)
-    layer.create(url: question_image(username, question))
+    layer.create(insert: {
+                   title:   "#{username}:",
+                   content: question.truncate(280)
+                 })
     QuestionsDisplayJob.set(wait: QuestionsDisplayJob::INTERVAL, priority: 1)
                        .perform_later(channel.id.to_s)
-  end
-
-  def question_image(username, question)
-    CoolRenderer::QuestionImage.new(
-      fullname: "#{username}:",
-      content:  question.truncate(280)
-    ).to_url
   end
 
   def post_to_chat(channel, username, question)
