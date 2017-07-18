@@ -6,11 +6,11 @@ class QuestionsDisplayJob < ApplicationJob
 
   def perform(*args)
     channel  = Channel.find(args[0])
-    username = args[1]
+    user     = args[1]
     question = args[2]
 
     if question.present?
-      display(channel, username, question)
+      display(channel, user, question)
     elsif clearable?(channel)
       clear(channel)
     end
@@ -22,9 +22,9 @@ class QuestionsDisplayJob < ApplicationJob
     channel.next_question_displayed_at < QuestionsDisplayJob::INTERVAL.ago
   end
 
-  def display(channel, username, question)
-    set_layer(channel, username, question)
-    post_to_chat(channel, username, question)
+  def display(channel, user, question)
+    set_layer(channel, user, question)
+    post_to_chat(channel, user, question)
   end
 
   def clear(channel)
@@ -32,21 +32,22 @@ class QuestionsDisplayJob < ApplicationJob
     Eyeson::Layer.new(channel.access_key).destroy
   end
 
-  def set_layer(channel, username, question)
+  def set_layer(channel, user, question)
     return if channel.access_key.blank?
     layer = Eyeson::Layer.new(channel.access_key)
     layer.create(insert: {
-                   title:   "#{username}:",
+                   icon:    user['avatar'],
+                   title:   "#{user['name']}:",
                    content: question.truncate(280)
                  })
     QuestionsDisplayJob.set(wait: QuestionsDisplayJob::INTERVAL, priority: 1)
                        .perform_later(channel.id.to_s)
   end
 
-  def post_to_chat(channel, username, question)
+  def post_to_chat(channel, user, question)
     Eyeson::Message.new(channel.access_key).create(
       type:    'chat',
-      content: '/ask ' + username + ': ' + question
+      content: '/ask ' + user['name'] + ': ' + question
     )
   end
 end

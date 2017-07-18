@@ -77,8 +77,12 @@ class QuestionsCrawlerJob < ApplicationJob
   end
 
   def user_by(_channel, slack_api, external_id)
-    u = User.find_by(external_id: external_id).try(:name)
-    return u if u.present?
-    slack_api.get('/users.info', user: external_id)['user']['name']
+    u = User.find_by(external_id: external_id)
+    return { 'name' => u.name, 'avatar' => u.avatar } if u.present?
+    slack_user = slack_api.get('/users.info', user: external_id)['user']
+    {
+      'name'   => slack_user['name'],
+      'avatar' => slack_user['profile']['image_32']
+    }
   end
 end

@@ -39,26 +39,31 @@ RSpec.describe QuestionsDisplayJob, type: :active_job do
     )
     Eyeson::Message.expects(:new).with(channel.access_key).returns(em)
                             
-    job.send(:post_to_chat, channel, 'user', 'q')
+    job.send(:post_to_chat, channel, { 'name' => 'user' }, 'q')
   end
 
   it 'should set_layer and post_to_chat' do
     access_key = Faker::Crypto.md5
+    user = {
+      'name'   => Faker::Internet.user_name,
+      'avatar' => Faker::Internet.url
+    }
     channel.access_key = access_key
     channel.save
     layer = mock('Layer API')
     layer.expects(:create).with(insert: {
-      title:   'user:',
+      icon: user['avatar'],
+      title:   "#{user['name']}:",
       content: 'Question'
     })
     Eyeson::Layer.expects(:new).with(access_key).returns(layer)
 
-    job.expects(:post_to_chat).with(channel, 'user', 'Question')
+    job.expects(:post_to_chat).with(channel, user, 'Question')
 
     job.expects(:perform_later).with(channel.id.to_s)
     QuestionsDisplayJob.expects(:set).with(wait: QuestionsDisplayJob::INTERVAL, priority: 1).returns(job)
                        
-    job.send(:display, channel, 'user', 'Question')
+    job.send(:display, channel, user, 'Question')
   end
 
   it 'should not set_layer without access_key' do

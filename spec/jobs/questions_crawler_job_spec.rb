@@ -90,7 +90,7 @@ RSpec.describe QuestionsCrawlerJob, type: :active_job do
     display_job = mock('Job')
     display_job.expects(:perform_later).with(
       channel.id.to_s,
-      user.name,
+      { 'name' => user.name, 'avatar' => user.avatar },
       text
     )
     QuestionsDisplayJob.expects(:set).with(wait: 5.seconds, priority: -1).returns(display_job)
@@ -116,9 +116,15 @@ RSpec.describe QuestionsCrawlerJob, type: :active_job do
 
   it 'should crawl slack user information' do
     user_id = Faker::Crypto.md5
+    user = {
+      'name'   => Faker::Internet.user_name,
+      'profile' => {
+        'image_32' => Faker::Internet.url
+      }
+    }
     slack = mock('Slack')
-    slack.expects(:get).with('/users.info', user: user_id).returns({ 'user' => { 'name' => 'Username' } })
-    expect(job.send(:user_by, channel, slack, user_id)).to eq('Username')
+    slack.expects(:get).with('/users.info', user: user_id).returns({ 'user' => user })
+    expect(job.send(:user_by, channel, slack, user_id)).to eq({ 'name' => user['name'], 'avatar' => user['profile']['image_32'] })
   end
 
   def message
