@@ -5,7 +5,6 @@ class MeetingsController < ApplicationController
   rescue_from SlackApi::RequestFailed, with: :enter_room
 
   before_action :authorized!
-  before_action :user_confirmed!
   before_action :channel_exists!
   before_action :user_belongs_to_team!
   before_action :scope_required!
@@ -28,17 +27,6 @@ class MeetingsController < ApplicationController
     redirect_to login_path(
       redirect_uri: request.path
     )
-  end
-
-  def user_confirmed!
-    account = Eyeson::Account.find_or_initialize_by(
-      user: @user.mapped,
-      remote_ip: request.remote_ip
-    )
-    return unless account.new_record?
-    url = account.confirmation_url
-    url += (url.include?('?') ? '&' : '?')
-    redirect_to url + 'callback_url=' + request.original_url
   end
 
   def channel_exists!
