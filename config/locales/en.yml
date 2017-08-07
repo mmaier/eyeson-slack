@@ -13,3 +13,4 @@ en:
       broadcast_info: "started an eyeson webinar.\n<%{url}|Open live stream in new window>\nor watch the live stream in Slack by clicking on 'View thread' below.\n:point_down::point_down::point_down:"
       broadcast_url: ":information_source: If video stops playing, <%{url}|open live stream in new window>."
       broadcast_end: ":information_source: Webinar has ended"
+      recording_uploaded: ":information_source: A new recording file is available: %{url}"

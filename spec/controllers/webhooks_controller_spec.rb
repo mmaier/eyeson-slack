@@ -209,4 +209,23 @@ RSpec.describe WebhooksController, type: :controller do
     }
   end
 
+  it 'should handle recording_update' do
+    sn = mock('SN')
+    sn.expects(:recording_uploaded).with(recording_url(id: '123'))
+    SlackNotificationService.expects(:new).with(
+      user.access_token,
+      channel
+    ).returns(sn)
+
+    post :create, params: {
+      api_key: 'test',
+      type: 'recording_update',
+      recording: {
+        user: { id: user.email },
+        room: { id: channel.external_id },
+        id: '123'
+      }
+    }
+  end
+
 end

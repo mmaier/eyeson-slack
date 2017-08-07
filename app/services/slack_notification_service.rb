@@ -43,6 +43,17 @@ class SlackNotificationService
     )
   end
 
+  def recording_uploaded(url)
+    return if url.nil?
+    @slack_api.post_message!(
+      channel:   original_external_id,
+      thread_ts: @channel.thread_id,
+      text:      I18n.t('.recording_uploaded',
+                        url: url,
+                        scope: %i[meetings show])
+    )
+  end
+
   private
 
   def post_open_info

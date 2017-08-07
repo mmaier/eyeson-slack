@@ -16,18 +16,20 @@ class WebhooksController < ApplicationController
   end
 
   def presentation_update
+    presentation_params = params.require(:presentation)
     @access_token = slack_key_from(presentation_params)
     return if @access_token.nil?
     return if @channel.thread_id.blank?
     PresentationsUploadJob.perform_later(
       @access_token,
       @channel.id.to_s,
-      presentation_params[:slide]
+      presentation_params.require(:slide)
     )
   end
 
   def broadcast_update
-    return unless broadcast_params[:platform] == 'youtube'
+    broadcast_params = params.require(:broadcast)
+    return unless broadcast_params.require(:platform) == 'youtube'
 
     @access_token = slack_key_from(broadcast_params)
     return if @access_token.nil? || !@channel.webinar_mode?
@@ -37,6 +39,18 @@ class WebhooksController < ApplicationController
     else
       broadcast_start
     end
+  end
+
+  def recording_update
+    recording_params = params.require(:recording)
+    @access_token    = slack_key_from(recording_params)
+    return if @access_token.nil?
+    SlackNotificationService.new(
+      @access_token,
+      @channel
+    ).recording_uploaded(
+      recording_url(id: recording_params.require(:id))
+    )
   end
 
   def broadcast_start
@@ -49,7 +63,7 @@ class WebhooksController < ApplicationController
     BroadcastsInfoJob.perform_later(
       @access_token,
       @channel.id.to_s,
-      broadcast_params[:player_url]
+      params.require(:broadcast).require(:player_url)
     )
   end
 
@@ -62,28 +76,13 @@ class WebhooksController < ApplicationController
   end
 
   def slack_key_from(params)
-    @channel = Channel.find_by(external_id: params[:room_id])
+    @channel = Channel.find_by(
+      external_id: params.require(:room).require(:id)
+    )
     return if @channel.blank?
-    executing_user(params[:user_id]).try(:access_token)
-  end
-
-  def presentation_params
-    presentation = params.require(:presentation)
-    {
-      slide:   presentation.require(:slide),
-      room_id: presentation.require(:room).require(:id),
-      user_id: presentation.require(:user).require(:id)
-    }
-  end
-
-  def broadcast_params
-    broadcast = params.require(:broadcast)
-    {
-      platform:   broadcast.require(:platform),
-      player_url: broadcast[:player_url],
-      room_id:    broadcast.require(:room).require(:id),
-      user_id:    broadcast.require(:user).require(:id)
-    }
+    executing_user(
+      params.require(:user).require(:id)
+    ).try(:access_token)
   end
 
   def executing_user(external_id)

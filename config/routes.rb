@@ -7,6 +7,7 @@ Rails.application.routes.draw do
     # Commands will be sent here
     resources :commands, only: [:create]
     resources :webhooks, only: [:create]
+    resources :recordings, only: [:show]
 
     # Handles the user oauth flow
     get 'login' => 'users#login', as: :login

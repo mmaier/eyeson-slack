@@ -144,4 +144,17 @@ RSpec.describe SlackNotificationService, type: :class do
     SlackApi.expects(:new).returns(slack_api)
     slack.presentation(nil)
   end
+
+  it 'should post recording url' do
+    url = Faker::Internet.url
+    slack_api = mock('Slack Api')
+    slack_api.expects(:post_message!).with(
+      channel:   channel.external_id,
+      thread_ts: channel.thread_id,
+      text:      I18n.t('.recording_uploaded',
+                        url: url,
+                        scope: %i[meetings show]))
+    SlackApi.expects(:new).returns(slack_api)
+    slack.recording_uploaded(url)
+  end
 end
